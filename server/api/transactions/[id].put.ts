@@ -1,6 +1,4 @@
 import {eq, and} from 'drizzle-orm';
-import {useSession} from 'h3';
-import {SESSION_CONFIG} from '../../middleware/session';
 import {transactions} from "~/drizzle/schema";
 import {db} from "~/server/db";
 

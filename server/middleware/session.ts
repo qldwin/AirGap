@@ -1,9 +1,10 @@
 import { defineEventHandler, useSession } from 'h3';
+import * as crypto from 'crypto';
 
 // Configuration de session commune pour toute l'application
 export const SESSION_CONFIG = {
   name: 'finantia-session',
-  password: 'finantia-session-key-secret-12345',
+  password: process.env.NUXT_SESSION_PASSWORD!,
   maxAge: 60 * 60 * 24 * 7, // 7 jours par défaut
   cookie: {
     sameSite: 'lax' as const,
@@ -24,7 +25,9 @@ interface SessionData {
 
 // Créer une session minimale pour utiliser en cas d'erreur
 function createMinimalSession() {
-  const sessionId = crypto.randomUUID?.() || Math.random().toString(36).substring(2);
+  const sessionId = typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : crypto.randomBytes(16).toString('hex');
   
   return {
     id: sessionId,

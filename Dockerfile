@@ -14,4 +14,4 @@ COPY . ./
 # Build Nuxt
 RUN npm run build
 EXPOSE 3000
-CMD npx drizzle-kit migrate && npm run start
+ENTRYPOINT [ "bash", "./entrypoint.sh" ]

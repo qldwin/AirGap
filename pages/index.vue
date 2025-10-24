@@ -1,12 +1,10 @@
 <template>
   <div class="py-8">
     <div v-if="user">
-      <!-- ✅ Version connectée -->
       <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-50 mb-6">
         Bonjour, {{ user?.name || 'Utilisateur' }}
       </h1>
 
-      <!-- Résumé financier -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="card">
           <h3 class="text-lg font-medium">Solde total</h3>
@@ -26,7 +24,6 @@
     </div>
 
     <div v-else>
-      <!-- 🚪 Version publique (celle que tu as déjà faite) -->
       <div class="text-center mb-12">
         <h1 class="text-4xl font-bold mb-3 text-neutral-900 dark:text-neutral-50">
           Bienvenue sur <span class="text-primary-600 dark:text-primary-400">Finantia</span>
@@ -37,7 +34,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        <!-- … tes cartes actuelles … -->
       </div>
 
       <div class="text-center">
@@ -49,9 +45,6 @@
 </template>
 
 <script setup lang="ts">
-import type { Transaction } from '~/types'
-
-// Exemple: remplacer par ton vrai système d'auth
 const {user} = useUserSession();
 
 const transactions = ref<Transaction[]>([])
@@ -60,8 +53,6 @@ const currentDate = new Date();
 const currentMonth = currentDate.getMonth();
 const currentYear = currentDate.getFullYear();
 
-
-// Exemple pour calculer le solde
 const balance = computed(() =>
     transactions.value.reduce((total: any, t: any) => {
       const amount = Number(t.amount) || 0
@@ -75,7 +66,7 @@ const monthlyIncome = computed(() =>
         .reduce((sum, t) => sum + Number(t.amount), 0)
 );
 
-const investments = ref(3200)
+const investments = ref(0)
 
 const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount)

@@ -1,6 +1,6 @@
 # Finantia - Application de Gestion Financière Personnelle
 
-Une application web open-source et complète pour gérer vos finances personnelles, développée avec Nuxt.js, Drizzle ORM, PostgreSQL et Firefly III.
+Une application web open-source et complète pour gérer vos finances personnelles, développée avec Nuxt.js, Drizzle ORM, PostgreSQL.
 
 ## 🚀 Fonctionnalités
 
@@ -8,15 +8,15 @@ Une application web open-source et complète pour gérer vos finances personnell
 - **Tableau de bord interactif** avec visualisations en temps réel
 - **Gestion budgétaire** avec suivi des dépenses par catégorie
 - **Suivi des transactions** avec catégorisation automatique
-- **Gestion des investissements** (actions, ETF, crypto-monnaies)
-- **Calcul du patrimoine** avec répartition des actifs et passifs
-- **Gestion multi-comptes** bancaires
+- **Gestion des investissements** (actions, ETF, crypto-monnaies) (à venir)
+- **Calcul du patrimoine** avec répartition des actifs et passifs (à venir)
+- **Gestion multi-comptes** bancaires (à venir)
 
 ### Technologies Utilisées
 - **Frontend**: Nuxt.js 3, Vue 3, TailwindCSS
 - **Backend**: Drizzle ORM, PostgreSQL
 - **Visualisations**: Chart.js
-- **Intégration bancaire**: Firefly III API
+- **Intégration bancaire**: Firefly III API (à venir)
 - **Conteneurisation**: Docker & Docker Compose
 
 ### Interface Moderne
@@ -54,7 +54,6 @@ docker-compose up -d
 
 4. **Accéder à l'application**
 - Application principale: http://localhost:3000
-- Firefly III: http://localhost:8080
 - Base de données: localhost:5432
 
 ### Installation pour le Développement
@@ -65,12 +64,11 @@ npm install
 ```
 
 2. **Configurer la base de données**
-```bash
-# Créer la base de données
-createdb finantiadb
 
-# Exécuter les migrations
-npm run db:migrate
+**Nécessite la variable DATABASE_URL dans .env**
+
+```bash
+npx drizzle-kit migrate
 ```
 
 3. **Lancer le serveur de développement**
@@ -101,22 +99,7 @@ Créez un fichier `.env` à la racine du projet :
 # Database
 DATABASE_URL=postgresql://finantia_user:finantia_password@localhost:5432/finantia
 
-# Firefly III
-FIREFLY_URL=http://localhost:8080
-FIREFLY_ACCESS_TOKEN=your_firefly_token
-
-# Application
-NUXT_PUBLIC_APP_URL=http://localhost:3000
-NUXT_PUBLIC_API_URL=http://localhost:3000/api
 ```
-
-### Configuration Firefly III
-
-1. **Accéder à Firefly III**: http://localhost:8080
-2. **Créer un compte administrateur**
-3. **Générer un token API** dans les paramètres
-4. **Configurer le token dans .env**
-
 ## 📊 Base de Données
 
 ### Schéma
@@ -135,13 +118,13 @@ La base de données inclut les tables suivantes :
 
 ```bash
 # Générer une nouvelle migration
-npm run db:generate
+npx drizzle-kit generate
 
 # Exécuter les migrations
-npm run db:migrate
+npx drizzle-kit migrate
 
 # Ouvrir le studio Drizzle
-npm run db:studio
+npx drizzle-kit studio
 ```
 
 ## 🎯 Utilisation
@@ -149,28 +132,27 @@ npm run db:studio
 ### Première Connexion
 
 1. **Créer un compte utilisateur**
-2. **Connecter vos comptes bancaires** via Firefly III
-3. **Configurer vos catégories de dépenses**
-4. **Définir vos budgets mensuels**
+2. **Configurer vos catégories de dépenses**
+3. **Définir vos budgets mensuels**
 
 ### Fonctionnalités Principales
 
 #### Tableau de Bord
 - Vue d'ensemble des finances
-- Graphiques de tendances
-- Alertes et notifications
+- Graphiques de tendances (Non implémenté)
+- Alertes et notifications (Non implémenté)
 
 #### Gestion Budgétaire
 - Création de budgets par catégorie
-- Suivi en temps réel des dépenses
-- Alertes de dépassement
+- Suivi en temps réel des dépenses (Non implémenté)
+- Alertes de dépassement (Non implémenté)
 
-#### Investissements
+#### Investissements (Non implémenté)
 - Suivi du portefeuille
 - Performance des actifs
 - Répartition par type d'investissement
 
-#### Patrimoine
+#### Patrimoine (Non implémenté)
 - Calcul de la valeur nette
 - Évolution du patrimoine
 - Répartition des actifs
@@ -178,7 +160,6 @@ npm run db:studio
 ## 🔒 Sécurité
 
 - Authentification utilisateur
-- Chiffrement des données sensibles
 - Validation des entrées côté serveur
 - Protection CSRF
 - Sessions sécurisées

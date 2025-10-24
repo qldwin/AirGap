@@ -1,5 +1,6 @@
 import { db } from '~/server/db';
 import { desc, eq } from 'drizzle-orm';
+import {historyTransacts} from "~/drizzle/schema";
 
 export default defineEventHandler(async (event) => {
     const accountId = Number(getQuery(event).accountId);

@@ -144,7 +144,6 @@ const props = defineProps({
 const emits = defineEmits(['update:modelValue', 'transaction-added', 'transaction-updated']);
 //const emits = defineEmits(['update:modelValue', 'add', 'update']);
 
-const toast = useToast();
 const isLoading = ref(false);
 const isOpen = computed({
   get: () => props.modelValue,

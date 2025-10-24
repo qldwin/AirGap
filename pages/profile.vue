@@ -4,12 +4,14 @@
       <h1 class="text-3xl font-bold mb-6 text-neutral-900 dark:text-neutral-50">Profil utilisateur</h1>
 
       <div class="card mb-8">
-        <div v-if="error"
+        <div
+v-if="error"
              class="p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-lg text-sm mb-4">
           {{ error }}
         </div>
 
-        <div v-if="success"
+        <div
+v-if="success"
              class="p-3 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 rounded-lg text-sm mb-4">
           {{ success }}
         </div>
@@ -17,24 +19,28 @@
         <form class="space-y-6" @submit.prevent="updateProfile">
           <div class="flex flex-col md:flex-row gap-4 mb-4">
             <div class="w-full md:w-1/2">
-              <label for="name"
+              <label
+for="name"
                      class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Nom</label>
               <input
                   id="name"
-                  v-model="form.name"
                   type="text"
                   class="w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                  :value="user.name"
               >
             </div>
 
             <div class="w-full md:w-1/2">
-              <label for="email"
+              <label
+for="email"
                      class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Email</label>
               <input
                   id="email"
                   type="email"
                   readonly
                   class="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-lg text-neutral-500 dark:text-neutral-400"
+                  :value="user.email"
+                  disabled
               >
               <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">L'email ne peut pas être modifié</p>
             </div>
@@ -45,7 +51,8 @@
 
             <div class="space-y-4">
               <div>
-                <label for="current-password"
+                <label
+for="current-password"
                        class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Mot de passe
                   actuel</label>
                 <input
@@ -59,7 +66,8 @@
 
               <div class="flex flex-col md:flex-row gap-4">
                 <div class="w-full md:w-1/2">
-                  <label for="new-password"
+                  <label
+for="new-password"
                          class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Nouveau mot de
                     passe</label>
                   <input
@@ -73,7 +81,8 @@
                 </div>
 
                 <div class="w-full md:w-1/2">
-                  <label for="confirm-password"
+                  <label
+for="confirm-password"
                          class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Confirmer le
                     nouveau mot de passe</label>
                   <input
@@ -135,37 +144,33 @@ const form = ref({
   newPassword: '',
   confirmPassword: ''
 });
-console.log("session", session)
 const error = ref('');
 const success = ref('');
 
 // Vérifier si le formulaire est valide
-// const formValid = computed(() => {
-//   // Si l'utilisateur veut changer de mot de passe
-//   if (form.value.currentPassword || form.value.newPassword || form.value.confirmPassword) {
-//     return (
-//         form.value.currentPassword &&
-//         form.value.newPassword &&
-//         form.value.newPassword === form.value.confirmPassword &&
-//         form.value.newPassword.length >= 8
-//     );
-//   }
-//
-//   // Si seulement le nom est modifié
-//   return form.value.name.length >= 2;
-// });
+computed(() => {
+  // Si l'utilisateur veut changer de mot de passe
+  if (form.value.currentPassword || form.value.newPassword || form.value.confirmPassword) {
+    return (
+        form.value.currentPassword &&
+        form.value.newPassword &&
+        form.value.newPassword === form.value.confirmPassword &&
+        form.value.newPassword.length >= 8
+    );
+  }
 
+  // Si seulement le nom est modifié
+  return form.value.name.length >= 2;
+});
 // Charger les données de l'utilisateur
 const loadUserData = async () => {
-  console.log("user session", session)
-  console.log("user", user)
   try {
     if (user) {
       form.value.name = '';
       form.value.email = '';
-      // form.value.currentPassword = '';
-      // form.value.newPassword = '';
-      // form.value.confirmPassword = '';
+      form.value.currentPassword = '';
+      form.value.newPassword = '';
+      form.value.confirmPassword = '';
     }
   } catch (err) {
     error.value = "Erreur lors du chargement des données";
@@ -175,24 +180,41 @@ const loadUserData = async () => {
 
 // Mettre à jour le profil
 async function updateProfile() {
-  error.value = '';
-  success.value = '';
+  error.value = ''
+  success.value = ''
+
+  // Validation simple côté client
+  if (
+    form.value.currentPassword &&
+    (!form.value.newPassword ||
+      form.value.newPassword !== form.value.confirmPassword)
+  ) {
+    error.value = 'Les mots de passe ne correspondent pas.'
+    return
+  }
 
   try {
-    // Simuler une mise à jour de profil
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Envoi de la requête PATCH
+    const res = await $fetch('/api/auth/user', {
+      method: 'PATCH',
+      body: {
+        currentPassword: form.value.currentPassword,
+        newPassword: form.value.newPassword,
+      },
+    })
 
-    success.value = "Profil mis à jour avec succès !";
+    success.value = res.message || 'Profil mis à jour avec succès !'
 
-    // Réinitialiser les champs de mot de passe
-    form.value.currentPassword = '';
-    form.value.newPassword = '';
-    form.value.confirmPassword = '';
-
-    // Recharger les données utilisateur
+    // Réinitialiser les champs sensibles
+    form.value.currentPassword = ''
+    form.value.newPassword = ''
+    form.value.confirmPassword = ''
   } catch (err) {
-    error.value = err.statusMessage || "Erreur lors de la mise à jour du profil";
-    console.error(err);
+    console.error(err)
+    error.value =
+      err.data?.message ||
+      err.statusMessage ||
+      'Erreur lors de la mise à jour du mot de passe'
   }
 }
 

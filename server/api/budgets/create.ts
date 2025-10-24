@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     .values({
       name: body.name,
       amount: body.amount,
-      userId: body.userId, // récupéré depuis le middleware/auth
+      userId: body.userId,
       startDate: body.startDate,
       endDate: body.endDate
     })

@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
         }
 
 
-        const {description, amount, type, category, date} = result.data;
+        const {description, amount, type, category} = result.data;
 
         if (!user["id"]) {
             return createError({

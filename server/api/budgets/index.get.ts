@@ -31,7 +31,7 @@ export default defineEventHandler(async () => {
             });
         }
         return acc;
-    }, [] as any[]);
+    }, [] as unknown[]);
 
     return { budgets: budgetsWithCategories };
 });

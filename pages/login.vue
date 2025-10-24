@@ -6,7 +6,6 @@ const credentials = ref({
 });
 
 async function handleLogin() {
-  console.log('Login', credentials)
   $fetch('/api/auth/login', {
     method: 'POST',
     body: {
@@ -15,7 +14,6 @@ async function handleLogin() {
     }
   })
       .then(async () => {
-        // Refresh the session on client-side and redirect to the home page
         await refreshSession()
         await navigateTo('/')
       })
@@ -32,11 +30,6 @@ async function handleLogin() {
       </div>
 
       <form class="space-y-6" @submit.prevent="handleLogin">
-        <!--        <div v-if="error"-->
-        <!--             class="p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-lg text-sm mb-4">-->
-        <!--          {{ error }}-->
-        <!--        </div>-->
-
         <div>
           <label for="email" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Email</label>
           <input

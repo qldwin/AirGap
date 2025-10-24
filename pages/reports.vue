@@ -4,7 +4,7 @@
       <div class="flex items-center justify-between mb-8">
         <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-50">Rapports</h1>
         
-        <button @click="navigateTo('/dashboard')" class="btn btn-outline text-sm px-3 py-1">
+        <button class="btn btn-outline text-sm px-3 py-1" @click="navigateTo('/dashboard')">
           Retour au tableau de bord
         </button>
       </div>
@@ -15,15 +15,15 @@
           <label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Période:</label>
           <div class="flex gap-4">
             <label class="flex items-center">
-              <input type="radio" v-model="period" value="month" class="mr-2" />
+              <input v-model="period" type="radio" value="month" class="mr-2" >
               <span>Ce mois</span>
             </label>
             <label class="flex items-center">
-              <input type="radio" v-model="period" value="quarter" class="mr-2" />
+              <input v-model="period" type="radio" value="quarter" class="mr-2" >
               <span>Trimestre</span>
             </label>
             <label class="flex items-center">
-              <input type="radio" v-model="period" value="year" class="mr-2" />
+              <input v-model="period" type="radio" value="year" class="mr-2" >
               <span>Année</span>
             </label>
           </div>
@@ -55,7 +55,7 @@
           <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-4">Revenus vs Dépenses</h3>
           <ClientOnly>
             <div style="height: 320px; position: relative;">
-              <canvas ref="incomeExpenseChart" style="max-height: 100%;"></canvas>
+              <canvas ref="incomeExpenseChart" style="max-height: 100%;"/>
             </div>
           </ClientOnly>
         </div>
@@ -65,7 +65,7 @@
           <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-4">Évolution du solde</h3>
           <ClientOnly>
             <div style="height: 320px; position: relative;">
-              <canvas ref="balanceChart" style="max-height: 100%;"></canvas>
+              <canvas ref="balanceChart" style="max-height: 100%;"/>
             </div>
           </ClientOnly>
         </div>
@@ -78,7 +78,7 @@
           <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-4">Dépenses par catégorie</h3>
           <ClientOnly>
             <div style="height: 320px; position: relative;">
-              <canvas ref="expensesChart" style="max-height: 100%;"></canvas>
+              <canvas ref="expensesChart" style="max-height: 100%;"/>
             </div>
           </ClientOnly>
         </div>
@@ -88,7 +88,7 @@
           <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-4">Revenus par catégorie</h3>
           <ClientOnly>
             <div style="height: 320px; position: relative;">
-              <canvas ref="incomeChart" style="max-height: 100%;"></canvas>
+              <canvas ref="incomeChart" style="max-height: 100%;"/>
             </div>
           </ClientOnly>
         </div>
@@ -126,7 +126,7 @@
           </table>
         </div>
         <div v-else-if="loading" class="flex justify-center p-8">
-          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"/>
         </div>
         <p v-else class="text-center text-neutral-500 p-8">
           Aucune transaction pour cette période
@@ -251,9 +251,9 @@ const getIncomeVsExpensesData = () => {
       if (date.getMonth() === month && date.getFullYear() === year) {
         const day = date.getDate() - 1;
         if (t.type === 'income') {
-          incomeData[day] += t.amount;
+          incomeData[day] += Number(t.amount);
         } else {
-          expenseData[day] += t.amount;
+          expenseData[day] += Number(t.amount);
         }
       }
     });
@@ -293,9 +293,9 @@ const getIncomeVsExpensesData = () => {
       const monthIndex = date.getMonth() - quarter * 3;
       if (monthIndex >= 0 && monthIndex < 3) {
         if (t.type === 'income') {
-          incomeData[monthIndex] += t.amount;
+          incomeData[monthIndex] += Number(t.amount);
         } else {
-          expenseData[monthIndex] += t.amount;
+          expenseData[monthIndex] += Number(t.amount);
         }
       }
     });
@@ -330,9 +330,9 @@ const getIncomeVsExpensesData = () => {
       const date = new Date(t.date);
       const monthIndex = date.getMonth();
       if (t.type === 'income') {
-        incomeData[monthIndex] += t.amount;
+        incomeData[monthIndex] += Number(t.amount);
       } else {
-        expenseData[monthIndex] += t.amount;
+        expenseData[monthIndex] += Number(t.amount);
       }
     });
     
@@ -374,9 +374,9 @@ const getBalanceHistoryData = () => {
   
   sortedTransactions.forEach(t => {
     if (t.type === 'income') {
-      balance += t.amount;
+      balance += Number(t.amount);
     } else {
-      balance -= t.amount;
+      balance -= Number(t.amount);
     }
     balances.push(balance);
     dates.push(formatDate(t.date));
@@ -408,7 +408,7 @@ const getExpensesByCategoryData = () => {
       if (!expensesByCategory[category]) {
         expensesByCategory[category] = 0;
       }
-      expensesByCategory[category] += t.amount;
+      expensesByCategory[category] += Number(t.amount);
     });
   
   const categories = Object.keys(expensesByCategory);
@@ -438,7 +438,7 @@ const getIncomeByCategoryData = () => {
       if (!incomeByCategory[category]) {
         incomeByCategory[category] = 0;
       }
-      incomeByCategory[category] += t.amount;
+      incomeByCategory[category] += Number(t.amount);
     });
   
   const categories = Object.keys(incomeByCategory);

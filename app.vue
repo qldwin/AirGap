@@ -1,7 +1,7 @@
 <template>
   <div class="app">
     <NuxtRouteAnnouncer/>
-    <Header/>
+    <Header-navbar-components/>
     <main class="max-w-7xl mx-auto">
       <NuxtPage/>
     </main>
