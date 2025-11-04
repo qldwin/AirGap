@@ -1,6 +1,7 @@
 // POST /api/budgets/create
 import { db } from '~/server/db';
-import { budgets, budgetCategories } from '~/drizzle/schema';
+import {budgets} from "~/drizzle/schema/budgets";
+import {budgetCategories} from "~/drizzle/schema/budgetCategories";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);

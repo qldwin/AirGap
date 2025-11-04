@@ -1,8 +1,3 @@
-CREATE TABLE "accountCategories" (
-	"accountId" integer NOT NULL,
-	"categoryId" integer NOT NULL,
-	CONSTRAINT "accountCategories_accountId_categoryId_pk" PRIMARY KEY("accountId","categoryId")
-);
 --> statement-breakpoint
 CREATE TABLE "accounts" (
 	"id" serial PRIMARY KEY NOT NULL,

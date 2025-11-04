@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {transactions} from "~/drizzle/schema";
+import {transactions} from "~/drizzle/schema/transactions";
 import {db} from "~/server/db";
 
 const transactionSchema = z.object({

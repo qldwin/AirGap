@@ -1,13 +1,12 @@
 import {relations} from "drizzle-orm";
-import {
-    accountCategories,
-    accounts,
-    budgetCategories,
-    budgets,
-    categories,
-    historyTransacts, transactions,
-    users
-} from "~/drizzle/schema";
+import {users} from "./users";
+import {accounts} from "./accounts";
+import {transactions} from "./transactions";
+import {budgets} from "./budgets";
+import {historyTransacts} from "./historyTransacts";
+import {categories} from "./categories";
+import {budgetCategories} from "./budgetCategories";
+import {accountCategories} from "./accountCategories";
 
 export const userRelations = relations(users, ({many}) => ({
     accounts: many(accounts),

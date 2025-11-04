@@ -1,5 +1,7 @@
 import { db } from '~/server/db';
-import { budgets, budgetCategories, categories } from '~/drizzle/schema';
+import {budgets} from "~/drizzle/schema/budgets";
+import {budgetCategories} from "~/drizzle/schema/budgetCategories";
+import {categories} from "~/drizzle/schema/categories";
 import { eq } from 'drizzle-orm';
 
 export default defineEventHandler(async () => {
