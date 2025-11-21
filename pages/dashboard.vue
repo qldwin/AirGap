@@ -103,88 +103,6 @@ stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           <span class="text-neutral-900 dark:text-neutral-50 font-medium">Paramètres</span>
         </button>
       </div>
-
-      <!-- Transactions récentes -->
-      <div class="card">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-bold text-neutral-900 dark:text-neutral-50">Transactions récentes</h2>
-          <button
-class="text-sm text-primary-600 dark:text-primary-400 hover:underline"
-                  @click="navigateTo('/transactions')">Voir tout
-          </button>
-        </div>
-
-        <div v-if="loading" class="flex justify-center py-8">
-          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"/>
-        </div>
-
-        <div v-else-if="transactions.length === 0" class="py-8 text-center text-neutral-500">
-          <p>Aucune transaction récente</p>
-        </div>
-
-        <div v-else class="overflow-x-auto">
-          <table class="w-full">
-            <thead>
-            <tr class="border-b border-neutral-200 dark:border-neutral-800">
-              <th class="text-left py-2 px-2 text-neutral-700 dark:text-neutral-300 text-sm font-medium">Date</th>
-              <th class="text-left py-2 px-2 text-neutral-700 dark:text-neutral-300 text-sm font-medium">Description
-              </th>
-              <th class="text-right py-2 px-2 text-neutral-700 dark:text-neutral-300 text-sm font-medium">Montant</th>
-              <th class="text-right py-2 px-2 text-neutral-700 dark:text-neutral-300 text-sm font-medium">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr
-v-for="transaction in transactions.slice(0, 5)" :key="transaction.id"
-                class="border-b border-neutral-200 dark:border-neutral-800">
-              <td class="py-3 px-2 text-sm text-neutral-600 dark:text-neutral-400">{{ formatDate(transaction.date) }}
-              </td>
-              <td class="py-3 px-2 text-sm text-neutral-800 dark:text-neutral-200">
-                {{ transaction.description }}
-                <span
-v-if="transaction.category"
-                      class="ml-2 text-xs px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
-                    {{ transaction.category }}
-                  </span>
-              </td>
-              <td
-class="py-3 px-2 text-sm text-right font-medium"
-                  :class="transaction.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
-                {{ transaction.type === 'income' ? '+' : '-' }} {{ formatCurrency(transaction.amount) }}
-              </td>
-              <td class="py-3 px-2 text-right">
-                <div class="flex justify-end space-x-2">
-                  <button
-class="text-neutral-500 hover:text-primary-600 dark:hover:text-primary-400"
-                          @click="editTransaction(transaction)">
-                    <span class="sr-only">Modifier</span>
-                    <svg
-xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                         stroke="currentColor">
-                      <path
-stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                  </button>
-                  <button
-class="text-neutral-500 hover:text-red-600 dark:hover:text-red-400"
-                          @click="confirmDeleteTransaction(transaction)">
-                    <span class="sr-only">Supprimer</span>
-                    <svg
-xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                         stroke="currentColor">
-                      <path
-stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
 
     <!-- Modals -->
@@ -204,9 +122,7 @@ definePageMeta({
 
 // ==== STATE ====
 const transactions = ref([]);
-const loading = ref(true);
 const showTransactionModal = ref(false);
-const selectedTransaction = ref(null);
 
 // ==== HELPERS ====
 const now = new Date();
@@ -315,42 +231,22 @@ const expenseChange = computed(() => {
   return ((monthlyExpense.value - previousExpense.value) / Math.abs(previousExpense.value)) * 100;
 });
 
-// ==== API ====
-const loadTransactions = async () => {
-  try {
-    loading.value = true;
-    const response = await $fetch('/api/transactions');
-    transactions.value = response.transactions || [];
-  } catch (err) {
-    console.error('Erreur lors du chargement des transactions:', err);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const deleteTransaction = async (id) => {
-  try {
-    await $fetch(`/api/transactions/${id}`, { method: 'DELETE' });
-    transactions.value = transactions.value.filter(t => t.id !== id);
-  } catch (err) {
-    console.error('Erreur lors de la suppression:', err);
-  }
-};
-
 // ==== MODALS ====
 const openTransactionModal = () => {
   selectedTransaction.value = null;
   showTransactionModal.value = true;
 };
 
-const editTransaction = (transaction) => {
-  selectedTransaction.value = { ...transaction };
-  showTransactionModal.value = true;
-};
-
-const confirmDeleteTransaction = (transaction) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer "${transaction.description}" ?`)) {
-    deleteTransaction(transaction.id);
+const loadTransactions = async () => {
+  try {
+    loading.value = true;
+    const response = await $fetch('/api/transactions');
+    transactions.value = response.transactions || [];
+  } catch (error) {
+    console.error('Erreur lors du chargement des transactions:', error);
+    // toast.error('Erreur lors du chargement des transactions');
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -404,24 +300,9 @@ const formatCurrency = (amount) => {
       : new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
 };
 
-const formatDate = (dateString) => {
-  const d = parseDate(dateString);
-  return !d
-      ? '-'
-      : new Intl.DateTimeFormat('fr-FR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      }).format(d);
-};
-
 const formatPercent = (value) => {
   if (value === null) return '-';
   return (value >= 0 ? '+' : '') + value.toFixed(1) + '%';
 };
-
-
-// ==== LIFECYCLE ====
-onMounted(loadTransactions);
 
 </script>

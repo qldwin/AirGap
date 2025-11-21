@@ -9,14 +9,14 @@
         </div>
 
         <!-- Navigation -->
-        <nav class="hidden md:flex items-center space-x-1">
-          <NuxtLink
-              to="/"
-              class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-              active-class="text-primary-600 dark:text-primary-400 font-medium"
-          >
-            Accueil
-          </NuxtLink>
+<!--        <nav class="hidden md:flex items-center space-x-1">-->
+<!--          <NuxtLink-->
+<!--              to="/"-->
+<!--              class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"-->
+<!--              active-class="text-primary-600 dark:text-primary-400 font-medium"-->
+<!--          >-->
+<!--            Accueil-->
+<!--          </NuxtLink>-->
 
           <NuxtLink
               to="/dashboard"
@@ -26,12 +26,20 @@
             Tableau de bord
           </NuxtLink>
 
+        <NuxtLink
+              to="/transactions"
+              class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+              active-class="text-primary-600 dark:text-primary-400 font-medium"
+          >
+            Transactions
+          </NuxtLink>
+
           <NuxtLink
               to="/budget"
               class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
               active-class="text-primary-600 dark:text-primary-400 font-medium"
           >
-            Budget
+            Budgets
           </NuxtLink>
 
           <NuxtLink
@@ -41,8 +49,6 @@
           >
             À propos
           </NuxtLink>
-        </nav>
-
         <div class="flex items-center space-x-3">
           <!-- Boutons d'authentification -->
           <div v-if="loggedIn" class="relative">
