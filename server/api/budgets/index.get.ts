@@ -1,6 +1,5 @@
 import { db } from '~/server/db';
 import {budgets} from "~/drizzle/schema/budgets";
-import {budgetCategories} from "~/drizzle/schema/budgetCategories";
 import {categories} from "~/drizzle/schema/categories";
 import { eq } from 'drizzle-orm';
 
@@ -15,25 +14,16 @@ export default defineEventHandler(async () => {
         categoryName: categories.name
     })
         .from(budgets)
-        .leftJoin(budgetCategories, eq(budgets.id, budgetCategories.budgetId))
-        .leftJoin(categories, eq(budgetCategories.categoryId, categories.id));
+        .leftJoin(categories, eq(budgets.categoryId, categories.id));
 
-    const budgetsWithCategories = rows.reduce((acc, row) => {
-        const existing = acc.find(b => b.id === row.id);
-        if (existing) {
-            if (row.categoryName) existing.categories.push({ id: row.categoryId, name: row.categoryName });
-        } else {
-            acc.push({
-                id: row.id,
-                name: row.name,
-                amount: row.amount,
-                startDate: row.startDate,
-                endDate: row.endDate,
-                categories: row.categoryName ? [{ id: row.categoryId, name: row.categoryName }] : []
-            });
-        }
-        return acc;
-    }, [] as unknown[]);
+    const budgetsWithCategories = rows.map(row => ({
+        id: row.id,
+        name: row.name,
+        amount: row.amount,
+        startDate: row.startDate,
+        endDate: row.endDate,
+        category: row.categoryName ? { id: row.categoryId, name: row.categoryName } : null
+    }));
 
     return { budgets: budgetsWithCategories };
 });

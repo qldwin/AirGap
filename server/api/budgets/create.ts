@@ -1,7 +1,6 @@
 // POST /api/budgets/create
 import { db } from '~/server/db';
 import {budgets} from "~/drizzle/schema/budgets";
-import {budgetCategories} from "~/drizzle/schema/budgetCategories";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
@@ -12,18 +11,11 @@ export default defineEventHandler(async (event) => {
       name: body.name,
       amount: body.amount,
       userId: body.userId,
+      categoryId: body.categoryId,
       startDate: body.startDate,
       endDate: body.endDate
     })
     .returning();
 
-  // Créer l'association avec la catégorie choisie
-  if (body.categoryId) {
-    await db.insert(budgetCategories).values({
-      budgetId: newBudget.id,
-      categoryId: body.categoryId
-    });
-  }
-
-  return { budget: newBudget };
+  return {budget: newBudget};
 });

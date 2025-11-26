@@ -19,5 +19,4 @@ export const userRelations = relations(users, ({many}) => ({
     accounts: many(accounts),
     budgets: many(budgets),
     transactions: many(transactions),
-
 }));
