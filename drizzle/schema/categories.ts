@@ -1,9 +1,9 @@
 import {pgTable, serial, varchar, timestamp} from 'drizzle-orm/pg-core'
 import {relations} from 'drizzle-orm';
-import {accounts} from './accounts';
-import {budgets} from './budgets';
-import {transactions} from "./transactions";
 import {boolean} from "drizzle-orm/pg-core/columns/boolean";
+import {assoBudgetCategories} from "./assoBudgetCategories";
+import {assoTransactionsCategories} from "./assoTransactionsCategories";
+import {assoAccountsCategories} from "~/drizzle/schema/assoAccountsCategories";
 
 // Table Category
 export const categories = pgTable('categories', {
@@ -15,7 +15,7 @@ export const categories = pgTable('categories', {
 });
 
 export const categoryRelations = relations(categories, ({many}) => ({
-    accounts: many(accounts),
-    budgets: many(budgets),
-    transactions: many(transactions),
+    accounts: many(assoAccountsCategories),
+    budgets: many(assoBudgetCategories),
+    transactions: many(assoTransactionsCategories),
 }));
