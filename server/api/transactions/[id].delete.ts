@@ -1,6 +1,6 @@
 import {eq, and} from 'drizzle-orm';
 import {db} from "~/server/db";
-import {transactions} from "~/drizzle/schema";
+import {transactions} from "~/drizzle/schema/transactions";
 
 export default defineEventHandler(async (event) => {
     try {

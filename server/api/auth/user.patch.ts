@@ -1,10 +1,10 @@
 // server/api/user.patch.ts
 
-import { defineEventHandler, readBody, createError } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3';
 import {eq} from 'drizzle-orm';
-import {users} from "~/drizzle/schema";
-import { db } from '~/server/db'
-import bcrypt from 'bcrypt'
+import {users} from "~/drizzle/schema/users";
+import { db } from '~/server/db';
+import bcrypt from 'bcrypt';
 
 // ⚙️ Middleware d’auth — à adapter selon ton système
 export default defineEventHandler(async (event) => {

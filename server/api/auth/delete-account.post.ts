@@ -1,7 +1,7 @@
 import {eq} from 'drizzle-orm';
 import {useSession} from 'h3';
 import {SESSION_CONFIG} from '../../middleware/session';
-import {users} from "~/drizzle/schema";
+import {users} from "~/drizzle/schema/users";
 import {db} from "~/server/db";
 
 export default defineEventHandler(async (event) => {

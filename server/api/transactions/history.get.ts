@@ -1,6 +1,6 @@
 import { db } from '~/server/db';
 import { desc, eq } from 'drizzle-orm';
-import {historyTransacts} from "~/drizzle/schema";
+import { transactions } from "~/drizzle/schema/transactions";
 
 export default defineEventHandler(async (event) => {
     const accountId = Number(getQuery(event).accountId);
@@ -8,10 +8,10 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'accountId manquant' });
     }
 
-    const transactions = await db.query.historyTransacts.findMany({
-        where: eq(historyTransacts.accountId, accountId),
-        orderBy: [desc(historyTransacts.date)],
+    const accountTransactions = await db.query.transactions.findMany({
+        where: eq(transactions.accountId, accountId),
+        orderBy: [desc(transactions.date)],
     });
 
-    return transactions;
+    return accountTransactions;
 });

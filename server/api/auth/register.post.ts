@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {eq} from 'drizzle-orm';
 import {db} from "~/server/db";
-import {users} from "~/drizzle/schema";
+import {users} from "~/drizzle/schema/users";
 
 const registerSchema = z.object({
     email: z.string().email('Email invalide'),
