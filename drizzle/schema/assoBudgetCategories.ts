@@ -5,8 +5,7 @@ import { budgets } from "./budgets";
 
 // Table BudgetCategory
 
-export const assoBudgetCategories = pgTable('budgetCategories', {
-    id: serial('id').primaryKey(),
+export const assoBudgetCategories = pgTable('assoBudgetCategories', {
     budgetId: serial('budgetId').notNull().references(() => budgets.id),
     categoryId: serial('categoryId').notNull().references(() => categories.id),
 }, (table) => {

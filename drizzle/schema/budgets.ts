@@ -2,7 +2,7 @@ import {pgTable, serial, integer, varchar, decimal, timestamp} from "drizzle-orm
 import {users} from "./users";
 import {relations} from "drizzle-orm";
 import {accounts} from "./accounts";
-import {assoBudgetCategories} from "~/drizzle/schema/assoBudgetCategories";
+import {assoBudgetCategories} from "./assoBudgetCategories";
 
 // Table Budget
 export const budgets = pgTable('budgets', {
