@@ -3,7 +3,7 @@ import {relations} from "drizzle-orm";
 import { categories } from "./categories";
 import { budgets } from "./budgets";
 
-// Table BudgetCategory
+// Table assoBudgetCategory
 
 export const assoBudgetCategories = pgTable('assoBudgetCategories', {
     budgetId: serial('budgetId').notNull().references(() => budgets.id),

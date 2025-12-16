@@ -195,7 +195,7 @@ async function updateProfile() {
 
   try {
     // Envoi de la requête PATCH
-    const res = await $fetch('/api/auth/user', {
+    const res = await $fetch('/api/auth/user/password', {
       method: 'PATCH',
       body: {
         currentPassword: form.value.currentPassword,
@@ -226,7 +226,7 @@ async function confirmDeleteAccount() {
       isLoading.value = true;
 
       // Appeler l'API de suppression de compte
-      await $fetch('/api/auth/delete-account', {
+      await $fetch('/api/auth/account', {
         method: 'POST'
       });
 
