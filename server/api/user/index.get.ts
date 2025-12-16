@@ -1,22 +1,10 @@
-import { db } from '~/server/db'
-import { users } from '~/drizzle/schema/users'
-import { eq } from 'drizzle-orm'
+// server/api/user/index.get.ts
+import { getUserById } from '~/server/services/user.service'
 
 export default defineEventHandler(async (event) => {
 
-    const session = await getUserSession(event);
-    const userId = session.user?.id;
-
-    if (!userId) {
-        throw createError({
-            statusCode: 401,
-            message: "Non authentifié"
-        });
-    }
-
-    const user = await db.query.users.findFirst({
-        where: eq(users.id, userId)
-    });
+    const sessionUser = requireAuth(event);
+    const user = await getUserById(sessionUser.id);
 
     if (!user) {
         throw createError({

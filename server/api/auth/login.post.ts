@@ -1,33 +1,38 @@
-import { db } from '~/server/db'
-import { users } from '~/drizzle/schema/users'
-import { eq } from 'drizzle-orm'
+// server/api/auth/login.post.ts
+import { z } from 'zod'
+import { verifyPassword } from '~/server/utils/hashing'
+import { getUserByEmail } from '~/server/services/user.service'
+
+const loginSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(1)
+})
 
 export default defineEventHandler(async (event) => {
-    const body = await readBody(event)
+    const result = await readValidatedBody(event, body => loginSchema.safeParse(body))
 
-    // 1. Chercher l'utilisateur
-    const user = await db.query.users.findFirst({
-        where: eq(users.email, body.email)
-    })
+    if (!result.success) {
+        throw createError({ statusCode: 400, message: 'Données invalides' })
+    }
+
+    const { email, password } = result.data
+    const user = await getUserByEmail(email)
 
     if (!user) {
         throw createError({ statusCode: 401, message: 'Email ou mot de passe incorrect' })
     }
 
-    // 2. Vérifier le mot de passe
-    // verifyPassword vient de nuxt-auth-utils ou bcrypt
-    if (!await verifyPassword(user.password, body.password)) {
+    if (!await verifyPassword(user.password, password)) {
         throw createError({ statusCode: 401, message: 'Email ou mot de passe incorrect' })
     }
 
-    // 3. Mise en session (Le cœur de votre problème initial)
-    // On mappe les données de la DB vers la structure de la session
     await setUserSession(event, {
         user: {
             id: user.id,
             email: user.email,
             name: user.name
-        }
+        },
+        loggedInAt: new Date()
     })
 
     return { success: true }
