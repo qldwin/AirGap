@@ -224,7 +224,7 @@ const { year: prevYear, month: prevMonth } = getPreviousMonth(currentYear, curre
 
 const parseDate = (dateString) => {
   const d = new Date(dateString);
-  return isNaN(d.getTime()) ? null : d;
+  return Number.isNaN(d.getTime()) ? null : d;
 };
 
 // ==== COMPUTED ====
@@ -315,39 +315,6 @@ const expenseChange = computed(() => {
   return ((monthlyExpense.value - previousExpense.value) / Math.abs(previousExpense.value)) * 100;
 });
 
-// ==== API ====
-const loadTransactions = async () => {
-  try {
-    loading.value = true;
-    const response = await $fetch('/api/transactions');
-    transactions.value = response.transactions || [];
-  } catch (err) {
-    console.error('Erreur lors du chargement des transactions:', err);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const deleteTransaction = async (id) => {
-  try {
-    await $fetch(`/api/transactions/${id}`, { method: 'DELETE' });
-    transactions.value = transactions.value.filter(t => t.id !== id);
-  } catch (err) {
-    console.error('Erreur lors de la suppression:', err);
-  }
-};
-
-// ==== MODALS ====
-const openTransactionModal = () => {
-  selectedTransaction.value = null;
-  showTransactionModal.value = true;
-};
-
-const editTransaction = (transaction) => {
-  selectedTransaction.value = { ...transaction };
-  showTransactionModal.value = true;
-};
-
 const confirmDeleteTransaction = (transaction) => {
   if (confirm(`Êtes-vous sûr de vouloir supprimer "${transaction.description}" ?`)) {
     deleteTransaction(transaction.id);
@@ -355,7 +322,6 @@ const confirmDeleteTransaction = (transaction) => {
 };
 
 // ==== EVENTS ====
-
 const openAddBudgetModal = () => {
   editingBudget.value = null;
   budgetForm.value = {
@@ -368,45 +334,17 @@ const openAddBudgetModal = () => {
   showBudgetModal.value = true;
 };
 
-const onTransactionAdded = (transactionArray) => {
-  const transaction = transactionArray[0];
-  if (!transaction) return;
-
-  const newTransaction = {
-    ...transaction,
-    amount: Number(transaction.amount) || 0,
-    date: transaction.date ? new Date(transaction.date).toISOString() : null
-  };
-
-  transactions.value = [newTransaction, ...transactions.value];
-  showTransactionModal.value = false;
-};
-
-const onTransactionUpdated = (updatedTransaction) => {
-  const index = transactions.value.findIndex(t => String(t.id) === String(updatedTransaction.id));
-  if (index !== -1) {
-    const normalized = {
-      ...updatedTransaction,
-      amount: Number(updatedTransaction.amount) || 0,
-      date: updatedTransaction.date ? new Date(updatedTransaction.date).toISOString() : null
-    };
-    transactions.value.splice(index, 1, normalized);
-  }
-  selectedTransaction.value = null;
-  showTransactionModal.value = false;
-};
-
 // ==== FORMATTERS ====
 const formatCurrency = (amount) => {
   const value = Number(amount);
-  return isNaN(value)
+  return Number.isNaN(value)
       ? '0 €'
       : new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
 };
 
 const formatDate = (dateString) => {
   const d = parseDate(dateString);
-  return !d
+  return dateString
       ? '-'
       : new Intl.DateTimeFormat('fr-FR', {
         day: '2-digit',

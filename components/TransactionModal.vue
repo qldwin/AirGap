@@ -38,7 +38,7 @@
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Type</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
             <div class="flex gap-3">
               <label class="flex items-center">
                 <input 
@@ -59,6 +59,8 @@
                 <span class="text-red-600 dark:text-red-400">Dépense</span>
               </label>
             </div>
+              Type
+            </label>
           </div>
           
           <div>
@@ -120,7 +122,6 @@ const props = defineProps({
 });
 
 const emits = defineEmits(['update:modelValue', 'transaction-added', 'transaction-updated']);
-//const emits = defineEmits(['update:modelValue', 'add', 'update']);
 
 const isLoading = ref(false);
 const isOpen = computed({

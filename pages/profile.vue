@@ -14,17 +14,19 @@
         <form class="space-y-6" @submit.prevent="handleUpdate">
           <div class="flex flex-col md:flex-row gap-4 mb-4">
             <div class="w-full md:w-1/2">
-              <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Nom</label>
+              <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
               <input
                   id="name"
                   type="text"
                   v-model="form.name"
                   class="w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500"
               >
+                Nom
+              </label>
             </div>
 
             <div class="w-full md:w-1/2">
-              <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Email</label>
+              <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
               <input
                   type="email"
                   readonly
@@ -32,6 +34,8 @@
                   class="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 rounded-lg text-neutral-500"
                   :value="user?.email"
               >
+                Email
+              </label>
               <p class="mt-1 text-xs text-neutral-500">L'email ne peut pas être modifié</p>
             </div>
           </div>
@@ -41,34 +45,40 @@
 
             <div class="space-y-4">
               <div>
-                <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Mot de passe actuel</label>
+                <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                 <input
                     v-model="form.currentPassword"
                     type="password"
                     class="w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                     placeholder="Requis pour changer le mot de passe"
                 >
+                  Mot de passe actuel
+                </label>
               </div>
 
               <div class="flex flex-col md:flex-row gap-4">
                 <div class="w-full md:w-1/2">
-                  <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Nouveau mot de passe</label>
+                  <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                   <input
                       v-model="form.newPassword"
                       type="password"
                       class="w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                       placeholder="Min. 8 caractères"
                   >
+                    Nouveau mot de passe
+                  </label>
                 </div>
 
                 <div class="w-full md:w-1/2">
-                  <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Confirmer</label>
+                  <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                   <input
                       v-model="form.confirmPassword"
                       type="password"
                       class="w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                       :class="{'border-red-500': form.newPassword !== form.confirmPassword && form.confirmPassword}"
                   >
+                    Confirmer
+                  </label>
                 </div>
               </div>
             </div>

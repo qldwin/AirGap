@@ -112,7 +112,6 @@ v-model="showTransactionModal" :transaction="selectedTransaction"
 definePageMeta({
   middleware: ['authenticated']
 });
-// const toast = useToast();
 
 // État pour les transactions
 const transactions = ref([]);
@@ -128,16 +127,9 @@ const loadTransactions = async () => {
     transactions.value = response.transactions || [];
   } catch (error) {
     console.error('Erreur lors du chargement des transactions:', error);
-    // toast.error('Erreur lors du chargement des transactions');
   } finally {
     loading.value = false;
   }
-};
-
-// Ouvrir le modal de nouvelle transaction
-const openTransactionModal = () => {
-  selectedTransaction.value = null;
-  showTransactionModal.value = true;
 };
 
 // Ouvrir le modal d'édition de transaction
@@ -150,20 +142,6 @@ const editTransaction = (transaction) => {
 const confirmDeleteTransaction = (transaction) => {
   if (confirm(`Êtes-vous sûr de vouloir supprimer la transaction "${transaction.description}" ?`)) {
     deleteTransaction(transaction.id);
-  }
-};
-
-// Supprimer une transaction
-const deleteTransaction = async (id) => {
-  try {
-    await $fetch(`/api/transactions/${id}`, {
-      method: 'DELETE'
-    });
-    transactions.value = transactions.value.filter(t => t.id !== id);
-    // toast.success('Transaction supprimée avec succès');
-  } catch (error) {
-    console.error('Erreur lors de la suppression de la transaction:', error);
-    // toast.error('Erreur lors de la suppression de la transaction');
   }
 };
 

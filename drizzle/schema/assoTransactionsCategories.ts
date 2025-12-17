@@ -8,9 +8,9 @@ export const assoTransactionsCategories = pgTable('assoTransactionsCategories', 
     transactionId: integer('transactionId').notNull().references(() => transactions.id),
     categoryId: integer('categoryId').notNull().references(() => categories.id),
 }, (table) => {
-    return {
-        pk: primaryKey({columns: [table.transactionId, table.categoryId]}),
-    }
+    return [
+        primaryKey({columns: [table.transactionId, table.categoryId]}),
+    ];
 });
 
 export const assoTransactionsCategoriesRelations = relations(assoTransactionsCategories, ({one}) => ({

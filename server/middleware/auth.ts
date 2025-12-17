@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
 
     if (userIdCookie) {
         try {
-            const userId = parseInt(userIdCookie);
+            const userId = Number.parseInt(userIdCookie);
             const user = await db.query.users.findFirst({
                 where: eq(users.id, userId),
                 columns: { id: true, email: true, name: true } // On ne récupère pas le mdp
@@ -22,10 +22,11 @@ export default defineEventHandler(async (event) => {
             if (user) {
                 event.context.user = user;
             }
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
         } catch (e) {
             // Token invalide ou erreur DB
             deleteCookie(event, 'userId');
+            console.error(e);
         }
     }
 });

@@ -12,7 +12,7 @@
       <!-- Filtres de période -->
       <div class="card mb-8 p-4">
         <div class="flex flex-wrap items-center gap-4">
-          <label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Période:</label>
+          <label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
           <div class="flex gap-4">
             <label class="flex items-center">
               <input v-model="period" type="radio" value="month" class="mr-2" >
@@ -27,6 +27,8 @@
               <span>Année</span>
             </label>
           </div>
+            Période:
+          </label>
         </div>
       </div>
 
@@ -243,8 +245,8 @@ const getIncomeVsExpensesData = () => {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     
     const labels = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
-    const incomeData = Array(daysInMonth).fill(0);
-    const expenseData = Array(daysInMonth).fill(0);
+    const incomeData = new Array(daysInMonth).fill(0);
+    const expenseData = new Array(daysInMonth).fill(0);
     
     filteredTransactions.value.forEach(t => {
       const date = new Date(t.date);
@@ -285,8 +287,8 @@ const getIncomeVsExpensesData = () => {
                     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
     const quarterMonths = months.slice(quarter * 3, quarter * 3 + 3);
     
-    const incomeData = Array(3).fill(0);
-    const expenseData = Array(3).fill(0);
+    const incomeData = new Array(3).fill(0);
+    const expenseData = new Array(3).fill(0);
     
     filteredTransactions.value.forEach(t => {
       const date = new Date(t.date);
@@ -323,8 +325,8 @@ const getIncomeVsExpensesData = () => {
     // Données par mois de l'année
     const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
                    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-    const incomeData = Array(12).fill(0);
-    const expenseData = Array(12).fill(0);
+    const incomeData = new Array(12).fill(0);
+    const expenseData = new Array(12).fill(0);
     
     filteredTransactions.value.forEach(t => {
       const date = new Date(t.date);
