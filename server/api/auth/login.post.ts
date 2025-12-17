@@ -1,7 +1,5 @@
-// server/api/auth/login.post.ts
 import { z } from 'zod'
-import { verifyPassword } from '~/server/utils/hashing'
-import { getUserByEmail } from '~/server/services/user.service'
+import { loginUser } from '~/server/services/auth.service'
 
 const loginSchema = z.object({
     email: z.string().email(),
@@ -9,23 +7,20 @@ const loginSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
+    // 1. Validation des entrées
     const result = await readValidatedBody(event, body => loginSchema.safeParse(body))
-
     if (!result.success) {
         throw createError({ statusCode: 400, message: 'Données invalides' })
     }
 
-    const { email, password } = result.data
-    const user = await getUserByEmail(email)
+    // 2. Appel du Service (Logique métier)
+    const user = await loginUser(result.data.email, result.data.password)
 
     if (!user) {
         throw createError({ statusCode: 401, message: 'Email ou mot de passe incorrect' })
     }
 
-    if (!await verifyPassword(user.password, password)) {
-        throw createError({ statusCode: 401, message: 'Email ou mot de passe incorrect' })
-    }
-
+    // 3. Gestion de la Session (Infrastructure)
     await setUserSession(event, {
         user: {
             id: user.id,

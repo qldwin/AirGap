@@ -1,41 +1,35 @@
-import { createUser, getUserByEmail } from '~/server/services/user.service'
-import { hashPassword } from '~/server/utils/hashing'
+import { z } from 'zod'
+import { registerUser } from '~/server/services/auth.service'
+
+const registerSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(8),
+    name: z.string().min(2)
+})
 
 export default defineEventHandler(async (event) => {
-    const body = await readBody(event)
+    const result = await readValidatedBody(event, body => registerSchema.safeParse(body))
 
-    // 1. Validation basique
-    if (!body.email || !body.password) {
-        throw createError({ statusCode: 400, message: 'Email et mot de passe requis' })
+    if (!result.success) {
+        throw createError({ statusCode: 400, message: result.error.issues[0].message })
     }
 
-    // 2. VÉRIFICATION CRITIQUE : L'email existe-t-il déjà ?
-    // Sans ça, l'application plante (Erreur 500) si l'email est pris.
-    const existingUser = await getUserByEmail(body.email)
-    if (existingUser) {
-        throw createError({
-            statusCode: 409, // 409 Conflict est le code HTTP approprié
-            message: 'Un compte existe déjà avec cet email'
-        })
-    }
-
-    const hashedPassword = await hashPassword(body.password)
-
-    const user = await createUser({
-        email: body.email,
-        password: hashedPassword,
-        name: body.name || null,
+    // Le service s'occupe de vérifier l'email, hasher le mdp et créer l'user
+    const newUser = await registerUser({
+        email: result.data.email,
+        password: result.data.password,
+        name: result.data.name
     })
 
-    // 5. Mise en session (Connexion automatique après inscription)
+    // On connecte directement l'utilisateur après l'inscription
     await setUserSession(event, {
         user: {
-            id: user.id,
-            email: user.email,
-            name: user.name
+            id: newUser.id,
+            email: newUser.email,
+            name: newUser.name
         },
         loggedInAt: new Date()
     })
 
-    return { success: true }
+    return { success: true, user: newUser }
 })

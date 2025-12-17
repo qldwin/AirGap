@@ -21,6 +21,7 @@ export const transactions = pgTable('transactions', {
     endRecurrence: timestamp('endRecurrence'),
     date: timestamp('date').notNull().defaultNow(),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
+    updatedAt: timestamp('updatedAt').notNull().defaultNow(),
 });
 
 export const transactionRelations = relations(transactions, ({ one, many }) => ({

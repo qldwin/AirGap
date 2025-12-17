@@ -110,28 +110,6 @@
 </template>
 
 <script setup>
-// Catégories prédéfinies
-const EXPENSE_CATEGORIES = [
-  'Alimentation',
-  'Logement',
-  'Transport',
-  'Loisirs',
-  'Santé',
-  'Éducation',
-  'Shopping',
-  'Factures',
-  'Autres'
-];
-
-const INCOME_CATEGORIES = [
-  'Salaire',
-  'Freelance',
-  'Dividendes',
-  'Cadeaux',
-  'Remboursements',
-  'Ventes',
-  'Autres'
-];
 
 const props = defineProps({
   modelValue: Boolean,
@@ -162,12 +140,6 @@ const form = ref({
   date: today
 });
 
-// Catégories disponibles en fonction du type de transaction
-const availableCategories = computed(() => {
-  return form.value.type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
-});
-
-// Réinitialiser le formulaire quand le modal s'ouvre
 watch(
     () => props.transaction,
     (newTransaction) => {
@@ -201,47 +173,51 @@ const closeModal = () => {
   isOpen.value = false;
 };
 
-// Soumettre le formulaire
 const submitForm = async () => {
   try {
     isLoading.value = true;
-    console.log('Date brute envoyée depuis le form:', form.value.date);
+
+    // 1. MAPPING : On transforme les données du formulaire pour l'API
+    const typeId = form.value.type === 'expense' ? 1 : 2;
+
     const payload = {
       description: form.value.description,
       amount: Number(form.value.amount),
-      type: form.value.type,
-      category: form.value.category || undefined,
-      //date: new Date(form.value.date).toISOString()
-      date: form.value.date ? new Date(form.value.date).toISOString() : new Date().toISOString()
+      date: form.value.date ? new Date(form.value.date).toISOString() : new Date().toISOString(),
+
+      // -- Champs Relationnels (IDs) --
+
+      typeTransactionsId: typeId,
+
+      accountId: 1,
+
+      categoryId: undefined
     };
 
     let response;
 
     if (isEditing.value) {
-      // Mettre à jour une transaction existante
       response = await $fetch(`/api/transactions/${props.transaction.id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         body: payload
       });
-      emits('transaction-updated', response.transaction[0]);
-      // toast.success('Transaction modifiée avec succès');
+
+      emits('transaction-updated', response.transaction);
+
     } else {
-      // Créer une nouvelle transaction
-      response = await $fetch('/api/transactions/create', {
+      response = await $fetch('/api/transactions', {
         method: 'POST',
         body: payload
       });
-      console.log('Réponse API création transaction :', response);
 
       emits('transaction-added', response.transaction);
-      console.log('Émission depuis le modal :', response.transaction);
-      // toast.success('Transaction ajoutée avec succès');
     }
 
     closeModal();
+
   } catch (error) {
     console.error('Erreur:', error);
-    // toast.error(error.data?.statusMessage || 'Erreur lors de l\'enregistrement de la transaction');
+    alert(error.data?.message || "Erreur lors de l'enregistrement");
   } finally {
     isLoading.value = false;
   }

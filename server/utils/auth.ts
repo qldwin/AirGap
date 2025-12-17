@@ -1,19 +1,17 @@
 // server/utils/auth.ts
-import type { H3Event } from 'h3'
 
-export const requireAuth = (event: H3Event) => {
-    // On vérifie si le middleware a trouvé un utilisateur
-    const user = event.context.user
+export const requireAuth = async (event: any) => {
+    // 1. On demande à Nuxt/H3 de lire la session dans le cookie
+    const session = await getUserSession(event)
 
-    if (!user) {
-        // Si non, on coupe tout de suite avec une erreur 401
+    // 2. Si pas de session ou pas d'utilisateur dans la session
+    if (!session.user) {
         throw createError({
             statusCode: 401,
             message: 'Vous devez être connecté pour effectuer cette action'
         })
     }
 
-    // On retourne l'utilisateur.
-    // L'avantage : TypeScript sait maintenant que "user" n'est pas null/undefined.
-    return user
+    // 3. On renvoie l'utilisateur (avec son ID, email, etc.)
+    return session.user
 }

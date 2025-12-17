@@ -59,9 +59,14 @@ v-if="transaction.category"
                   </span>
               </td>
               <td
-class="py-3 px-4 text-sm text-right font-medium"
-                  :class="transaction.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
-                {{ transaction.type === 'income' ? '+' : '-' }} {{ formatCurrency(transaction.amount) }}
+                  class="py-3 px-4 text-sm text-right font-medium"
+                  :class="{
+      'text-green-600 dark:text-green-400': transaction.typeTransactionsId === 1,
+      'text-red-600 dark:text-red-400': transaction.typeTransactionsId !== 1
+  }">
+
+                {{ transaction.typeTransactionsId === 2 ? '+' : '-' }} {{ formatCurrency(transaction.amount) }}
+                {{transaction.typeTransactionsId}}
               </td>
               <td class="py-3 px-4 text-right">
                 <button
