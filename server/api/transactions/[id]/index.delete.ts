@@ -8,8 +8,8 @@ const paramsSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-    // 1. Sécurité
-    const user = requireAuth(event)
+    // 1. Sécurité : AJOUT DE "await" ICI
+    const user = await requireAuth(event)
 
     // 2. Validation des paramètres
     const params = await getValidatedRouterParams(event, (params) => paramsSchema.safeParse(params))
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     if (!params.success) {
         throw createError({
             statusCode: 400,
-            message: 'Identifiant de transaction invalide'
+            statusMessage: 'Identifiant de transaction invalide'
         })
     }
 
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     if (!deletedTransaction) {
         throw createError({
             statusCode: 404,
-            message: 'Transaction introuvable ou déjà supprimée'
+            statusMessage: 'Transaction introuvable ou déjà supprimée'
         })
     }
 

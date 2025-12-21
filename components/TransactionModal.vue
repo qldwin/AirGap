@@ -60,7 +60,6 @@
                 <span class="text-red-600 dark:text-red-400 font-medium">Dépense</span>
               </label>
             </div>
-              Type
             </label>
           </div>
 
@@ -120,13 +119,12 @@
 
 <script setup>
 // --- CONSTANTES ---
-// Doivent correspondre exactement aux IDs dans ta table typeTransactions
 const TYPE_INCOME = 1;
 const TYPE_EXPENSE = 2;
 
 // --- PROPS & EMITS ---
 const props = defineProps({
-  modelValue: Boolean, // Pour v-model
+  modelValue: Boolean,
   transaction: {
     type: Object,
     default: null
@@ -138,9 +136,8 @@ const emits = defineEmits(['update:modelValue', 'transaction-added', 'transactio
 // --- STATE ---
 const isLoading = ref(false);
 const isLoadingCategories = ref(true);
-const allCategories = ref([]); // Liste brute venant de l'API
+const allCategories = ref([]);
 
-// Gestion ouverture/fermeture via v-model
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emits('update:modelValue', value)
@@ -152,8 +149,8 @@ const today = new Date().toISOString().split('T')[0];
 const form = ref({
   description: '',
   amount: '',
-  type: 'expense', // Valeur par défaut pour l'UI (boutons radio)
-  categoryId: null, // ID pour la BDD
+  type: 'expense',
+  categoryId: null,
   date: today
 });
 
@@ -161,8 +158,6 @@ const form = ref({
 onMounted(async () => {
   try {
     isLoadingCategories.value = true;
-    // Appel à ton API: server/api/categories/index.get.ts
-    // Elle renvoie { categories: [...] }
     const response = await $fetch('/api/categories');
     allCategories.value = response.categories || [];
   } catch (e) {
@@ -174,10 +169,8 @@ onMounted(async () => {
 
 // --- COMPUTED : FILTRAGE ---
 const filteredCategories = computed(() => {
-  // On traduit le type texte ('income'/'expense') en ID (1/2) pour filtrer
   const currentTypeId = form.value.type === 'income' ? TYPE_INCOME : TYPE_EXPENSE;
 
-  // On ne garde que les catégories qui correspondent au type sélectionné
   return allCategories.value.filter(c => c.typeId === currentTypeId);
 });
 
@@ -185,12 +178,9 @@ const filteredCategories = computed(() => {
 
 // 1. Reset automatique de la catégorie si on change le Type
 watch(() => form.value.type, (newType, oldType) => {
-  // On ne vide le champ que si l'utilisateur change manuellement le type (pas au chargement)
   if (oldType && !props.transaction) {
     form.value.categoryId = null;
   } else if (oldType && props.transaction) {
-    // Si on édite et qu'on change de type, on reset aussi
-    // Sauf si c'est l'initialisation du formulaire (géré ci-dessous)
     const initialType = props.transaction.typeTransactionsId === TYPE_INCOME ? 'income' : 'expense';
     if (newType !== initialType) {
       form.value.categoryId = null;
@@ -203,11 +193,8 @@ watch(
     () => props.transaction,
     (newTransaction) => {
       if (newTransaction) {
-        // Le Dashboard nous passe un objet transaction complet.
-        // On récupère le type ID (BDD) pour cocher le bon radio button
         const formType = newTransaction.typeTransactionsId === TYPE_INCOME ? 'income' : 'expense';
 
-        // On s'assure d'avoir une date valide au format YYYY-MM-DD
         let formattedDate = today;
         if (newTransaction.date) {
           formattedDate = new Date(newTransaction.date).toISOString().split('T')[0];
@@ -217,8 +204,6 @@ watch(
           description: newTransaction.description,
           amount: newTransaction.amount,
           type: formType,
-          // IMPORTANT : On récupère l'ID de la catégorie.
-          // Si le Dashboard a mappé les données, assurez-vous que categoryId est bien présent.
           categoryId: newTransaction.categoryId || null,
           date: formattedDate
         };
@@ -257,18 +242,16 @@ const submitForm = async () => {
       amount: Number(form.value.amount),
       date: form.value.date ? new Date(form.value.date).toISOString() : new Date().toISOString(),
 
-      // Champs relationnels
       typeTransactionsId: typeId,
-      categoryId: form.value.categoryId, // Peut être null, mais idéalement requis
+      categoryId: form.value.categoryId,
 
-      accountId: 1 // TODO: À dynamiser plus tard
+      accountId: 1
     };
 
     let response;
 
     // 2. Appel API (POST ou PATCH)
     if (isEditing.value) {
-      // UPDATE : server/api/transactions/[id].patch.ts
       response = await $fetch(`/api/transactions/${props.transaction.id}`, {
         method: 'PATCH',
         body: payload
@@ -276,7 +259,6 @@ const submitForm = async () => {
       emits('transaction-updated', response.transaction || response);
 
     } else {
-      // CREATE : server/api/transactions/index.post.ts
       response = await $fetch('/api/transactions', {
         method: 'POST',
         body: payload
@@ -288,7 +270,6 @@ const submitForm = async () => {
 
   } catch (error) {
     console.error('Erreur:', error);
-    // Affichage du message d'erreur renvoyé par l'API (ex: createError 400...)
     const message = error.response?._data?.statusMessage || error.message || "Erreur lors de l'enregistrement";
     alert("Erreur : " + message);
   } finally {

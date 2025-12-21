@@ -9,7 +9,7 @@ const paramsSchema = z.object({
 
 export default defineEventHandler(async (event) => {
     // 1. Sécurité : On récupère l'utilisateur connecté (sinon 401)
-    const user = requireAuth(event)
+    const user = await requireAuth(event)
 
     // 2. Validation : On récupère l'ID depuis l'URL (router params)
     const params = await getValidatedRouterParams(event, (params) => paramsSchema.safeParse(params))

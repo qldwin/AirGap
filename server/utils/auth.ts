@@ -1,17 +1,27 @@
 // server/utils/auth.ts
+import type { H3Event } from 'h3'
 
-export const requireAuth = async (event: any) => {
-    // 1. On demande à Nuxt/H3 de lire la session dans le cookie
+// 1. On définit la structure exacte de l'utilisateur stocké en session
+export interface UserSession {
+    id: number;
+    email: string;
+    username?: string;
+    // Ajoutez d'autres champs si vous en stockez d'autres (avatar, role, etc.)
+}
+
+export const requireAuth = async (event: H3Event): Promise<UserSession> => {
+    // 2. On récupère la session
     const session = await getUserSession(event)
 
-    // 2. Si pas de session ou pas d'utilisateur dans la session
-    if (!session.user) {
+    // 3. Vérification stricte
+    if (!session?.user) {
         throw createError({
             statusCode: 401,
             message: 'Vous devez être connecté pour effectuer cette action'
         })
     }
 
-    // 3. On renvoie l'utilisateur (avec son ID, email, etc.)
-    return session.user
+    // 4. LE SECRET EST ICI : On force le typage avec "as UserSession"
+    // Cela garantit à TypeScript que l'objet retourné contient bien un "id" (number)
+    return session.user as UserSession
 }

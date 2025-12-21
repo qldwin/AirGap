@@ -368,7 +368,7 @@ const saveBudget = async () => {
       // Afficher un toast de succès ici
     } else {
       // Créer un nouveau budget
-      response = await $fetch('/api/budgets/create', {
+      response = await $fetch('/api/budgets', {
         method: 'POST',
         body: payload
       });
