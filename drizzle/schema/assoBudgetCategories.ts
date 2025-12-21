@@ -1,4 +1,4 @@
-import {pgTable, serial, primaryKey} from "drizzle-orm/pg-core";
+import {pgTable, integer, primaryKey} from "drizzle-orm/pg-core";
 import {relations} from "drizzle-orm";
 import { categories } from "./categories";
 import { budgets } from "./budgets";
@@ -6,8 +6,8 @@ import { budgets } from "./budgets";
 // Table assoBudgetCategory
 
 export const assoBudgetCategories = pgTable('assoBudgetCategories', {
-    budgetId: serial('budgetId').notNull().references(() => budgets.id),
-    categoryId: serial('categoryId').notNull().references(() => categories.id),
+    budgetId: integer('budgetId').notNull().references(() => budgets.id),
+    categoryId: integer('categoryId').notNull().references(() => categories.id),
 }, (table) => {
     return [
         primaryKey({columns: [table.budgetId, table.categoryId]}),

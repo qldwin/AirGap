@@ -18,8 +18,8 @@ export const accounts = pgTable('accounts', {
     updatedAt: timestamp('updatedAt').notNull().defaultNow(),
 });
 
-export const accountRelations = relations(accounts, ({one, many}) => ({
-    user: many(users),
+export const accountRelations = relations(accounts, ({one,many}) => ({
+    user: one(users),
     categories: many(assoAccountsCategories),
     transactions: many(transactions),
     budgets: many(budgets),

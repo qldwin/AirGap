@@ -6,36 +6,23 @@
 
         <div class="flex items-center space-x-3">
           <button
-              class="btn btn-primary text-sm px-4 py-2 flex items-center"
+              class="btn btn-primary text-sm px-4 py-2 flex items-center bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors"
               @click="openAddBudgetModal()"
           >
-            <svg
-                xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            Nouvelle budget
+            Nouveau budget
           </button>
-          <button class="btn btn-outline text-sm px-3 py-1" @click="navigateTo('/dashboard')">
+          <button class="btn btn-outline text-sm px-3 py-1 border border-neutral-300 rounded hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800" @click="navigateTo('/dashboard')">
             Retour au tableau de bord
           </button>
         </div>
       </div>
 
-      <!-- Liste des budgets par catégorie -->
-      <div class="card p-6">
+      <div class="card p-6 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-medium text-neutral-900 dark:text-neutral-50">Budgets par catégorie</h2>
-          <div class="flex items-center space-x-2">
-            <label class="text-sm text-neutral-700 dark:text-neutral-300" for="period_select">Période : </label>
-            <select
-                id="period_select"
-                v-model="currentPeriod"
-                class="px-3 py-1 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded text-sm">
-              <option value="monthly">Mensuel</option>
-              <option value="yearly">Annuel</option>
-            </select>
-          </div>
+          <h2 class="text-xl font-medium text-neutral-900 dark:text-neutral-50">Mes Budgets</h2>
         </div>
 
         <div v-if="loading" class="flex justify-center my-8">
@@ -43,68 +30,54 @@
         </div>
 
         <div v-else-if="budgets.length === 0" class="text-center py-8">
-          <p class="text-neutral-600 dark:text-neutral-400">Aucun budget défini. Cliquez sur "Nouveau budget" pour
-            commencer.</p>
+          <p class="text-neutral-600 dark:text-neutral-400">Aucun budget défini. Cliquez sur "Nouveau budget" pour commencer.</p>
         </div>
 
         <div v-else class="space-y-6">
-          <!-- Budget par catégorie -->
-          <div v-for="budget in sortedBudgets" :key="budget.id" class="bg-white dark:bg-neutral-800 p-4 rounded-lg">
+          <div v-for="budget in sortedBudgets" :key="budget.id" class="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg border border-neutral-200 dark:border-neutral-700">
             <div class="flex items-center justify-between mb-2">
               <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50">{{ budget.name }}</h3>
+
               <div class="flex items-center space-x-2">
-                <button
-                    class="text-neutral-500 hover:text-primary-600 dark:hover:text-primary-400"
-                    @click="editBudget(budget)">
-                  <svg
-                      xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                      stroke="currentColor">
-                    <path
-                        stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                <button class="text-neutral-500 hover:text-primary-600 dark:hover:text-primary-400" @click="editBudget(budget)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                   </svg>
                 </button>
-                <button
-                    class="text-neutral-500 hover:text-red-600 dark:hover:text-red-400"
-                    @click="confirmDeleteBudget(budget)">
-                  <svg
-                      xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                      stroke="currentColor">
-                    <path
-                        stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                <button class="text-neutral-500 hover:text-red-600 dark:hover:text-red-400" @click="confirmDeleteBudget(budget)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                   </svg>
                 </button>
               </div>
             </div>
 
-            <div class="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
-              <span>Catégorie: <span class="font-medium">{{ budget.categories }}</span></span>
-              <span class="mx-2">•</span>
-              <span>Période: <span class="font-medium">{{ formatPeriod(budget.period) }}</span></span>
+            <div class="text-sm text-neutral-600 dark:text-neutral-400 mb-2 flex flex-wrap gap-2">
+              <span>Catégorie(s):
+                <span v-if="budget.categories && budget.categories.length > 0" class="font-medium">
+                  {{ budget.categories.map(c => c.name).join(', ') }}
+                </span>
+                <span v-else class="font-medium italic">Aucune</span>
+              </span>
+              <span class="mx-2 hidden sm:inline">•</span>
+              <span>Période: <span class="font-medium">{{ formatDateRange(budget.startDate, budget.endDate) }}</span></span>
             </div>
 
-            <div class="mb-2 flex justify-between">
+            <div class="mb-2 flex justify-between text-sm">
               <span class="text-neutral-700 dark:text-neutral-300">
-                {{ formatCurrency(getCategoryExpenses(budget.categories)) }} dépensés sur {{
-                  formatCurrency(budget.amount)
-                }}
+                {{ formatCurrency(getBudgetSpent(budget)) }} dépensés sur {{ formatCurrency(budget.amount) }}
               </span>
-              <span
-                  class="font-medium"
-                  :class="getCategoryExpenses(budget.categories) > budget.amount ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'"
-              >
-                {{
-                  getCategoryExpenses(budget.categories) > budget.amount ? 'Dépassé' : 'Restant'
-                }}: {{ formatCurrency(Math.abs(budget.amount - getCategoryExpenses(budget.categories))) }}
+              <span class="font-medium" :class="getBudgetSpent(budget) > Number(budget.amount) ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">
+                {{ getBudgetSpent(budget) > Number(budget.amount) ? 'Dépassé de' : 'Reste' }}:
+                {{ formatCurrency(Math.abs(Number(budget.amount) - getBudgetSpent(budget))) }}
               </span>
             </div>
 
             <div class="w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-2">
               <div
-                  class="h-2 rounded-full"
-                  :class="getCategoryExpenses(budget.categories) > budget.amount ? 'bg-red-500' : 'bg-primary-600'"
-                  :style="{ width: `${Math.min((getCategoryExpenses(budget.categories) / budget.amount) * 100, 100)}%` }"
+                  class="h-2 rounded-full transition-all duration-500"
+                  :class="getBudgetSpent(budget) > Number(budget.amount) ? 'bg-red-500' : 'bg-primary-600'"
+                  :style="{ width: `${Math.min((getBudgetSpent(budget) / Number(budget.amount)) * 100, 100)}%` }"
               />
             </div>
           </div>
@@ -112,10 +85,9 @@
       </div>
     </div>
 
-    <!-- Modal pour ajouter/éditer un budget -->
-    <div v-if="showBudgetModal" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div v-if="showBudgetModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div class="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeBudgetModal"/>
-      <div class="bg-white dark:bg-neutral-800 shadow-xl rounded-lg w-full max-w-md mx-auto z-50 relative">
+      <div class="bg-white dark:bg-neutral-800 shadow-xl rounded-lg w-full max-w-md z-50 relative overflow-hidden">
         <div class="p-6">
           <h2 class="text-xl font-bold mb-6 text-neutral-900 dark:text-neutral-50">
             {{ editingBudget ? 'Modifier le budget' : 'Nouveau budget' }}
@@ -123,23 +95,19 @@
 
           <form class="space-y-4" @submit.prevent="saveBudget">
             <div>
-              <label
-                  for="name"
-                  class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Nom</label>
+              <label for="name" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Nom</label>
               <input
                   id="name"
                   v-model="budgetForm.name"
                   type="text"
                   class="w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
-                  placeholder="Budget alimentaire, Loisirs, etc."
+                  placeholder="Ex: Courses mensuelles"
                   required
               >
             </div>
 
             <div>
-              <label
-                  for="amount"
-                  class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Montant</label>
+              <label for="amount" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Montant cible</label>
               <div class="relative">
                 <input
                     id="amount"
@@ -156,35 +124,29 @@
             </div>
 
             <div>
-              <label for="category" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Catégorie</label>
+              <label for="category" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Catégorie à suivre</label>
               <select
                   id="category"
+                  v-model="budgetForm.categoryId"
                   class="w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
                   required>
                 <option value="" disabled>Sélectionner une catégorie</option>
-                <option value="Alimentation">Alimentation</option>
-                <option value="Shopping">Shopping</option>
-                <option value="Transport">Transport</option>
-                <option value="Loisirs">Loisirs</option>
-                <option value="Santé">Santé</option>
-                <option value="Logement">Logement</option>
-                <option value="Factures">Factures</option>
-                <option value="Autres">Autres</option>
+                <option v-for="cat in expenseCategories" :key="cat.id" :value="cat.id">
+                  {{ cat.name }}
+                </option>
               </select>
             </div>
 
             <div>
-              <label
-                  for="period"
-                  class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Période</label>
+              <label for="period" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Période</label>
               <select
                   id="period"
-                  v-model="budgetForm.period"
+                  v-model="budgetForm.periodType"
                   class="w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
                   required
               >
-                <option value="monthly">Mensuel</option>
-                <option value="yearly">Annuel</option>
+                <option value="monthly">Ce mois-ci</option>
+                <option value="yearly">Cette année</option>
               </select>
             </div>
 
@@ -213,235 +175,248 @@
 </template>
 
 <script setup>
+import { startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
+
 definePageMeta({
   middleware: ['authenticated']
 });
 
-// État
+// État global
 const loading = ref(true);
+const isSubmitting = ref(false);
+
+// Données
 const budgets = ref([]);
 const transactions = ref([]);
+const categories = ref([]);
+
+// Modal et Formulaire
 const showBudgetModal = ref(false);
 const editingBudget = ref(null);
-const isSubmitting = ref(false);
-const currentPeriod = ref('monthly');
-
-// Formulaire pour le budget
 const budgetForm = ref({
   name: '',
   amount: '',
-  category: '',
-  period: 'monthly',
+  categoryId: '',
+  accountId: null,
+  periodType: 'monthly',
 });
 
-// Trier les budgets par catégories
+// --- Computed ---
+
+const expenseCategories = computed(() => {
+  if (!categories.value || categories.value.length === 0) return [];
+
+  return categories.value.filter(c => {
+    // On vérifie le typeId (format objet JS) OU type_id (format brut BDD)
+    // On utilise == pour accepter "2" (string) et 2 (number)
+    const type = c.typeId ?? c.type_id;
+    return type == 2;
+  });
+});
+
 const sortedBudgets = computed(() => {
-  return [...budgets.value]
-      .filter(budget => currentPeriod.value === 'all' || budget.period === currentPeriod.value)
-      .sort((a, b) => a.name.localeCompare(b.name));
+  return [...budgets.value].sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
 });
 
+// --- Chargement des données ---
 
-// Transactions filtrées selon la période
-const filteredTransactions = computed(() => {
-  if (!transactions.value.length) return [];
-
-  const now = new Date();
-  let startDate;
-
-  if (currentPeriod.value === 'monthly') {
-    // Ce mois-ci
-    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-  } else {
-    // Cette année
-    startDate = new Date(now.getFullYear(), 0, 1);
-  }
-
-  return transactions.value
-      .filter(t => t.type === 'expense' && new Date(t.date) >= startDate);
-});
-
-
-// Récupérer les dépenses par catégorie
-const getCategoryExpenses = (category) => {
-  return filteredTransactions.value
-      .filter(t => t.category === category)
-      .reduce((sum, t) => sum + t.amount, 0);
-};
-
-const categories = ref([]);
-
-const loadCategories = async () => {
+const loadInitialData = async () => {
+  loading.value = true;
   try {
-    const res = await $fetch('/api/budgets/categories');
-    categories.value = res.categories || [];
+    // Promise.allSettled attend que tout finisse, succès ou échec
+    const results = await Promise.allSettled([
+      $fetch('/api/budgets'),
+      $fetch('/api/transactions'),
+      $fetch('/api/categories'),
+    ]);
+
+    const [budgetsResult, transResult, catsResult] = results;
+
+    // 1. Gestion des Budgets
+    if (budgetsResult.status === 'fulfilled') {
+      budgets.value = budgetsResult.value.budgets || [];
+    } else {
+      console.error("Erreur chargement budgets:", budgetsResult.reason);
+      budgets.value = []; // On initialise vide pour ne pas casser la vue
+    }
+
+    // 2. Gestion des Transactions
+    if (transResult.status === 'fulfilled') {
+      transactions.value = transResult.value.transactions || [];
+    } else {
+      transactions.value = [];
+    }
+
+    // 3. Gestion des Catégories (CELLE QUI VOUS INTÉRESSE)
+    if (catsResult.status === 'fulfilled') {
+      const data = catsResult.value;
+      // On gère les deux formats possibles (tableau direct ou objet {categories: []})
+      if (Array.isArray(data)) {
+        categories.value = data;
+      } else if (data && data.categories) {
+        categories.value = data.categories;
+      } else {
+        categories.value = [];
+      }
+      console.log("✅ Catégories chargées :", categories.value.length);
+    } else {
+      console.error("❌ Erreur chargement catégories:", catsResult.reason);
+    }
+
   } catch (err) {
-    console.error('Erreur lors du chargement des catégories :', err);
-  }
-};
-
-// Charger les budgets
-const loadBudgets = async () => {
-  try {
-    loading.value = true;
-    const response = await $fetch('/api/budgets');
-    budgets.value = response.budgets || [];
-  } catch (error) {
-    console.error('Erreur lors du chargement des budgets:', error);
-    // Afficher un toast d'erreur ici
-  }
-};
-
-// Charger les transactions
-const loadTransactions = async () => {
-  try {
-    const response = await $fetch('/api/transactions');
-    transactions.value = response.transactions || [];
-  } catch (error) {
-    console.error('Erreur lors du chargement des transactions:', error);
-    // Afficher un toast d'erreur ici
+    console.error('Erreur critique chargement:', err);
   } finally {
     loading.value = false;
   }
 };
+// --- Logique Métier ---
 
-// Ouvrir le modal d'ajout de budget
+const getBudgetSpent = (budget) => {
+  if (!budget.categories || budget.categories.length === 0) return 0;
+
+  const budgetCatIds = new Set(budget.categories.map(c => c.id));
+
+  const start = new Date(budget.startDate);
+  const end = new Date(budget.endDate);
+
+  const relevantTransactions = transactions.value.filter(t => {
+    const isExpense = t.typeTransactionsId === 2;
+
+    const isCorrectCategory = budgetCatIds.has(t.categoryId);
+
+    const tDate = new Date(t.date);
+    const isInDateRange = tDate >= start && tDate <= end;
+
+    return isExpense && isCorrectCategory && isInDateRange;
+  });
+
+  return relevantTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
+};
+
+// --- Gestion du Modal ---
+
 const openAddBudgetModal = () => {
   editingBudget.value = null;
   budgetForm.value = {
     name: '',
     amount: '',
-    category: '',
-    period: 'monthly',
-    startDate: new Date().toISOString().split('T')[0]
+    categoryId: '',
+    accountId: null,
+    periodType: 'monthly',
   };
   showBudgetModal.value = true;
 };
 
-// Ouvrir le modal d'édition de budget
 const editBudget = (budget) => {
   editingBudget.value = budget;
+
+  const start = new Date(budget.startDate);
+  const end = new Date(budget.endDate);
+  const diffTime = Math.abs(end - start);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const detectedPeriod = diffDays > 32 ? 'yearly' : 'monthly';
+
   budgetForm.value = {
     name: budget.name,
-    amount: budget.amount,
-    category: budget.categories,
-    period: budget.period,
-    startDate: budget.startDate.split('T')[0]
+    amount: Number(budget.amount),
+    categoryId: budget.categories && budget.categories.length > 0 ? budget.categories[0].id : '',
+    accountId: budget.accountId,
+    periodType: detectedPeriod
   };
   showBudgetModal.value = true;
 };
 
-// Fermer le modal de budget
 const closeBudgetModal = () => {
   showBudgetModal.value = false;
 };
 
-// Sauvegarder le budget (création ou mise à jour)
-const saveBudget = async () => {
-  try {
-    isSubmitting.value = true;
+// --- Sauvegarde ---
 
+const saveBudget = async () => {
+  isSubmitting.value = true;
+  try {
+    // 1. Calcul des dates selon la sélection "Mensuel/Annuel"
+    const now = new Date();
+    let startDate, endDate;
+
+    if (budgetForm.value.periodType === 'monthly') {
+      startDate = startOfMonth(now);
+      endDate = endOfMonth(now);
+    } else {
+      startDate = startOfYear(now);
+      endDate = endOfYear(now);
+    }
+
+    // 2. Construction du payload pour l'API
     const payload = {
       name: budgetForm.value.name,
       amount: Number(budgetForm.value.amount),
-      categoryId: budgetForm.value.category,
-      period: budgetForm.value.period,
-      startDate: new Date(budgetForm.value.startDate).toISOString(),
-      endDate: undefined
+      accountId: undefined,
+
+      categoryIds: budgetForm.value.categoryId ? [budgetForm.value.categoryId] : [],
+      startDate: startDate,
+      endDate: endDate
     };
 
     let response;
 
     if (editingBudget.value) {
-      // Mettre à jour un budget existant
+      // PATCH
       response = await $fetch(`/api/budgets/${editingBudget.value.id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         body: payload
       });
 
-      // Mettre à jour le budget dans la liste
       const index = budgets.value.findIndex(b => b.id === editingBudget.value.id);
       if (index !== -1) {
         budgets.value[index] = response.budget;
       }
-
-      // Afficher un toast de succès ici
     } else {
-      // Créer un nouveau budget
+      // POST
       response = await $fetch('/api/budgets', {
         method: 'POST',
         body: payload
       });
-
-      // Ajouter le budget à la liste
       budgets.value.push(response.budget);
-
-      // Afficher un toast de succès ici
     }
 
     closeBudgetModal();
-  } catch (error) {
-    console.error('Erreur lors de l\'enregistrement du budget:', error);
-    // Afficher un toast d'erreur ici
+  } catch (err) {
+    console.error('Erreur sauvegarde:', err);
+    alert("Erreur lors de l'enregistrement : " + (err.data?.message || err.message));
   } finally {
     isSubmitting.value = false;
   }
 };
 
-// Confirmer la suppression d'un budget
-const confirmDeleteBudget = (budget) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer le budget "${budget.name}" ?`)) {
-    deleteBudget(budget.id);
-  }
-};
+// --- Suppression ---
 
-// Supprimer un budget
-const deleteBudget = async (id) => {
+const confirmDeleteBudget = async (budget) => {
+  if (!confirm(`Supprimer le budget "${budget.name}" ?`)) return;
+
   try {
-    await $fetch(`/api/budgets/${id}`, {
-      method: 'DELETE'
-    });
-
-    // Supprimer le budget de la liste
-    budgets.value = budgets.value.filter(b => b.id !== id);
-
-    // Afficher un toast de succès ici
-  } catch (error) {
-    console.error('Erreur lors de la suppression du budget:', error);
-    // Afficher un toast d'erreur ici
+    await $fetch(`/api/budgets/${budget.id}`, { method: 'DELETE' });
+    budgets.value = budgets.value.filter(b => b.id !== budget.id);
+  } catch (err) {
+    console.error('Erreur suppression:', err);
+    alert("Impossible de supprimer");
   }
 };
 
-// Formater les montants en euros
+// --- Formattage ---
+
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'EUR'
-  }).format(amount);
+  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
 };
 
-// Formater la période
-const formatPeriod = (period) => {
-  const formats = {
-    weekly: 'Hebdomadaire',
-    monthly: 'Mensuel',
-    yearly: 'Annuel'
-  };
-  return formats[period] || period;
+const formatDateRange = (startStr, endStr) => {
+  const start = new Date(startStr);
+  const end = new Date(endStr);
+  return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
 };
 
-// Charger les données au chargement de la page
-onMounted(async () => {
-  await Promise.all([
-    loadBudgets(),
-    loadTransactions(),
-    loadCategories()
-  ]);
+// Init
+onMounted(() => {
+  loadInitialData();
 });
-
-// Recharger les données quand la période change
-watch(currentPeriod, () => {
-  // Les données sont déjà chargées, pas besoin de recharger depuis l'API
-  // Les computed s'occuperont de filtrer les données
-});
-</script> 
+</script>

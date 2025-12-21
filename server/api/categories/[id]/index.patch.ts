@@ -1,76 +1,45 @@
-import { eq } from 'drizzle-orm';
-import { db } from '~/server/db';
-import { categories } from '~/drizzle/schema/categories';
+                    import { z } from 'zod';
+                    import { updateCategory } from '~/server/services/categories.service';
+                    import { requireAuth } from '~/server/utils/auth';
 
-export default defineEventHandler(async (event) => {
-    // 1. Récupération et validation de l'ID
-    const id = getRouterParam(event, 'id');
+                    const paramsSchema = z.object({
+                        id: z.coerce.number().int().positive()
+                    });
 
-    if (!id || Number.isNaN(Number(id))) {
-        throw createError({
-            statusCode: 400,
-            statusMessage: 'ID de catégorie invalide'
-        });
-    }
+                    const updateCategorySchema = z.object({
+                        name: z.string().min(1).optional(),
+                        typeId: z.number().int().optional(),
+                        isDefault: z.boolean().optional()
+                    });
 
-    // 2. Récupération des données envoyées (Body)
-    const body = await readBody(event);
+                    export default defineEventHandler(async (event) => {
+                        await requireAuth(event);
 
-    if (!body || Object.keys(body).length === 0) {
-        throw createError({
-            statusCode: 400,
-            statusMessage: 'Aucune donnée fournie pour la mise à jour'
-        });
-    }
+                        // 1. Validation ID
+                        const params = await getValidatedRouterParams(event, (p) => paramsSchema.safeParse(p));
+                        if (!params.success) throw createError({ statusCode: 400, message: 'ID invalide' });
 
-    try {
-        // 3. Préparation des données à mettre à jour
-        const updateData: any = {
-            updatedAt: new Date(), // On met toujours à jour la date de modification
-        };
+                        // 2. Validation Body
+                        const body = await readValidatedBody(event, (b) => updateCategorySchema.safeParse(b));
+                        if (!body.success) throw createError({ statusCode: 400, message: body.error.issues[0].message });
 
-        if (body.name) {
-            updateData.name = body.name;
-        }
+                        if (Object.keys(body.data).length === 0) {
+                            return { success: true, message: "Aucune modification demandée" };
+                        }
 
-        if (body.typeId) {
-            updateData.typeId = body.typeId;
-        }
+                        try {
+                            const updatedCategory = await updateCategory(params.data.id, body.data);
 
-        if (body.isDefault !== undefined) {
-            updateData.isDefault = body.isDefault;
-        }
+                            if (!updatedCategory) {
+                                throw createError({ statusCode: 404, message: 'Catégorie introuvable' });
+                            }
 
-        // 4. Exécution de la mise à jour avec Drizzle
-        const [updatedCategory] = await db.update(categories)
-            .set(updateData)
-            .where(eq(categories.id, Number(id)))
-            .returning();
-
-        // 5. Si aucune catégorie n'est retournée, c'est que l'ID n'existe pas
-        if (!updatedCategory) {
-            throw createError({
-                statusCode: 404,
-                statusMessage: 'Catégorie introuvable'
-            });
-        }
-
-        return { category: updatedCategory };
-
-    } catch (error: any) {
-        if (error.statusCode) throw error;
-
-        if (error.code === '23505') {
-            throw createError({
-                statusCode: 409, // Conflict
-                statusMessage: 'Une catégorie avec ce nom existe déjà'
-            });
-        }
-
-        console.error('Erreur lors de la mise à jour de la catégorie:', error);
-        throw createError({
-            statusCode: 500,
-            statusMessage: 'Erreur serveur lors de la mise à jour'
-        });
-    }
-});
+                            return { success: true, category: updatedCategory };
+                        } catch (error: any) {
+                            if (error.code === '23505') {
+                                throw createError({ statusCode: 409, message: "Ce nom de catégorie existe déjà." });
+                            }
+                            console.error('Erreur mise à jour:', error);
+                            throw createError({ statusCode: 500, message: 'Impossible de modifier la catégorie' });
+                        }
+                    });

@@ -8,7 +8,7 @@ import {assoBudgetCategories} from "./assoBudgetCategories";
 export const budgets = pgTable('budgets', {
     id: serial('id').primaryKey(),
     userId: integer('userId').notNull().references(() => users.id),
-    accountId: integer('accountId').notNull().references(() => accounts.id),
+    accountId: integer('accountId').references(() => accounts.id), // Peut être null si le budget n'est pas lié à un compte spécifique
     name: varchar('name', {length: 255}).notNull(),
     amount: decimal('amount', {precision: 15, scale: 3}).notNull(),
     recurrence: varchar('recurrence').notNull(),

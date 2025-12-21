@@ -1,54 +1,42 @@
-import { eq } from 'drizzle-orm';
-import { db } from '~/server/db';
-import { categories } from '~/drizzle/schema/categories';
+import { z } from 'zod';
+import { deleteCategory } from '~/server/services/categories.service';
+import { requireAuth } from '~/server/utils/auth';
+
+const paramsSchema = z.object({
+    id: z.coerce.number().int().positive()
+});
 
 export default defineEventHandler(async (event) => {
-    // 1. Récupération et validation de l'ID
-    const id = getRouterParam(event, 'id');
+    await requireAuth(event);
 
-    if (!id || Number.isNaN(Number(id))) {
-        throw createError({
-            statusCode: 400,
-            statusMessage: 'ID de catégorie invalide'
-        });
-    }
+    const params = await getValidatedRouterParams(event, (p) => paramsSchema.safeParse(p));
+    if (!params.success) throw createError({ statusCode: 400, message: 'ID invalide' });
 
     try {
-        // 2. Tentative de suppression
-        const [deletedCategory] = await db.delete(categories)
-            .where(eq(categories.id, Number(id)))
-            .returning();
+        const deletedCategory = await deleteCategory(params.data.id);
 
-        // 3. Si rien n'est retourné, c'est que l'ID n'existait pas
         if (!deletedCategory) {
-            throw createError({
-                statusCode: 404,
-                statusMessage: 'Catégorie introuvable'
-            });
+            throw createError({ statusCode: 404, message: 'Catégorie introuvable' });
         }
 
-        // 4. Succès
         return {
+            success: true,
             message: 'Catégorie supprimée avec succès',
             deletedId: deletedCategory.id
         };
 
     } catch (error: any) {
-        if (error.statusCode) throw error;
-
-        // --- GESTION DES CLÉS ÉTRANGÈRES ---
-        // Code erreur PostgreSQL 23503 = foreign_key_violation
+        // Erreur 23503 : Foreign Key Violation (Liée à des transactions/budgets)
         if (error.code === '23503') {
             throw createError({
-                statusCode: 409, // 409 Conflict
-                statusMessage: 'Impossible de supprimer cette catégorie car elle est liée à des transactions ou des budgets existants.'
+                statusCode: 409,
+                message: 'Impossible de supprimer cette catégorie car elle est utilisée dans des transactions ou budgets.'
             });
         }
 
-        console.error('Erreur lors de la suppression de la catégorie:', error);
-        throw createError({
-            statusCode: 500,
-            statusMessage: 'Erreur serveur lors de la suppression'
-        });
+        if (error.statusCode) throw error;
+
+        console.error('Erreur suppression:', error);
+        throw createError({ statusCode: 500, message: 'Erreur serveur' });
     }
 });
