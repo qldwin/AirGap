@@ -1,15 +1,19 @@
 // server/db.ts
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-
 import * as schema from '../drizzle/schema/index';
 
+const connectionString = process.env.DATABASE_URL;
+
+// 1. Vérification de sécurité
+if (!connectionString) {
+    throw new Error("❌ ERREUR CRITIQUE : La variable d'environnement DATABASE_URL est manquante ou vide !");
+}
+
+console.log("🔌 Initialisation Base de Données...");
+
 const pool = new Pool({
-    host: 'localhost',      
-    port: 5432,             
-    user: 'finantia',      
-    password: 'example',    
-    database: 'finantia',   
+    connectionString: connectionString,
 });
 
 export const db = drizzle(pool, { schema });
