@@ -4,7 +4,7 @@ import {requireAuth} from "~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
 
-    const sessionUser = requireAuth(event);
+    const sessionUser = await requireAuth(event);
     const user = await getUserById(sessionUser.id);
 
     if (!user) {

@@ -1,13 +1,15 @@
 // types/auth.d.ts
 
-
-   export interface User {
-        id: number; // C'est ici que TypeScript apprend que "id" existe
+declare module '#auth-utils' {
+    interface User {
+        id: number;
         email: string;
         name?: string | null;
     }
 
-    export interface UserSession {
-        user: User;
+    interface UserSession {
         loggedInAt: Date;
     }
+}
+
+export {}
