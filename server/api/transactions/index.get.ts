@@ -1,41 +1,26 @@
-import {eq, desc} from 'drizzle-orm';
-import {db} from '../../db';
-import {transactions} from "~/drizzle/schema/transactions";
-
+// server/api/transactions/index.get.ts
+import { getUserTransactions } from '~/server/services/transactions.service'
+import { requireAuth } from '~/server/utils/auth'
 
 export default defineEventHandler(async (event) => {
+    // 1. Sécurité : IMPORTANT - On attend la résolution de la promesse session
+    const user = await requireAuth(event)
+
     try {
-        const { user } = await requireUserSession(event)
+        // 2. Appel du service
+        const transactions = await getUserTransactions(user.id)
 
-        // Vérifier si l'utilisateur est connecté
-        if (!user) {
-            return createError({
-                statusCode: 401,
-                statusMessage: 'Non authentifié'
-            });
+        // 3. Réponse standardisée
+        return {
+            success: true,
+            count: transactions.length,
+            transactions: transactions
         }
-        if (!user["id"]) {
-            return createError({
-                statusCode: 401,
-                statusMessage: 'Session invalide - ID utilisateur manquant'
-            });
-        }else {
-            // Récupérer les transactions de l'utilisateur
-            const userTransactions = await db.select()
-                .from(transactions)
-                .where(eq(transactions.userId, user["id"]))
-                .orderBy(desc(transactions.date));
-
-            return {
-                transactions: userTransactions
-            };
-        }
-
     } catch (error) {
-        console.error('Erreur lors de la récupération des transactions:', error);
-        return createError({
+        console.error('Erreur récupération transactions:', error)
+        throw createError({
             statusCode: 500,
-            statusMessage: 'Erreur serveur'
-        });
+            statusMessage: 'Impossible de récupérer vos transactions'
+        })
     }
-}); 
+})

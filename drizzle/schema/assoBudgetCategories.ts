@@ -1,18 +1,17 @@
-import {pgTable, serial, primaryKey} from "drizzle-orm/pg-core";
+import {pgTable, integer, primaryKey} from "drizzle-orm/pg-core";
 import {relations} from "drizzle-orm";
 import { categories } from "./categories";
 import { budgets } from "./budgets";
 
-// Table BudgetCategory
+// Table assoBudgetCategory
 
-export const assoBudgetCategories = pgTable('budgetCategories', {
-    id: serial('id').primaryKey(),
-    budgetId: serial('budgetId').notNull().references(() => budgets.id),
-    categoryId: serial('categoryId').notNull().references(() => categories.id),
+export const assoBudgetCategories = pgTable('assoBudgetCategories', {
+    budgetId: integer('budgetId').notNull().references(() => budgets.id),
+    categoryId: integer('categoryId').notNull().references(() => categories.id),
 }, (table) => {
-    return {
-        pk: primaryKey({columns: [table.budgetId, table.categoryId]}),
-    };
+    return [
+        primaryKey({columns: [table.budgetId, table.categoryId]}),
+    ];
 });
 
 export const budgetCategoryRelations = relations(assoBudgetCategories, ({one}) => ({

@@ -177,7 +177,7 @@ function toggleTheme() {
 }
 
 // Fermer le menu mobile et le dropdown quand on change de route
-watch(() => window.location.href, () => {
+watch(() => globalThis.location.href, () => {
   isMobileMenuOpen.value = false;
   isDropdownOpen.value = false;
 });

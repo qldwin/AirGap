@@ -1,21 +1,15 @@
-import { Pool } from 'pg';
+// server/db.ts
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { users } from '~/drizzle/schema/users';
-import { accounts } from '~/drizzle/schema/accounts';
-import { transactions } from '~/drizzle/schema/transactions';
-import { categories } from '~/drizzle/schema/categories';
-import { budgets } from '~/drizzle/schema/budgets';
+import { Pool } from 'pg';
+
+import * as schema from '../drizzle/schema/index';
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL, // ou ta string hardcodée, mais préférable env
+    host: 'localhost',      
+    port: 5432,             
+    user: 'finantia',      
+    password: 'example',    
+    database: 'finantia',   
 });
 
-export const db = drizzle(pool, {
-    schema: {
-        users,
-        accounts,
-        transactions,
-        categories,
-        budgets,
-    },
-});
+export const db = drizzle(pool, { schema });

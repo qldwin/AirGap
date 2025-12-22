@@ -2,13 +2,13 @@ import {pgTable, serial, integer, varchar, decimal, timestamp} from "drizzle-orm
 import {users} from "./users";
 import {relations} from "drizzle-orm";
 import {accounts} from "./accounts";
-import {assoBudgetCategories} from "~/drizzle/schema/assoBudgetCategories";
+import {assoBudgetCategories} from "./assoBudgetCategories";
 
 // Table Budget
 export const budgets = pgTable('budgets', {
     id: serial('id').primaryKey(),
     userId: integer('userId').notNull().references(() => users.id),
-    accountId: integer('accountId').notNull().references(() => accounts.id),
+    accountId: integer('accountId').references(() => accounts.id), // Peut être null si le budget n'est pas lié à un compte spécifique
     name: varchar('name', {length: 255}).notNull(),
     amount: decimal('amount', {precision: 15, scale: 3}).notNull(),
     recurrence: varchar('recurrence').notNull(),

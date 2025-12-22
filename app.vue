@@ -26,7 +26,7 @@ onMounted(async () => {
     }
   } else {
     // Sinon, utilise la préférence du système
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isDark = globalThis.matchMedia('(prefers-color-scheme: dark)').matches
     if (isDark) {
       html.classList.add('dark')
     } else {
@@ -35,7 +35,7 @@ onMounted(async () => {
   }
   
   // Écoute les changements de préférence du système
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+  globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
     // Ne change automatiquement que si l'utilisateur n'a pas défini manuellement un thème
     if (!localStorage.getItem('theme')) {
       if (e.matches) {

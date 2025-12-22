@@ -3,7 +3,7 @@ import { accounts } from './accounts';
 import { relations } from 'drizzle-orm';
 import { transactions } from './transactions';
 
-export const senderRecipient = pgTable('sender_recipient', {
+export const senderRecipient = pgTable('senderRecipient', {
     id: serial('id').primaryKey(),
     accountId: integer('accountId').references(() => accounts.id),
     name: varchar('name', { length: 50 }).notNull(),

@@ -2,12 +2,14 @@ import {pgTable, serial, integer, timestamp, numeric, varchar} from 'drizzle-orm
 import {accounts} from './accounts';
 import {relations} from "drizzle-orm";
 import {senderRecipient} from "./senderRecipient";
-import {typeTransactions} from "~/drizzle/schema/typeTransactions";
+import {typeTransactions} from "./typeTransactions";
 import {assoTransactionsCategories} from "./assoTransactionsCategories";
+import {users} from "./users";
 
 // Table Transactions
 export const transactions = pgTable('transactions', {
     id: serial('id').primaryKey(),
+    userId: integer('userId').notNull().references(() => users.id),
     accountId: integer('accountId').notNull().references(() => accounts.id),
     senderRecipientId: integer('senderRecipientId').references(() => senderRecipient.id),
     typeTransactionsId: integer('typeTransactionsId').notNull().references(() => typeTransactions.id),
@@ -19,6 +21,7 @@ export const transactions = pgTable('transactions', {
     endRecurrence: timestamp('endRecurrence'),
     date: timestamp('date').notNull().defaultNow(),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
+    updatedAt: timestamp('updatedAt').notNull().defaultNow(),
 });
 
 export const transactionRelations = relations(transactions, ({ one, many }) => ({

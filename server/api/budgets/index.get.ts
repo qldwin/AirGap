@@ -1,29 +1,25 @@
-import { db } from '~/server/db';
-import {budgets} from "~/drizzle/schema/budgets";
-import {categories} from "~/drizzle/schema/categories";
-import { eq } from 'drizzle-orm';
+// server/api/budgets/index.get.ts
+import { getUserBudgets } from '~/server/services/budgets.service'
+import { requireAuth } from '~/server/utils/auth'
 
-export default defineEventHandler(async () => {
-    const rows = await db.select({
-        id: budgets.id,
-        name: budgets.name,
-        amount: budgets.amount,
-        startDate: budgets.startDate,
-        endDate: budgets.endDate,
-        categoryId: categories.id,
-        categoryName: categories.name
-    })
-        .from(budgets)
-        .leftJoin(categories, eq(budgets.categoryId, categories.id));
+export default defineEventHandler(async (event) => {
+    // 1. Sécurité : On identifie l'utilisateur
+    const user = await requireAuth(event)
 
-    const budgetsWithCategories = rows.map(row => ({
-        id: row.id,
-        name: row.name,
-        amount: row.amount,
-        startDate: row.startDate,
-        endDate: row.endDate,
-        category: row.categoryName ? { id: row.categoryId, name: row.categoryName } : null
-    }));
+    try {
+        // 2. Appel du service de lecture (et non de création)
+        const budgets = await getUserBudgets(user.id)
 
-    return { budgets: budgetsWithCategories };
-});
+        // 3. On renvoie la liste
+        return {
+            success: true,
+            budgets: budgets
+        }
+    } catch (error) {
+        console.error('Erreur récupération budgets:', error)
+        throw createError({
+            statusCode: 500,
+            statusMessage: 'Impossible de récupérer vos budgets'
+        })
+    }
+})

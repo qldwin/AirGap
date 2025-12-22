@@ -1,66 +1,35 @@
-import {z} from 'zod';
-import {eq} from 'drizzle-orm';
-import {db} from "~/server/db";
-import {users} from "~/drizzle/schema/users";
+import { z } from 'zod'
+import { registerUser } from '~/server/services/auth.service'
 
 const registerSchema = z.object({
-    email: z.string().email('Email invalide'),
-    name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
-    password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
-});
+    email: z.string().email(),
+    password: z.string().min(8),
+    name: z.string().min(2)
+})
 
 export default defineEventHandler(async (event) => {
-    try {
-        const body = await readBody(event);
+    const result = await readValidatedBody(event, body => registerSchema.safeParse(body))
 
-        // Validation des données
-        const parsed = registerSchema.safeParse(body);
-        if (!parsed.success) {
-            return createError({
-                statusCode: 400,
-                message: 'Données invalides',
-                data: parsed.error.format()
-            });
-        }
-
-        const {email, name, password} = parsed.data;
-
-        // Vérifier si l'email existe déjà
-        const existingUser = await db.select().from(users).where(eq(users.email, email));
-        if (existingUser.length > 0) {
-            return createError({
-                statusCode: 409,
-                message: 'Cet email est déjà utilisé'
-            });
-        }
-
-        // Hachage du mot de passe
-        const hashedPassword = await hashPassword(password);
-
-        // Création de l'utilisateur
-        await db.insert(users).values({
-            email: email,
-            name: name,
-            password: hashedPassword
-        });
-
-        return {
-            message: 'Inscription réussie'
-        };
-    } catch (error) {
-        console.error("Erreur d'inscription brute:", error);
-
-        // Si c'est un AggregateError, on affiche toutes ses causes internes
-        if (error instanceof AggregateError) {
-            console.error('Causes internes de AggregateError:');
-            for (const e of error.errors) {
-                console.error(e.message, e.stack);
-            }
-        }
-
-        return createError({
-            statusCode: 500,
-            message: "Erreur serveur lors de l'inscription",
-        });
+    if (!result.success) {
+        throw createError({ statusCode: 400, message: result.error.issues[0].message })
     }
-}); 
+
+    // Le service s'occupe de vérifier l'email, hasher le mdp et créer l'user
+    const newUser = await registerUser({
+        email: result.data.email,
+        password: result.data.password,
+        name: result.data.name
+    })
+
+    // On connecte directement l'utilisateur après l'inscription
+    await setUserSession(event, {
+        user: {
+            id: newUser.id,
+            email: newUser.email,
+            name: newUser.name
+        },
+        loggedInAt: new Date()
+    })
+
+    return { success: true, user: newUser }
+})

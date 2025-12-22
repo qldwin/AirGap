@@ -1,7 +1,7 @@
 import {pgTable, serial, varchar, timestamp} from "drizzle-orm/pg-core"
-import {accounts} from "~/drizzle/schema/accounts";
-import {budgets} from "~/drizzle/schema/budgets";
-import {transactions} from "~/drizzle/schema/transactions";
+import {accounts} from "./accounts";
+import {budgets} from "./budgets";
+import {transactions} from "./transactions";
 import {relations} from "drizzle-orm";
 
 // Table User

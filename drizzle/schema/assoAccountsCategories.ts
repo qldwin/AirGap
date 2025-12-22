@@ -8,9 +8,9 @@ export const assoAccountsCategories = pgTable('assoAccountsCategories', {
     accountId: serial('accountId').notNull().references(() => accounts.id),
     categoryId: serial('categoryId').notNull().references(() => categories.id),
 }, (table) => {
-    return {
-        pk: primaryKey({columns: [table.accountId, table.categoryId]}),
-    };
+    return [
+        primaryKey({columns: [table.accountId, table.categoryId]}),
+    ];
 });
 
 export const assoAccountsCategoriesRelations = relations(assoAccountsCategories, ({one}) => ({

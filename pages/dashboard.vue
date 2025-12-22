@@ -198,230 +198,242 @@ stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 </template>
 
 <script setup>
+// --- CONFIGURATION ---
 definePageMeta({
   middleware: ['authenticated']
 });
 
-// ==== STATE ====
+// CONSTANTES (Identiques à la BDD)
+const TYPE_INCOME = 1;
+const TYPE_EXPENSE = 2;
+
+// --- STATE (État) ---
 const transactions = ref([]);
 const loading = ref(true);
 const showTransactionModal = ref(false);
 const selectedTransaction = ref(null);
 
-// ==== HELPERS ====
-const now = new Date();
-const currentMonth = now.getMonth();
-const currentYear = now.getFullYear();
+// Pour le budget (Fonctionnalité future)
+const showBudgetModal = ref(false);
 
-const getPreviousMonth = (year, month) => {
-  if (month === 0) {
-    return { year: year - 1, month: 11 };
-  }
-  return { year, month: month - 1 };
-};
+// --- API & CHARGEMENT ---
 
-const { year: prevYear, month: prevMonth } = getPreviousMonth(currentYear, currentMonth);
-
-const parseDate = (dateString) => {
-  const d = new Date(dateString);
-  return isNaN(d.getTime()) ? null : d;
-};
-
-// ==== COMPUTED ====
-const balance = computed(() =>
-    transactions.value.reduce((total, t) => {
-      const amount = Number(t.amount) || 0;
-      return total + (t.type === 'income' ? amount : -amount);
-    }, 0)
-);
-
-const monthlyBalance = computed(() =>
-  transactions.value
-    .filter(t => {
-      const d = parseDate(t.date);
-      return d && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-    })
-    .reduce((total, t) => {
-      const amount = Number(t.amount) || 0;
-      return total + (t.type === 'income' ? amount : -amount);
-    }, 0)
-);
-
-const balanceChange = computed(() => {
-  const prevBalance = transactions.value
-    .filter(t => {
-      const d = parseDate(t.date);
-      return d && d.getMonth() === prevMonth && d.getFullYear() === prevYear;
-    })
-    .reduce((total, t) => {
-      const amount = Number(t.amount) || 0;
-      return total + (t.type === 'income' ? amount : -amount);
-    }, 0);
-
-  if (prevBalance === 0) return null;
-  return ((monthlyBalance.value - prevBalance) / Math.abs(prevBalance)) * 100;
-});
-
-
-const monthlyIncome = computed(() =>
-    transactions.value
-        .filter(t => {
-          const d = parseDate(t.date);
-          return t.type === 'income' && d && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-        })
-        .reduce((sum, t) => sum + Number(t.amount || 0), 0)
-);
-
-const previousIncome = computed(() =>
-    transactions.value
-        .filter(t => {
-          const d = parseDate(t.date);
-          return t.type === 'income' && d && d.getMonth() === prevMonth && d.getFullYear() === prevYear;
-        })
-        .reduce((sum, t) => sum + Number(t.amount || 0), 0)
-);
-
-const monthlyExpense = computed(() =>
-    transactions.value
-        .filter(t => {
-          const d = parseDate(t.date);
-          return t.type === 'expense' && d && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-        })
-        .reduce((sum, t) => sum + Number(t.amount || 0), 0)
-);
-
-
-const previousExpense = computed(() =>
-    transactions.value
-        .filter(t => {
-          const d = parseDate(t.date);
-          return t.type === 'expense' && d && d.getMonth() === prevMonth && d.getFullYear() === prevYear;
-        })
-        .reduce((sum, t) => sum + Number(t.amount || 0), 0)
-);
-
-
-const incomeChange = computed(() => {
-  if (previousIncome.value === 0) {
-    return null;
-  }
-  return ((monthlyIncome.value - previousIncome.value) / Math.abs(previousIncome.value)) * 100;
-});
-
-const expenseChange = computed(() => {
-  if (previousExpense.value === 0) {
-    return null; // pour éviter la division par zéro
-  }
-  return ((monthlyExpense.value - previousExpense.value) / Math.abs(previousExpense.value)) * 100;
-});
-
-// ==== API ====
+// Fonction pour récupérer les transactions depuis l'API
 const loadTransactions = async () => {
+  loading.value = true;
   try {
-    loading.value = true;
-    const response = await $fetch('/api/transactions');
-    transactions.value = response.transactions || [];
-  } catch (err) {
-    console.error('Erreur lors du chargement des transactions:', err);
+    // On appelle l'API que nous avons créée
+    // L'API doit renvoyer { transactions: [...] } avec la relation 'category' incluse
+    const { data, error } = await useFetch('/api/transactions');
+
+    if (error.value) throw error.value;
+
+    // MAPPING : On transforme les données BDD pour qu'elles collent à votre Template
+    // Le template attend 'type' en string ('income'/'expense') et 'category' en string (Nom)
+    transactions.value = (data.value?.transactions || []).map(t => ({
+      ...t,
+      // Transformation ID -> String pour l'affichage couleur du template
+      type: t.typeTransactionsId === TYPE_INCOME ? 'income' : 'expense',
+      // Transformation Objet -> Nom pour l'affichage du badge
+      category: t.category?.name || 'Aucune',
+      // On garde les IDs originaux pour la logique
+      rawTypeId: t.typeTransactionsId,
+      rawCategoryId: t.categoryId
+    }));
+
+  } catch (e) {
+    console.error("Erreur chargement dashboard:", e);
   } finally {
     loading.value = false;
   }
 };
 
-const deleteTransaction = async (id) => {
-  try {
-    await $fetch(`/api/transactions/${id}`, { method: 'DELETE' });
-    transactions.value = transactions.value.filter(t => t.id !== id);
-  } catch (err) {
-    console.error('Erreur lors de la suppression:', err);
-  }
+// --- COMPUTED (Calculs Financiers) ---
+
+const now = new Date();
+const currentMonth = now.getMonth();
+const currentYear = now.getFullYear();
+
+// Aide pour gérer les dates
+const parseDate = (dateString) => {
+  const d = new Date(dateString);
+  return Number.isNaN(d.getTime()) ? null : d;
 };
 
-// ==== MODALS ====
-const openTransactionModal = () => {
-  selectedTransaction.value = null;
-  showTransactionModal.value = true;
+// Helper pour le mois précédent
+const getPreviousMonth = (year, month) => {
+  return month === 0 ? { year: year - 1, month: 11 } : { year, month: month - 1 };
 };
+const { year: prevYear, month: prevMonth } = getPreviousMonth(currentYear, currentMonth);
+
+// 1. SOLDE TOTAL (Calculé sur toutes les transactions chargées)
+const balance = computed(() =>
+    transactions.value.reduce((total, t) => {
+      const amount = Number(t.amount) || 0;
+      return total + (t.rawTypeId === TYPE_INCOME ? amount : -amount);
+    }, 0)
+);
+
+// 2. SOLDE DU MOIS EN COURS
+const monthlyBalance = computed(() =>
+    transactions.value
+        .filter(t => {
+          const d = parseDate(t.date);
+          return d && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        })
+        .reduce((total, t) => {
+          const amount = Number(t.amount) || 0;
+          return total + (t.rawTypeId === TYPE_INCOME ? amount : -amount);
+        }, 0)
+);
+
+// 3. REVENUS (Mois en cours)
+const monthlyIncome = computed(() =>
+    transactions.value
+        .filter(t => {
+          const d = parseDate(t.date);
+          return t.rawTypeId === TYPE_INCOME && d && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        })
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+);
+
+// 4. DÉPENSES (Mois en cours)
+const monthlyExpense = computed(() =>
+    transactions.value
+        .filter(t => {
+          const d = parseDate(t.date);
+          return t.rawTypeId === TYPE_EXPENSE && d && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        })
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+);
+
+// 5. VARIATIONS (%) vs Mois Précédent
+
+// Calcul Revenus mois précédent
+const previousIncome = computed(() =>
+    transactions.value
+        .filter(t => {
+          const d = parseDate(t.date);
+          return t.rawTypeId === TYPE_INCOME && d && d.getMonth() === prevMonth && d.getFullYear() === prevYear;
+        })
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+);
+
+// Calcul Dépenses mois précédent
+const previousExpense = computed(() =>
+    transactions.value
+        .filter(t => {
+          const d = parseDate(t.date);
+          return t.rawTypeId === TYPE_EXPENSE && d && d.getMonth() === prevMonth && d.getFullYear() === prevYear;
+        })
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+);
+
+// Calcul Solde mois précédent
+const previousBalance = computed(() =>
+    transactions.value
+        .filter(t => {
+          const d = parseDate(t.date);
+          return d && d.getMonth() === prevMonth && d.getFullYear() === prevYear;
+        })
+        .reduce((total, t) => {
+          const amount = Number(t.amount) || 0;
+          return total + (t.rawTypeId === TYPE_INCOME ? amount : -amount);
+        }, 0)
+);
+
+const incomeChange = computed(() => {
+  if (previousIncome.value === 0) return null;
+  return ((monthlyIncome.value - previousIncome.value) / Math.abs(previousIncome.value)) * 100;
+});
+
+const expenseChange = computed(() => {
+  if (previousExpense.value === 0) return null;
+  return ((monthlyExpense.value - previousExpense.value) / Math.abs(previousExpense.value)) * 100;
+});
+
+const balanceChange = computed(() => {
+  if (previousBalance.value === 0) return null;
+  return ((monthlyBalance.value - previousBalance.value) / Math.abs(previousBalance.value)) * 100;
+});
+
+
+// --- ACTIONS (UI) ---
 
 const editTransaction = (transaction) => {
-  selectedTransaction.value = { ...transaction };
+  selectedTransaction.value = transaction; // On passe l'objet complet au modal
   showTransactionModal.value = true;
 };
 
-const confirmDeleteTransaction = (transaction) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer "${transaction.description}" ?`)) {
-    deleteTransaction(transaction.id);
+const confirmDeleteTransaction = async (transaction) => {
+  if (!confirm(`Êtes-vous sûr de vouloir supprimer "${transaction.description}" ?`)) return;
+
+  try {
+    // Appel API DELETE
+    await $fetch(`/api/transactions/${transaction.id}`, { method: 'DELETE' });
+
+    // Mise à jour locale (plus rapide que de recharger toute la liste)
+    transactions.value = transactions.value.filter(t => t.id !== transaction.id);
+  } catch (error) {
+    alert("Erreur lors de la suppression");
+    console.error(error);
   }
 };
 
-// ==== EVENTS ====
-
-const openAddBudgetModal = () => {
-  editingBudget.value = null;
-  budgetForm.value = {
-    name: '',
-    amount: '',
-    category: '',
-    period: 'monthly',
-    startDate: new Date().toISOString().split('T')[0]
-  };
-  showBudgetModal.value = true;
-};
-
-const onTransactionAdded = (transactionArray) => {
-  const transaction = transactionArray[0];
-  if (!transaction) return;
-
-  const newTransaction = {
-    ...transaction,
-    amount: Number(transaction.amount) || 0,
-    date: transaction.date ? new Date(transaction.date).toISOString() : null
-  };
-
-  transactions.value = [newTransaction, ...transactions.value];
+// Appelé quand le modal émet 'transaction-added'
+const onTransactionAdded = (newTransaction) => {
+  // On recharge tout pour avoir les bons tris et calculs, ou on ajoute à la liste
+  loadTransactions();
   showTransactionModal.value = false;
-};
-
-const onTransactionUpdated = (updatedTransaction) => {
-  const index = transactions.value.findIndex(t => String(t.id) === String(updatedTransaction.id));
-  if (index !== -1) {
-    const normalized = {
-      ...updatedTransaction,
-      amount: Number(updatedTransaction.amount) || 0,
-      date: updatedTransaction.date ? new Date(updatedTransaction.date).toISOString() : null
-    };
-    transactions.value.splice(index, 1, normalized);
-  }
   selectedTransaction.value = null;
-  showTransactionModal.value = false;
 };
 
-// ==== FORMATTERS ====
+// Appelé quand le modal émet 'transaction-updated'
+const onTransactionUpdated = (updatedTransaction) => {
+  loadTransactions();
+  showTransactionModal.value = false;
+  selectedTransaction.value = null;
+};
+
+// Placeholder pour le budget (à implémenter plus tard)
+const openAddBudgetModal = () => {
+  console.log("Ouverture modal budget - À implémenter");
+};
+
+// --- FORMATTERS ---
+
 const formatCurrency = (amount) => {
   const value = Number(amount);
-  return isNaN(value)
-      ? '0 €'
+  return Number.isNaN(value)
+      ? '0,00 €'
       : new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
 };
 
 const formatDate = (dateString) => {
-  const d = parseDate(dateString);
-  return !d
-      ? '-'
-      : new Intl.DateTimeFormat('fr-FR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      }).format(d);
+  if (!dateString) return '-';
+  const d = new Date(dateString);
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  }).format(d);
 };
 
 const formatPercent = (value) => {
-  if (value === null) return '-';
-  return (value >= 0 ? '+' : '') + value.toFixed(1) + '%';
+  if (value === null || Number.isNaN(value)) return '-';
+  // Ajoute un "+" si positif, sinon le "-" est automatique
+  return (value > 0 ? '+' : '') + value.toFixed(1) + '%';
 };
 
+// --- LIFECYCLE ---
+onMounted(() => {
+  loadTransactions();
+});
 
-// ==== LIFECYCLE ====
-onMounted(loadTransactions);
-
+// Watcher pour fermer le modal et reset la sélection
+watch(showTransactionModal, (isOpen) => {
+  if (!isOpen) {
+    selectedTransaction.value = null;
+  }
+});
 </script>

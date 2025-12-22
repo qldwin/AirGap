@@ -24,4 +24,4 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql://finantia:example@finantia-db-riudtf:5432/finantia
+      DATABASE_URL: postgresql://finantia:example@finantia-OLD_db-riudtf:5432/finantia

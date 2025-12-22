@@ -1,8 +1,8 @@
 import {pgTable, serial, pgEnum} from "drizzle-orm/pg-core";
 import {relations} from "drizzle-orm";
-import {transactions} from "~/drizzle/schema/transactions";
+import {transactions} from "./transactions";
 
-export const typeTransactionEnum = pgEnum("type_transaction_enum", [
+export const typeTransactionEnum = pgEnum("typeTransactionEnum", [
     "depense",
     "revenu",
 ]);

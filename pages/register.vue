@@ -7,11 +7,6 @@
       </div>
 
       <form class="space-y-5" @submit.prevent="handleRegister">
-<!--        <div-->
-<!--            v-if="error"-->
-<!--            class="p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-lg text-sm mb-4">-->
-<!--          {{ error }}-->
-<!--        </div>-->
 
         <div>
           <label for="name" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Nom</label>

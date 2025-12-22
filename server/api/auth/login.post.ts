@@ -1,48 +1,34 @@
-import {eq} from 'drizzle-orm';
-import {db} from "~/server/db";
-import { users } from '~/drizzle/schema/users';
-import {z} from "zod";
+import { z } from 'zod'
+import { loginUser } from '~/server/services/auth.service'
 
 const loginSchema = z.object({
-    email: z.string().email('Email invalide'),
-    password: z.string().min(8, 'Le mot de passe est requis'),
+    email: z.string().email(),
+    password: z.string().min(1)
 })
 
 export default defineEventHandler(async (event) => {
-    const {email, password} = await readValidatedBody(event, loginSchema.parse);
-
-    // Rechercher l'utilisateur par email
-    try {
-        const user = await db.select().from(users).where(eq(users.email, email)).limit(1);
-        if (!user.length) {
-            return createError({
-                statusCode: 401,
-                message: 'Identifiants incorrects'
-            });
-        }
-        const isPasswordValid = await verifyPassword(user[0].password, password);
-
-        if (!isPasswordValid) {
-            return createError({
-                statusCode: 401,
-                statusMessage: 'Invalid email or password',
-            });
-        } else {
-            await setUserSession(event, {
-                user: {
-                    id: user[0].id,
-                    email: user[0].email,
-                    name: user[0].name,
-                }
-            })
-        }
-
-        return {};
-    } catch (error) {
-        console.error(error);
-        return createError({
-            statusCode: 500,
-            message: 'Internal Server Error',
-        });
+    // 1. Validation des entrées
+    const result = await readValidatedBody(event, body => loginSchema.safeParse(body))
+    if (!result.success) {
+        throw createError({ statusCode: 400, message: 'Données invalides' })
     }
-});
+
+    // 2. Appel du Service (Logique métier)
+    const user = await loginUser(result.data.email, result.data.password)
+
+    if (!user) {
+        throw createError({ statusCode: 401, message: 'Email ou mot de passe incorrect' })
+    }
+
+    // 3. Gestion de la Session (Infrastructure)
+    await setUserSession(event, {
+        user: {
+            id: user.id,
+            email: user.email,
+            name: user.name
+        },
+        loggedInAt: new Date()
+    })
+
+    return { success: true }
+})
