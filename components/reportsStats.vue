@@ -1,14 +1,6 @@
 <template>
   <div class="pt-16 pb-8 px-4">
-    <div class="max-w-6xl mx-auto">
-      <div class="flex items-center justify-between mb-8">
-        <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-50">Rapports</h1>
-
-        <button class="btn btn-outline text-sm px-3 py-1 border border-neutral-300 rounded hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800" @click="navigateTo('/dashboard')">
-          Retour au tableau de bord
-        </button>
-      </div>
-
+    <div class="max-w-10xl mx-auto">
       <div class="card mb-8 p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
         <div class="flex items-center gap-4">
           <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Période :</span>
@@ -26,23 +18,6 @@
               <span class="text-sm">Cette année</span>
             </label>
           </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="card p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
-          <h3 class="text-lg font-medium text-neutral-600 dark:text-neutral-400 mb-1">Revenus totaux</h3>
-          <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ formatCurrency(totalIncome) }}</p>
-        </div>
-
-        <div class="card p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
-          <h3 class="text-lg font-medium text-neutral-600 dark:text-neutral-400 mb-1">Dépenses totales</h3>
-          <p class="text-3xl font-bold text-red-600 dark:text-red-400">{{ formatCurrency(totalExpenses) }}</p>
-        </div>
-
-        <div class="card p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
-          <h3 class="text-lg font-medium text-neutral-600 dark:text-neutral-400 mb-1">Solde net</h3>
-          <p class="text-3xl font-bold" :class="netBalance >= 0 ? 'text-primary-600 dark:text-primary-400' : 'text-red-600 dark:text-red-400'">{{ formatCurrency(netBalance) }}</p>
         </div>
       </div>
 
@@ -84,44 +59,6 @@
             </div>
           </ClientOnly>
         </div>
-      </div>
-
-      <div class="card p-6 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
-        <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-4">Transactions de la période</h3>
-        <div v-if="!loading && filteredTransactions.length" class="overflow-x-auto">
-          <table class="w-full">
-            <thead>
-            <tr class="border-b border-neutral-200 dark:border-neutral-800">
-              <th class="text-left py-2 px-2 text-neutral-700 dark:text-neutral-300 text-sm font-medium">Date</th>
-              <th class="text-left py-2 px-2 text-neutral-700 dark:text-neutral-300 text-sm font-medium">Description</th>
-              <th class="text-left py-2 px-2 text-neutral-700 dark:text-neutral-300 text-sm font-medium">Catégorie</th>
-              <th class="text-left py-2 px-2 text-neutral-700 dark:text-neutral-300 text-sm font-medium">Type</th>
-              <th class="text-right py-2 px-2 text-neutral-700 dark:text-neutral-300 text-sm font-medium">Montant</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="transaction in filteredTransactions.slice(0, 10)" :key="transaction.id" class="border-b border-neutral-200 dark:border-neutral-800">
-              <td class="py-3 px-2 text-sm text-neutral-600 dark:text-neutral-400">{{ formatDate(transaction.date) }}</td>
-              <td class="py-3 px-2 text-sm text-neutral-800 dark:text-neutral-200">{{ transaction.description }}</td>
-              <td class="py-3 px-2 text-sm text-neutral-600 dark:text-neutral-400">{{ transaction.categoryName }}</td>
-              <td class="py-3 px-2 text-sm">
-                  <span :class="transaction.typeStr === 'income' ? 'px-2 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 text-xs' : 'px-2 py-1 rounded-full bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 text-xs'">
-                    {{ transaction.typeStr === 'income' ? 'Revenu' : 'Dépense' }}
-                  </span>
-              </td>
-              <td class="py-3 px-2 text-sm text-right font-medium" :class="transaction.typeStr === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
-                {{ transaction.typeStr === 'income' ? '+' : '-' }} {{ formatCurrency(transaction.amount) }}
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-        <div v-else-if="loading" class="flex justify-center p-8">
-          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"/>
-        </div>
-        <p v-else class="text-center text-neutral-500 p-8">
-          Aucune transaction pour cette période
-        </p>
       </div>
     </div>
   </div>
@@ -204,21 +141,6 @@ const filteredTransactions = computed(() => {
 
   return transactions.value.filter(t => t.dateObj >= startDate);
 });
-
-// Totaux
-const totalIncome = computed(() =>
-    filteredTransactions.value
-        .filter(t => t.typeStr === 'income')
-        .reduce((sum, t) => sum + t.amount, 0)
-);
-
-const totalExpenses = computed(() =>
-    filteredTransactions.value
-        .filter(t => t.typeStr === 'expense')
-        .reduce((sum, t) => sum + t.amount, 0)
-);
-
-const netBalance = computed(() => totalIncome.value - totalExpenses.value);
 
 // --- Préparation des Données Graphiques ---
 
@@ -357,7 +279,23 @@ const initCharts = () => {
     charts.balance = new Chart(balanceChart.value, {
       type: 'line',
       data: getBalanceHistoryData(),
-      options: commonOptions
+      options: {
+        ...commonOptions, // On garde vos options de base (responsive, légende...)
+        scales: {
+          x: {
+            // C'est cette ligne qui corrige le problème
+            offset: false,
+            grid: {
+              display: false // (Optionnel) Enlève la grille verticale pour un look plus propre
+            }
+          },
+          y: {
+            // (Optionnel) false permet au graphique de zoomer sur les variations
+            // si les montants sont élevés (ex: solde entre 1000 et 1200)
+            beginAtZero: false
+          }
+        }
+      }
     });
   }
 
@@ -385,14 +323,6 @@ const initCharts = () => {
     }
   }
 };
-
-// --- Utilitaires ---
-
-const formatCurrency = (val) =>
-    new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(val);
-
-const formatDate = (dateString) =>
-    new Date(dateString).toLocaleDateString('fr-FR');
 
 // --- Lifecycle ---
 

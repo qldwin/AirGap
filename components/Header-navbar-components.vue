@@ -8,41 +8,37 @@
           <NuxtLink to="/" class="text-xl font-semibold text-primary-600 dark:text-primary-400">Finantia</NuxtLink>
         </div>
 
-        <!-- Navigation -->
-        <nav class="hidden md:flex items-center space-x-1">
-          <NuxtLink
-              to="/"
-              class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-              active-class="text-primary-600 dark:text-primary-400 font-medium"
-          >
-            Accueil
-          </NuxtLink>
+        <NuxtLink
+            to="/dashboard"
+            class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            active-class="text-primary-600 dark:text-primary-400 font-medium"
+        >
+          Tableau de bord
+        </NuxtLink>
 
-          <NuxtLink
-              to="/dashboard"
-              class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-              active-class="text-primary-600 dark:text-primary-400 font-medium"
-          >
-            Tableau de bord
-          </NuxtLink>
+        <NuxtLink
+            to="/transactions"
+            class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            active-class="text-primary-600 dark:text-primary-400 font-medium"
+        >
+          Transactions
+        </NuxtLink>
 
-          <NuxtLink
-              to="/budget"
-              class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-              active-class="text-primary-600 dark:text-primary-400 font-medium"
-          >
-            Budget
-          </NuxtLink>
+        <NuxtLink
+            to="/budget"
+            class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            active-class="text-primary-600 dark:text-primary-400 font-medium"
+        >
+          Budgets
+        </NuxtLink>
 
-          <NuxtLink
-              to="/about"
-              class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-              active-class="text-primary-600 dark:text-primary-400 font-medium"
-          >
-            À propos
-          </NuxtLink>
-        </nav>
-
+        <NuxtLink
+            to="/about"
+            class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            active-class="text-primary-600 dark:text-primary-400 font-medium"
+        >
+          À propos
+        </NuxtLink>
         <div class="flex items-center space-x-3">
           <!-- Boutons d'authentification -->
           <div v-if="loggedIn" class="relative">
@@ -69,6 +65,13 @@
                   @click="isDropdownOpen = false"
               >
                 Mon profil
+              </NuxtLink>
+              <NuxtLink
+                  to="/settings"
+                  class="block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                  @click="isDropdownOpen = false"
+              >
+                Paramètres
               </NuxtLink>
               <button
                   class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
