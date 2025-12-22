@@ -6,7 +6,7 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: example
+      POSTGRES_PASSWORD: Xy9#mP2$kL
       POSTGRES_USER: finantia
       POSTGRES_DB: finantia
 
@@ -24,4 +24,4 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql://finantia:example@finantia-OLD_db-riudtf:5432/finantia
+      DATABASE_URL: postgresql://finantia:example@finantia-db-riudtf:5432/finantia
