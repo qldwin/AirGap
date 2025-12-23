@@ -3,10 +3,6 @@
     <div class="max-w-6xl mx-auto">
       <div class="flex items-center justify-between mb-8">
         <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-50">Paramètres</h1>
-
-        <button class="btn btn-outline text-sm px-3 py-1" @click="navigateTo('/dashboard')">
-          Retour au tableau de bord
-        </button>
       </div>
 
       <div class="card p-8 text-center">

@@ -1,73 +1,126 @@
 <template>
   <div class="py-8">
-    <div v-if="user">
-      <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-50 mb-6">
-        Bonjour, {{ user?.name || 'Utilisateur' }}
-      </h1>
+    <div class="max-w-6xl mx-auto px-4">
+
+      <div class="flex items-center justify-between mb-8">
+        <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-50">Tableau de bord</h1>
+      </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="card">
-          <h3 class="text-lg font-medium">Solde total</h3>
-          <p class="text-3xl font-bold text-green-600">{{ formatCurrency(balance) }}</p>
+        <div class="card bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 border-primary-200 dark:border-primary-800 p-4 rounded-lg shadow-sm border">
+          <h3 class="text-lg font-medium text-primary-700 dark:text-primary-300 mb-1">Solde total</h3>
+          <p class="text-3xl font-bold text-primary-800 dark:text-primary-200">{{ formatCurrency(balance) }}</p>
+          <div v-if="balanceChange !== null" class="mt-2 text-sm" :class="balanceChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+            <span>{{ formatPercent(balanceChange) }}</span> vs mois dernier
+          </div>
         </div>
-        <div class="card">
-          <h3 class="text-lg font-medium">Investissements</h3>
-          <p class="text-3xl font-bold text-blue-600">{{ formatCurrency(investments) }}</p>
+
+        <div class="card p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
+          <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-1">Revenus (ce mois)</h3>
+          <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ formatCurrency(monthlyIncome) }}</p>
+          <div v-if="incomeChange !== null" class="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+            <span :class="incomeChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+              {{ formatPercent(incomeChange) }}
+            </span> vs mois dernier
+          </div>
         </div>
-        <div class="card">
-          <h3 class="text-lg font-medium">Revenus mensuels</h3>
-          <p class="text-3xl font-bold text-purple-600">{{ formatCurrency(monthlyIncome) }}</p>
+
+        <div class="card p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
+          <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-1">Dépenses (ce mois)</h3>
+          <p class="text-3xl font-bold text-red-600 dark:text-red-400">{{ formatCurrency(monthlyExpense) }}</p>
+          <div v-if="expenseChange !== null" class="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+            <span :class="expenseChange <= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+              {{ formatPercent(expenseChange) }}
+            </span> vs mois dernier
+          </div>
         </div>
       </div>
 
-      <button class="btn btn-primary" @click="navigateTo('/dashboard')">Accéder au tableau de bord</button>
+      <div v-if="loading" class="flex justify-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"/>
+      </div>
+
+      <reportsStats v-else :transactions="transactions" />
+
     </div>
 
-    <div v-else>
-      <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold mb-3 text-neutral-900 dark:text-neutral-50">
-          Bienvenue sur <span class="text-primary-600 dark:text-primary-400">Finantia</span>
-        </h1>
-        <p class="text-lg text-neutral-700 dark:text-neutral-300 max-w-2xl mx-auto">
-          Votre solution pour gérer vos finances personnelles en toute simplicité
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-      </div>
-
-      <div class="text-center">
-        <button class="btn btn-primary" @click="navigateTo('/register')">Commencer maintenant</button>
-        <button class="btn btn-outline ml-3" @click="navigateTo('/about')">En savoir plus</button>
-      </div>
-    </div>
   </div>
 </template>
 
-<script setup lang="ts">
-const {user} = useUserSession();
+<script setup>
+definePageMeta({
+  middleware: ['authenticated']
+});
 
-const transactions = ref<Transaction[]>([])
+// --- ÉTAT ---
+const transactions = ref([]);
+const loading = ref(true);
 
-const currentDate = new Date();
-const currentMonth = currentDate.getMonth();
-const currentYear = currentDate.getFullYear();
+// --- CHARGEMENT ---
+const loadTransactions = async () => {
+  loading.value = true;
+  try {
+    const { data, error } = await useFetch('/api/transactions');
+    if (error.value) throw error.value;
 
-const balance = computed(() =>
-    transactions.value.reduce((total: any, t: any) => {
-      const amount = Number(t.amount) || 0
-      return total + (t.type === 'income' ? amount : -amount)
-    }, 0)
-)
+    const rawData = data.value?.transactions || [];
 
-const monthlyIncome = computed(() =>
-    transactions.value
-        .filter(t => t.type === 'income' && new Date(t.date).getMonth() === currentMonth && new Date(t.date).getFullYear() === currentYear)
-        .reduce((sum, t) => sum + Number(t.amount), 0)
-);
+    // Normalisation des données pour les KPIs et le composant enfant
+    transactions.value = rawData.map(t => ({
+      ...t,
+      amount: Number(t.amount),
+      // On s'assure que le type est compréhensible partout
+      typeStr: t.typeTransactionsId === 1 ? 'income' : 'expense',
+      type: t.typeTransactionsId === 1 ? 'income' : 'expense',
+      dateObj: new Date(t.date),
+      categoryName: t.category?.name || 'Aucune'
+    })).sort((a, b) => b.dateObj - a.dateObj);
 
-const investments = ref(0)
+  } catch (e) {
+    console.error("Erreur Dashboard:", e);
+  } finally {
+    loading.value = false;
+  }
+};
 
-const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount)
+// --- LOGIQUE KPIs (Calculs pour les cartes du haut) ---
+const now = new Date();
+const currentMonth = now.getMonth();
+const currentYear = now.getFullYear();
+
+// Helper date
+const getPreviousMonth = (year, month) => month === 0 ? { year: year - 1, month: 11 } : { year, month: month - 1 };
+const { year: prevYear, month: prevMonth } = getPreviousMonth(currentYear, currentMonth);
+
+// Calculs Solde / Revenus / Dépenses (Mois en cours)
+const balance = computed(() => transactions.value.reduce((total, t) => total + (t.typeStr === 'income' ? t.amount : -t.amount), 0));
+const monthlyIncome = computed(() => transactions.value.filter(t => t.typeStr === 'income' && t.dateObj.getMonth() === currentMonth && t.dateObj.getFullYear() === currentYear).reduce((sum, t) => sum + t.amount, 0));
+const monthlyExpense = computed(() => transactions.value.filter(t => t.typeStr === 'expense' && t.dateObj.getMonth() === currentMonth && t.dateObj.getFullYear() === currentYear).reduce((sum, t) => sum + t.amount, 0));
+
+// Calculs (Mois précédent pour les %)
+const prevIncome = computed(() => transactions.value.filter(t => t.typeStr === 'income' && t.dateObj.getMonth() === prevMonth && t.dateObj.getFullYear() === prevYear).reduce((sum, t) => sum + t.amount, 0));
+const prevExpense = computed(() => transactions.value.filter(t => t.typeStr === 'expense' && t.dateObj.getMonth() === prevMonth && t.dateObj.getFullYear() === prevYear).reduce((sum, t) => sum + t.amount, 0));
+
+// Pourcentages d'évolution
+const incomeChange = computed(() => prevIncome.value === 0 ? null : ((monthlyIncome.value - prevIncome.value) / Math.abs(prevIncome.value)) * 100);
+const expenseChange = computed(() => prevExpense.value === 0 ? null : ((monthlyExpense.value - prevExpense.value) / Math.abs(prevExpense.value)) * 100);
+const balanceChange = computed(() => {
+  const curBal = monthlyIncome.value - monthlyExpense.value;
+  const prevBal = prevIncome.value - prevExpense.value;
+  return prevBal === 0 ? null : ((curBal - prevBal) / Math.abs(prevBal)) * 100;
+});
+
+// --- FORMATTERS ---
+const formatCurrency = (val) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(val);
+const formatPercent = (val) => {
+  if (val === null) {
+    return '-';
+  }
+  const sign = val > 0 ? '+' : '';
+  return `${sign}${val.toFixed(1)}%`;
+};
+// --- LIFECYCLE ---
+onMounted(() => {
+  loadTransactions();
+});
 </script>

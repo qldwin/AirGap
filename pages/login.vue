@@ -70,7 +70,7 @@ async function handleLogin() {
   })
       .then(async () => {
         await refreshSession()
-        await navigateTo('/dashboard')
+        await navigateTo('/')
       })
       .catch(() => alert('Bad credentials'))
 }

@@ -14,11 +14,6 @@
             </svg>
             Nouvelle transaction
           </button>
-          <button
-              class="btn btn-outline text-sm px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-700 dark:text-neutral-300"
-              @click="navigateTo('/')">
-            Retour au tableau de bord
-          </button>
         </div>
       </div>
 

@@ -14,9 +14,6 @@
             </svg>
             Nouveau budget
           </button>
-          <button class="btn btn-outline text-sm px-3 py-1 border border-neutral-300 rounded hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800" @click="navigateTo('/dashboard')">
-            Retour au tableau de bord
-          </button>
         </div>
       </div>
 
