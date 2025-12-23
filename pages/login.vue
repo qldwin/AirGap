@@ -1,26 +1,3 @@
-<script setup lang="ts">
-const {fetch: refreshSession} = useUserSession()
-const credentials = ref({
-  email: '',
-  password: '',
-});
-
-async function handleLogin() {
-  $fetch('/api/auth/login', {
-    method: 'POST',
-    body: {
-      email: credentials.value.email,
-      password: credentials.value.password,
-    }
-  })
-      .then(async () => {
-        await refreshSession()
-        await navigateTo('/')
-      })
-      .catch(() => alert('Bad credentials'))
-}
-</script>
-
 <template>
   <div class="flex justify-center items-center py-12">
     <div class="card w-full max-w-md">
@@ -76,3 +53,25 @@ async function handleLogin() {
   </div>
 </template>
 
+<script setup lang="ts">
+const {fetch: refreshSession} = useUserSession()
+const credentials = ref({
+  email: '',
+  password: '',
+});
+
+async function handleLogin() {
+  $fetch('/api/auth/login', {
+    method: 'POST',
+    body: {
+      email: credentials.value.email,
+      password: credentials.value.password,
+    }
+  })
+      .then(async () => {
+        await refreshSession()
+        await navigateTo('/dashboard')
+      })
+      .catch(() => alert('Bad credentials'))
+}
+</script>
