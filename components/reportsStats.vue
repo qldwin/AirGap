@@ -21,6 +21,15 @@
         </div>
       </div>
 
+      <div class="card mb-8 p-6 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
+        <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-4">Cashflow</h3>
+        <ClientOnly>
+          <div style="height: 400px; position: relative;">
+            <canvas ref="sankeyChart" style="max-height: 100%; width: 100%;"/>
+          </div>
+        </ClientOnly>
+      </div>
+
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <div class="card p-6 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
           <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-4">Revenus vs Dépenses</h3>
@@ -40,33 +49,15 @@
           </ClientOnly>
         </div>
       </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <div class="card p-6 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
-          <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-4">Dépenses par catégorie</h3>
-          <ClientOnly>
-            <div style="height: 320px; position: relative;">
-              <canvas ref="expensesChart" style="max-height: 100%;"/>
-            </div>
-          </ClientOnly>
-        </div>
-
-        <div class="card p-6 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
-          <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-4">Revenus par catégorie</h3>
-          <ClientOnly>
-            <div style="height: 320px; position: relative;">
-              <canvas ref="incomeChart" style="max-height: 100%;"/>
-            </div>
-          </ClientOnly>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { Chart, registerables } from "chart.js";
-Chart.register(...registerables);
+import { SankeyController, Flow } from 'chartjs-chart-sankey';
+
+Chart.register(...registerables, SankeyController, Flow);
 
 definePageMeta({
   middleware: ['authenticated']
@@ -79,30 +70,22 @@ const period = ref('month');
 
 const incomeExpenseChart = ref(null);
 const balanceChart = ref(null);
-const expensesChart = ref(null);
-const incomeChart = ref(null);
+const sankeyChart = ref(null);
 
 // Instances Chart.js
 const charts = {
   incomeExpense: null,
   balance: null,
   expenses: null,
-  income: null
-};
-
-// --- Couleurs ---
-const colors = {
-  expenses: ['#FF6384', '#FF9F40', '#FFCD56', '#4BC0C0', '#36A2EB', '#9966FF', '#C9CBCF', '#7CB342', '#FB8C00', '#F44336'],
-  income: ['#4CAF50', '#8BC34A', '#CDDC39', '#FFC107', '#FF9800', '#2196F3', '#3F51B5']
+  income: null,
+  sankey: null
 };
 
 // --- Logique Métier ---
-
 const loadTransactions = async () => {
   try {
     loading.value = true;
     const response = await $fetch('/api/transactions');
-
     const rawTransactions = response.transactions || [];
 
     transactions.value = rawTransactions.map(t => ({
@@ -123,10 +106,8 @@ const loadTransactions = async () => {
 
 const filteredTransactions = computed(() => {
   if (!transactions.value.length) return [];
-
   const now = new Date();
   let startDate;
-
   now.setHours(0,0,0,0);
 
   if (period.value === 'month') {
@@ -135,10 +116,8 @@ const filteredTransactions = computed(() => {
     const quarter = Math.floor(now.getMonth() / 3);
     startDate = new Date(now.getFullYear(), quarter * 3, 1);
   } else {
-    // Year
     startDate = new Date(now.getFullYear(), 0, 1);
   }
-
   return transactions.value.filter(t => t.dateObj >= startDate);
 });
 
@@ -149,30 +128,19 @@ const getIncomeVsExpensesData = () => {
   const labels = [];
   const incomeData = [];
   const expenseData = [];
-
   const groupedData = new Map();
 
   filteredTransactions.value.forEach(t => {
     let key;
-    if (isYearly) {
-      key = t.dateObj.toLocaleString('fr-FR', { month: 'short' });
-    } else {
-      key = t.dateObj.getDate().toString();
-    }
+    if (isYearly) key = t.dateObj.toLocaleString('fr-FR', { month: 'short' });
+    else key = t.dateObj.getDate().toString();
 
-    if (!groupedData.has(key)) {
-      groupedData.set(key, { income: 0, expense: 0, sortDate: t.dateObj });
-    }
-
-    if (t.typeStr === 'income') {
-      groupedData.get(key).income += t.amount;
-    } else {
-      groupedData.get(key).expense += t.amount;
-    }
+    if (!groupedData.has(key)) groupedData.set(key, { income: 0, expense: 0 });
+    if (t.typeStr === 'income') groupedData.get(key).income += t.amount;
+    else groupedData.get(key).expense += t.amount;
   });
 
   const sortedKeys = Array.from(groupedData.keys()).reverse();
-
   sortedKeys.forEach(key => {
     labels.push(key);
     incomeData.push(groupedData.get(key).income);
@@ -182,70 +150,85 @@ const getIncomeVsExpensesData = () => {
   return {
     labels,
     datasets: [
-      {
-        label: 'Revenus',
-        data: incomeData,
-        backgroundColor: 'rgba(76, 175, 80, 0.6)',
-        borderColor: '#4CAF50',
-        borderWidth: 1
-      },
-      {
-        label: 'Dépenses',
-        data: expenseData,
-        backgroundColor: 'rgba(244, 67, 54, 0.6)',
-        borderColor: '#F44336',
-        borderWidth: 1
-      }
+      { label: 'Revenus', data: incomeData, backgroundColor: 'rgba(76, 175, 80, 0.6)', borderColor: '#4CAF50', borderWidth: 1 },
+      { label: 'Dépenses', data: expenseData, backgroundColor: 'rgba(244, 67, 54, 0.6)', borderColor: '#F44336', borderWidth: 1 }
     ]
-  };
-};
-
-const getCategoryData = (type) => {
-  const dataMap = {};
-
-  filteredTransactions.value
-      .filter(t => t.typeStr === type)
-      .forEach(t => {
-        const cat = t.categoryName;
-        dataMap[cat] = (dataMap[cat] || 0) + t.amount;
-      });
-
-  const labels = Object.keys(dataMap);
-
-  return {
-    labels,
-    datasets: [{
-      data: labels.map(l => dataMap[l]),
-      backgroundColor: type === 'income' ? colors.income : colors.expenses,
-      hoverOffset: 4
-    }]
   };
 };
 
 const getBalanceHistoryData = () => {
   const sorted = [...filteredTransactions.value].sort((a, b) => a.dateObj - b.dateObj);
 
-  const labels = sorted.map(t => t.dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }));
-  const data = [];
+  const data = [];   // Les points de la courbe
+  const labels = []; // Ce qui est écrit en bas (Axe X)
+  const dates = [];  // Pour l'infobulle (optionnel mais recommandé)
 
   let currentBalance = 0;
+
   sorted.forEach(t => {
+    // 1. Calcul du solde
     if (t.typeStr === 'income') currentBalance += t.amount;
     else currentBalance -= t.amount;
+
     data.push(currentBalance);
+
+    // 2. Le LABEL devient le PRIX (formaté en Euros)
+    labels.push(currentBalance.toLocaleString('fr-FR', {
+      style: 'currency',
+      currency: 'EUR',
+      maximumFractionDigits: 0
+    }));
+
+    // 3. On sauvegarde la date pour plus tard
+    dates.push(t.dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }));
   });
 
   return {
-    labels,
+    labels, // <--- On envoie les prix ici
     datasets: [{
       label: 'Solde cumulé',
       data,
+      dates, // <--- On passe les dates ici pour le tooltip
       borderColor: '#3b82f6',
       backgroundColor: 'rgba(59, 130, 246, 0.1)',
       fill: true,
-      tension: 0.3
+      tension: 0.3,
+      pointRadius: 0,
+      pointHitRadius: 10,
+      pointHoverRadius: 4,
+      borderWidth: 2
     }]
   };
+};
+
+// 4. NOUVELLE FONCTION POUR LE SANKEY
+const getSankeyData = () => {
+  const incomeCategories = {};
+  const expenseCategories = {};
+
+  // A. Agréger les montants par catégorie
+  filteredTransactions.value.forEach(t => {
+    if (t.typeStr === 'income') {
+      incomeCategories[t.categoryName] = (incomeCategories[t.categoryName] || 0) + t.amount;
+    } else {
+      expenseCategories[t.categoryName] = (expenseCategories[t.categoryName] || 0) + t.amount;
+    }
+  });
+
+  const data = [];
+  const CENTRAL_NODE = 'Budget Total'; // Le noeud central
+
+  // B. Créer les flux Revenus -> Central
+  Object.entries(incomeCategories).forEach(([cat, amount]) => {
+    data.push({ from: cat, to: CENTRAL_NODE, flow: amount });
+  });
+
+  // C. Créer les flux Central -> Dépenses
+  Object.entries(expenseCategories).forEach(([cat, amount]) => {
+    data.push({ from: CENTRAL_NODE, to: cat, flow: amount });
+  });
+
+  return data;
 };
 
 // --- Gestion des Graphiques ---
@@ -276,62 +259,188 @@ const initCharts = () => {
 
   // 2. Line Chart (Balance)
   if (balanceChart.value) {
+
+    // DÉFINITION DU PLUGIN : "Ligne de projection verticale"
+    const verticalHoverLine = {
+      id: 'verticalHoverLine',
+      // On dessine après les datasets (par dessus la courbe ou en dessous selon préférence)
+      beforeDatasetsDraw(chart) {
+        const { ctx, tooltip, chartArea: { bottom }, scales: { x } } = chart;
+
+        // Si le tooltip est actif (donc on survole un point)
+        if (tooltip._active && tooltip._active.length) {
+          const activePoint = tooltip._active[0];
+          const xPosition = activePoint.element.x; // Position X du point
+          const yPosition = activePoint.element.y; // Position Y du point
+
+          ctx.save();
+          ctx.beginPath();
+
+          // On part du point
+          ctx.moveTo(xPosition, yPosition);
+          // On descend jusqu'en bas du graphique (l'axe des abscisses)
+          ctx.lineTo(xPosition, bottom);
+
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = '#3b82f6'; // Couleur bleu (la même que la courbe)
+          ctx.setLineDash([5, 5]); // Pointillés
+
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+    };
+
     charts.balance = new Chart(balanceChart.value, {
       type: 'line',
       data: getBalanceHistoryData(),
+      // ON ENREGISTRE LE PLUGIN ICI
+      plugins: [verticalHoverLine],
+
       options: {
-        ...commonOptions, // On garde vos options de base (responsive, légende...)
+        ...commonOptions,
+
+        elements: {
+          point: {
+            radius: 0,
+            hitRadius: 10,
+            hoverRadius: 1
+          },
+          line: {
+            borderWidth: 2,
+            tension: 0.3
+          }
+        },
+
         scales: {
           x: {
-            // C'est cette ligne qui corrige le problème
             offset: false,
             grid: {
-              display: false // (Optionnel) Enlève la grille verticale pour un look plus propre
+              display: false, // ❌ On enlève la grille standard (elle allait trop haut)
+              drawBorder: false
+            },
+            ticks: {
+              maxTicksLimit: 7,
+              maxRotation: 0,
+              autoSkip: true
             }
           },
           y: {
-            // (Optionnel) false permet au graphique de zoomer sur les variations
-            // si les montants sont élevés (ex: solde entre 1000 et 1200)
-            beginAtZero: false
+            beginAtZero: false,
+            grid: {
+              display: false,
+              drawBorder: false
+            },
+            ticks: {
+              display: false // On cache les montants à gauche
+            }
           }
-        }
+        },
+
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
       }
     });
   }
 
-  // 3. Doughnut (Dépenses)
-  if (expensesChart.value) {
-    const expenseData = getCategoryData('expense');
-    if (expenseData.labels.length) {
-      charts.expenses = new Chart(expensesChart.value, {
-        type: 'doughnut',
-        data: expenseData,
-        options: { ...commonOptions, cutout: '65%' }
-      });
-    }
-  }
+  // 3. SANKEY DIAGRAM
+  if (sankeyChart.value) {
+    const sankeyFlows = getSankeyData();
 
-  // 4. Doughnut (Revenus)
-  if (incomeChart.value) {
-    const incomeData = getCategoryData('income');
-    if (incomeData.labels.length) {
-      charts.income = new Chart(incomeChart.value, {
-        type: 'doughnut',
-        data: incomeData,
-        options: { ...commonOptions, cutout: '65%' }
+    // 1. Calcul des totaux
+    const getNodeTotal = (nodeName) => {
+      let total = 0;
+      if (nodeName === 'Budget Total') {
+        sankeyFlows.forEach(flow => { if (flow.to === 'Budget Total') total += flow.flow; });
+      } else if (sankeyFlows.some(f => f.to === nodeName)) {
+        sankeyFlows.forEach(flow => { if (flow.to === nodeName) total += flow.flow; });
+      } else {
+        sankeyFlows.forEach(flow => { if (flow.from === nodeName) total += flow.flow; });
+      }
+      return total;
+    };
+
+    // 2. CRÉATION DES LABELS (Correction ici)
+    const customLabels = {};
+
+    const allNodes = new Set();
+    sankeyFlows.forEach(f => {
+      allNodes.add(f.from);
+      allNodes.add(f.to);
+    });
+
+    allNodes.forEach(nodeName => {
+      const amount = getNodeTotal(nodeName);
+      const formattedAmount = amount.toLocaleString('fr-FR', {
+        style: 'currency',
+        currency: 'EUR',
+        maximumFractionDigits: 0
+      });
+      customLabels[nodeName] = `${nodeName} (${formattedAmount})`;
+    });
+
+    const getColor = (key) => {
+      if (key === 'Budget Total') return '#3b82f6';
+      const isIncome = sankeyFlows.some(f => f.from === key && f.to === 'Budget Total');
+      return isIncome ? '#4CAF50' : '#F44336';
+    };
+
+    if (sankeyFlows.length) {
+      charts.sankey = new Chart(sankeyChart.value, {
+        type: 'sankey',
+        data: {
+          datasets: [{
+            label: 'Flux financier',
+            data: sankeyFlows,
+
+            // On injecte nos labels calculés
+            labels: customLabels,
+
+            colorFrom: (c) => getColor(c.dataset.data[c.dataIndex].from),
+            colorTo: (c) => getColor(c.dataset.data[c.dataIndex].to),
+            colorMode: 'gradient',
+            nodeWidth: 20,
+            size: 'max', // Important pour que la hauteur s'adapte
+
+            // On force la couleur noire pour être sûr que ce n'est pas écrit en blanc sur blanc
+            color: 'black',
+
+            font: {
+              size: 12,
+              weight: 'bold'
+            }
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: 20
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const item = ctx.raw;
+                  return `${item.from} -> ${item.to}: ${item.flow.toLocaleString('fr-FR', {style: 'currency', currency: 'EUR'})}`;
+                }
+              }
+            }
+          }
+        }
       });
     }
   }
 };
-
-// --- Lifecycle ---
 
 onMounted(() => {
   loadTransactions();
 });
 
 watch(period, () => {
-  // Petit délai pour laisser le computed recalculer les filteredTransactions
   nextTick(() => initCharts());
 });
 </script>
