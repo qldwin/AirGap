@@ -72,7 +72,6 @@ const incomeExpenseChart = ref(null);
 const balanceChart = ref(null);
 const sankeyChart = ref(null);
 
-// Instances Chart.js
 const charts = {
   incomeExpense: null,
   balance: null,
@@ -159,9 +158,9 @@ const getIncomeVsExpensesData = () => {
 const getBalanceHistoryData = () => {
   const sorted = [...filteredTransactions.value].sort((a, b) => a.dateObj - b.dateObj);
 
-  const data = [];   // Les points de la courbe
-  const labels = []; // Ce qui est écrit en bas (Axe X)
-  const dates = [];  // Pour l'infobulle (optionnel mais recommandé)
+  const data = [];
+  const labels = [];
+  const dates = [];
 
   let currentBalance = 0;
 
@@ -184,11 +183,11 @@ const getBalanceHistoryData = () => {
   });
 
   return {
-    labels, // <--- On envoie les prix ici
+    labels,
     datasets: [{
       label: 'Solde cumulé',
       data,
-      dates, // <--- On passe les dates ici pour le tooltip
+      dates,
       borderColor: '#3b82f6',
       backgroundColor: 'rgba(59, 130, 246, 0.1)',
       fill: true,
@@ -216,7 +215,7 @@ const getSankeyData = () => {
   });
 
   const data = [];
-  const CENTRAL_NODE = 'Budget Total'; // Le noeud central
+  const CENTRAL_NODE = 'Budget Total';
 
   // B. Créer les flux Revenus -> Central
   Object.entries(incomeCategories).forEach(([cat, amount]) => {
@@ -260,30 +259,25 @@ const initCharts = () => {
   // 2. Line Chart (Balance)
   if (balanceChart.value) {
 
-    // DÉFINITION DU PLUGIN : "Ligne de projection verticale"
     const verticalHoverLine = {
       id: 'verticalHoverLine',
-      // On dessine après les datasets (par dessus la courbe ou en dessous selon préférence)
       beforeDatasetsDraw(chart) {
         const { ctx, tooltip, chartArea: { bottom }, scales: { x } } = chart;
 
-        // Si le tooltip est actif (donc on survole un point)
         if (tooltip._active && tooltip._active.length) {
           const activePoint = tooltip._active[0];
-          const xPosition = activePoint.element.x; // Position X du point
-          const yPosition = activePoint.element.y; // Position Y du point
+          const xPosition = activePoint.element.x;
+          const yPosition = activePoint.element.y;
 
           ctx.save();
           ctx.beginPath();
 
-          // On part du point
           ctx.moveTo(xPosition, yPosition);
-          // On descend jusqu'en bas du graphique (l'axe des abscisses)
           ctx.lineTo(xPosition, bottom);
 
           ctx.lineWidth = 1;
-          ctx.strokeStyle = '#3b82f6'; // Couleur bleu (la même que la courbe)
-          ctx.setLineDash([5, 5]); // Pointillés
+          ctx.strokeStyle = '#3b82f6';
+          ctx.setLineDash([5, 5]);
 
           ctx.stroke();
           ctx.restore();
@@ -294,7 +288,6 @@ const initCharts = () => {
     charts.balance = new Chart(balanceChart.value, {
       type: 'line',
       data: getBalanceHistoryData(),
-      // ON ENREGISTRE LE PLUGIN ICI
       plugins: [verticalHoverLine],
 
       options: {
@@ -316,7 +309,7 @@ const initCharts = () => {
           x: {
             offset: false,
             grid: {
-              display: false, // ❌ On enlève la grille standard (elle allait trop haut)
+              display: false,
               drawBorder: false
             },
             ticks: {
@@ -332,7 +325,7 @@ const initCharts = () => {
               drawBorder: false
             },
             ticks: {
-              display: false // On cache les montants à gauche
+              display: false
             }
           }
         },
@@ -395,16 +388,14 @@ const initCharts = () => {
             label: 'Flux financier',
             data: sankeyFlows,
 
-            // On injecte nos labels calculés
             labels: customLabels,
 
             colorFrom: (c) => getColor(c.dataset.data[c.dataIndex].from),
             colorTo: (c) => getColor(c.dataset.data[c.dataIndex].to),
             colorMode: 'gradient',
             nodeWidth: 20,
-            size: 'max', // Important pour que la hauteur s'adapte
+            size: 'max',
 
-            // On force la couleur noire pour être sûr que ce n'est pas écrit en blanc sur blanc
             color: 'black',
 
             font: {
