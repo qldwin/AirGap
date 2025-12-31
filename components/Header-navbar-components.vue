@@ -10,7 +10,7 @@
 
         <NuxtLink
             to="/"
-            class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:text-emerald-600 dark:hover:bg-neutral-800 transition-colors"
             active-class="text-primary-600 dark:text-primary-400 font-medium"
         >
           Tableau de bord
@@ -18,7 +18,7 @@
 
         <NuxtLink
             to="/transactions"
-            class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:text-emerald-600 dark:hover:bg-neutral-800 transition-colors"
             active-class="text-primary-600 dark:text-primary-400 font-medium"
         >
           Transactions
@@ -26,7 +26,7 @@
 
         <NuxtLink
             to="/budget"
-            class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:text-emerald-600 dark:hover:bg-neutral-800 transition-colors"
             active-class="text-primary-600 dark:text-primary-400 font-medium"
         >
           Budgets
@@ -34,13 +34,12 @@
 
         <NuxtLink
             to="/about"
-            class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            class="px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:text-emerald-600 dark:hover:bg-neutral-800 transition-colors"
             active-class="text-primary-600 dark:text-primary-400 font-medium"
         >
           À propos
         </NuxtLink>
         <div class="flex items-center space-x-3">
-          <!-- Boutons d'authentification -->
           <div v-if="loggedIn" class="relative">
             <button
                 class="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
