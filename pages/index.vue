@@ -65,11 +65,9 @@ const loadTransactions = async () => {
 
     const rawData = data.value?.transactions || [];
 
-    // Normalisation des données pour les KPIs et le composant enfant
     transactions.value = rawData.map(t => ({
       ...t,
       amount: Number(t.amount),
-      // On s'assure que le type est compréhensible partout
       typeStr: t.typeTransactionsId === 1 ? 'income' : 'expense',
       type: t.typeTransactionsId === 1 ? 'income' : 'expense',
       dateObj: new Date(t.date),
@@ -88,7 +86,6 @@ const now = new Date();
 const currentMonth = now.getMonth();
 const currentYear = now.getFullYear();
 
-// Helper date
 const getPreviousMonth = (year, month) => month === 0 ? { year: year - 1, month: 11 } : { year, month: month - 1 };
 const { year: prevYear, month: prevMonth } = getPreviousMonth(currentYear, currentMonth);
 

@@ -126,45 +126,36 @@
 
 <script setup>
 const {loggedIn, user, clear: clearSession} = useUserSession();
-// État du thème
 const isDarkTheme = ref(false);
 
-// États du menu
 const isDropdownOpen = ref(false);
 const isMobileMenuOpen = ref(false);
 
-// Fermer le dropdown quand on clique ailleurs
 const closeDropdown = (event) => {
   if (isDropdownOpen.value && !event.target.closest('.relative')) {
     isDropdownOpen.value = false;
   }
 };
 
-// Toggle pour le dropdown
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value;
 };
 
-// // Fonction de déconnexion
 async function logout() {
   await clearSession()
   await navigateTo('/login')
 }
 
 onMounted(() => {
-  // Initialisation du thème
   isDarkTheme.value = document.documentElement.classList.contains('dark');
 
-  // Ajouter l'écouteur pour fermer le dropdown
   document.addEventListener('click', closeDropdown);
 });
 
 onUnmounted(() => {
-  // Nettoyer l'écouteur
   document.removeEventListener('click', closeDropdown);
 });
 
-// Fonction pour changer de thème
 function toggleTheme() {
   const html = document.documentElement;
 
@@ -179,7 +170,6 @@ function toggleTheme() {
   }
 }
 
-// Fermer le menu mobile et le dropdown quand on change de route
 watch(() => globalThis.location.href, () => {
   isMobileMenuOpen.value = false;
   isDropdownOpen.value = false;

@@ -75,12 +75,10 @@ const sankeyChart = ref(null);
 const charts = {
   incomeExpense: null,
   balance: null,
-  expenses: null,
-  income: null,
   sankey: null
 };
 
-// --- Logique Métier ---
+// --- Logique Métier (Inchangée) ---
 const loadTransactions = async () => {
   try {
     loading.value = true;
@@ -120,7 +118,7 @@ const filteredTransactions = computed(() => {
   return transactions.value.filter(t => t.dateObj >= startDate);
 });
 
-// --- Préparation des Données Graphiques ---
+// --- Préparation des Données Graphiques (Inchangées) ---
 
 const getIncomeVsExpensesData = () => {
   const isYearly = period.value === 'year';
@@ -157,55 +155,33 @@ const getIncomeVsExpensesData = () => {
 
 const getBalanceHistoryData = () => {
   const sorted = [...filteredTransactions.value].sort((a, b) => a.dateObj - b.dateObj);
-
   const data = [];
   const labels = [];
   const dates = [];
-
   let currentBalance = 0;
 
   sorted.forEach(t => {
-    // 1. Calcul du solde
     if (t.typeStr === 'income') currentBalance += t.amount;
     else currentBalance -= t.amount;
-
     data.push(currentBalance);
-
-    // 2. Le LABEL devient le PRIX (formaté en Euros)
     labels.push(currentBalance.toLocaleString('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
-      maximumFractionDigits: 0
+      style: 'currency', currency: 'EUR', maximumFractionDigits: 0
     }));
-
-    // 3. On sauvegarde la date pour plus tard
     dates.push(t.dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }));
   });
 
   return {
     labels,
     datasets: [{
-      label: 'Solde cumulé',
-      data,
-      dates,
-      borderColor: '#3b82f6',
-      backgroundColor: 'rgba(59, 130, 246, 0.1)',
-      fill: true,
-      tension: 0.3,
-      pointRadius: 0,
-      pointHitRadius: 10,
-      pointHoverRadius: 4,
-      borderWidth: 2
+      label: 'Solde cumulé', data, dates, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 10, pointHoverRadius: 4, borderWidth: 2
     }]
   };
 };
 
-// 4. NOUVELLE FONCTION POUR LE SANKEY
 const getSankeyData = () => {
   const incomeCategories = {};
   const expenseCategories = {};
 
-  // A. Agréger les montants par catégorie
   filteredTransactions.value.forEach(t => {
     if (t.typeStr === 'income') {
       incomeCategories[t.categoryName] = (incomeCategories[t.categoryName] || 0) + t.amount;
@@ -217,12 +193,10 @@ const getSankeyData = () => {
   const data = [];
   const CENTRAL_NODE = 'Budget Total';
 
-  // B. Créer les flux Revenus -> Central
   Object.entries(incomeCategories).forEach(([cat, amount]) => {
     data.push({ from: cat, to: CENTRAL_NODE, flow: amount });
   });
 
-  // C. Créer les flux Central -> Dépenses
   Object.entries(expenseCategories).forEach(([cat, amount]) => {
     data.push({ from: CENTRAL_NODE, to: cat, flow: amount });
   });
@@ -238,13 +212,36 @@ const destroyCharts = () => {
   });
 };
 
+// 1. Fonction pour détecter la couleur actuelle
+const getThemeTextColor = () => {
+  if (import.meta.client) {
+    const isDark = document.documentElement.classList.contains('dark');
+    return isDark ? '#e5e5e5' : '#1f2937';
+  }
+  return '#1f2937';
+};
+
 const initCharts = () => {
   destroyCharts();
+
+  // 2. On récupère la couleur au moment du rendu
+  const textColor = getThemeTextColor();
+  // 3. (Optionnel) Couleur de la grille (légèrement visible en dark)
+  const gridColor = textColor === '#e5e5e5' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
 
   const commonOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { position: 'bottom' } }
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { color: textColor } // Légende en couleur dynamique
+      }
+    },
+    scales: {
+      x: { ticks: { color: textColor }, grid: { color: gridColor } },
+      y: { ticks: { color: textColor }, grid: { color: gridColor } }
+    }
   };
 
   // 1. Bar Chart (Rev vs Dep)
@@ -262,23 +259,19 @@ const initCharts = () => {
     const verticalHoverLine = {
       id: 'verticalHoverLine',
       beforeDatasetsDraw(chart) {
-        const { ctx, tooltip, chartArea: { bottom }, scales: { x } } = chart;
-
+        const { ctx, tooltip, chartArea: { bottom } } = chart;
         if (tooltip._active && tooltip._active.length) {
           const activePoint = tooltip._active[0];
-          const xPosition = activePoint.element.x;
-          const yPosition = activePoint.element.y;
+          const x = activePoint.element.x;
+          const y = activePoint.element.y;
 
           ctx.save();
           ctx.beginPath();
-
-          ctx.moveTo(xPosition, yPosition);
-          ctx.lineTo(xPosition, bottom);
-
+          ctx.moveTo(x, y);
+          ctx.lineTo(x, bottom);
           ctx.lineWidth = 1;
           ctx.strokeStyle = '#3b82f6';
           ctx.setLineDash([5, 5]);
-
           ctx.stroke();
           ctx.restore();
         }
@@ -292,48 +285,45 @@ const initCharts = () => {
 
       options: {
         ...commonOptions,
-
-        elements: {
-          point: {
-            radius: 0,
-            hitRadius: 10,
-            hoverRadius: 1
-          },
-          line: {
-            borderWidth: 2,
-            tension: 0.3
-          }
-        },
+        layout: { padding: { bottom: 20 } },
+        elements: { point: { radius: 0, hitRadius: 10, hoverRadius: 1 }, line: { borderWidth: 2, tension: 0.3 } },
 
         scales: {
           x: {
             offset: false,
-            grid: {
-              display: false,
-              drawBorder: false
-            },
+            grid: { display: false, drawBorder: false },
             ticks: {
-              maxTicksLimit: 7,
-              maxRotation: 0,
-              autoSkip: true
+              maxTicksLimit: 100,
+              autoSkip: false,
+              minRotation: 45,
+              maxRotation: 45,
+
+              color: textColor,
+
+              font: { size: 10, weight: 'bold' }
             }
           },
           y: {
             beginAtZero: false,
-            grid: {
-              display: false,
-              drawBorder: false
-            },
-            ticks: {
-              display: false
-            }
+            grid: { display: false, drawBorder: false },
+            ticks: { display: false }
           }
         },
 
-        interaction: {
-          mode: 'index',
-          intersect: false,
-        },
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (context) => {
+                const index = context[0].dataIndex;
+                const date = context[0].dataset.dates ? context[0].dataset.dates[index] : '';
+                return `Date : ${date}`;
+              },
+              label: (context) => `Solde : ${context.label}`
+            }
+          }
+        }
       }
     });
   }
@@ -342,7 +332,6 @@ const initCharts = () => {
   if (sankeyChart.value) {
     const sankeyFlows = getSankeyData();
 
-    // 1. Calcul des totaux
     const getNodeTotal = (nodeName) => {
       let total = 0;
       if (nodeName === 'Budget Total') {
@@ -355,21 +344,14 @@ const initCharts = () => {
       return total;
     };
 
-    // 2. CRÉATION DES LABELS (Correction ici)
     const customLabels = {};
-
     const allNodes = new Set();
-    sankeyFlows.forEach(f => {
-      allNodes.add(f.from);
-      allNodes.add(f.to);
-    });
+    sankeyFlows.forEach(f => { allNodes.add(f.from); allNodes.add(f.to); });
 
     allNodes.forEach(nodeName => {
       const amount = getNodeTotal(nodeName);
       const formattedAmount = amount.toLocaleString('fr-FR', {
-        style: 'currency',
-        currency: 'EUR',
-        maximumFractionDigits: 0
+        style: 'currency', currency: 'EUR', maximumFractionDigits: 0
       });
       customLabels[nodeName] = `${nodeName} (${formattedAmount})`;
     });
@@ -387,29 +369,22 @@ const initCharts = () => {
           datasets: [{
             label: 'Flux financier',
             data: sankeyFlows,
-
             labels: customLabels,
-
             colorFrom: (c) => getColor(c.dataset.data[c.dataIndex].from),
             colorTo: (c) => getColor(c.dataset.data[c.dataIndex].to),
             colorMode: 'gradient',
             nodeWidth: 20,
             size: 'max',
 
-            color: 'black',
+            color: textColor,
 
-            font: {
-              size: 12,
-              weight: 'bold'
-            }
+            font: { size: 12, weight: 'bold' }
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: {
-            padding: 20
-          },
+          layout: { padding: 20 },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -429,6 +404,19 @@ const initCharts = () => {
 
 onMounted(() => {
   loadTransactions();
+
+  // 4. OBSERVATEUR DE CHANGEMENT DE THÈME (IMPORTANT)
+  if (import.meta.client) {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          initCharts();
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, { attributes: true });
+  }
 });
 
 watch(period, () => {
