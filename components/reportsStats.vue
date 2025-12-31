@@ -118,7 +118,7 @@ const filteredTransactions = computed(() => {
   return transactions.value.filter(t => t.dateObj >= startDate);
 });
 
-// --- Préparation des Données Graphiques (Inchangées) ---
+// --- Préparation des Données Graphiques ---
 
 const getIncomeVsExpensesData = () => {
   const isYearly = period.value === 'year';
@@ -129,8 +129,11 @@ const getIncomeVsExpensesData = () => {
 
   filteredTransactions.value.forEach(t => {
     let key;
-    if (isYearly) key = t.dateObj.toLocaleString('fr-FR', { month: 'short' });
-    else key = t.dateObj.getDate().toString();
+    if (isYearly) {
+      key = t.dateObj.toLocaleString('fr-FR', { month: 'short' });
+    } else {
+      key = t.dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+    }
 
     if (!groupedData.has(key)) groupedData.set(key, { income: 0, expense: 0 });
     if (t.typeStr === 'income') groupedData.get(key).income += t.amount;
@@ -155,25 +158,48 @@ const getIncomeVsExpensesData = () => {
 
 const getBalanceHistoryData = () => {
   const sorted = [...filteredTransactions.value].sort((a, b) => a.dateObj - b.dateObj);
-  const data = [];
-  const labels = [];
-  const dates = [];
+
+  // 1. Groupement par jour
+  const dailyMap = new Map();
   let currentBalance = 0;
 
   sorted.forEach(t => {
     if (t.typeStr === 'income') currentBalance += t.amount;
     else currentBalance -= t.amount;
-    data.push(currentBalance);
-    labels.push(currentBalance.toLocaleString('fr-FR', {
-      style: 'currency', currency: 'EUR', maximumFractionDigits: 0
+
+    const dateKey = t.dateObj.toLocaleDateString('fr-FR');
+    dailyMap.set(dateKey, {
+      balance: currentBalance,
+      dateObj: t.dateObj
+    });
+  });
+
+  // 2. Création des données pour le graphique
+  const data = [];
+  const labels = [];
+
+  dailyMap.forEach((value) => {
+    data.push(value.balance);
+
+    labels.push(value.dateObj.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit'
     }));
-    dates.push(t.dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }));
   });
 
   return {
     labels,
     datasets: [{
-      label: 'Solde cumulé', data, dates, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 10, pointHoverRadius: 4, borderWidth: 2
+      label: 'Solde en fin de journée',
+      data,
+      borderColor: '#3b82f6',
+      backgroundColor: 'rgba(59, 130, 246, 0.1)',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 0,
+      pointHitRadius: 10,
+      pointHoverRadius: 4,
+      borderWidth: 2
     }]
   };
 };
@@ -224,9 +250,8 @@ const getThemeTextColor = () => {
 const initCharts = () => {
   destroyCharts();
 
-  // 2. On récupère la couleur au moment du rendu
+  // 1. Détection du thème
   const textColor = getThemeTextColor();
-  // 3. (Optionnel) Couleur de la grille (légèrement visible en dark)
   const gridColor = textColor === '#e5e5e5' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
 
   const commonOptions = {
@@ -235,7 +260,10 @@ const initCharts = () => {
     plugins: {
       legend: {
         position: 'bottom',
-        labels: { color: textColor } // Légende en couleur dynamique
+        labels: {
+          color: textColor,
+          font: { size: 14 }
+        }
       }
     },
     scales: {
@@ -244,16 +272,85 @@ const initCharts = () => {
     }
   };
 
-  // 1. Bar Chart (Rev vs Dep)
+  // 1. Bar Chart (Revenus vs Dépenses)
   if (incomeExpenseChart.value) {
     charts.incomeExpense = new Chart(incomeExpenseChart.value, {
       type: 'bar',
       data: getIncomeVsExpensesData(),
-      options: commonOptions
+      options: {
+        ...commonOptions,
+
+        barPercentage: 0.7,
+        categoryPercentage: 0.8,
+
+        elements: {
+          bar: {
+            borderRadius: 6,
+            borderSkipped: 'bottom'
+          }
+        },
+
+        scales: {
+          x: {
+            grid: { display: false, drawBorder: false },
+            ticks: {
+              color: textColor,
+              font: { size: 13 }
+            }
+          },
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: gridColor,
+              drawBorder: false,
+              borderDash: [5, 5]
+            },
+            ticks: {
+              color: textColor,
+              font: { size: 12, weight: 'bold' },
+              callback: function(value) {
+                return value.toLocaleString('fr-FR', {
+                  style: 'currency',
+                  currency: 'EUR',
+                  maximumFractionDigits: 0
+                });
+              }
+            }
+          }
+        },
+
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: textColor,
+              usePointStyle: true,
+              padding: 20,
+              font: { size: 14 }
+            }
+          },
+          tooltip: {
+            bodyFont: { size: 13 },
+            callbacks: {
+              label: (context) => {
+                let label = context.dataset.label || '';
+                if (label) label += ': ';
+                if (context.parsed.y !== null) {
+                  label += context.parsed.y.toLocaleString('fr-FR', {
+                    style: 'currency',
+                    currency: 'EUR'
+                  });
+                }
+                return label;
+              }
+            }
+          }
+        }
+      }
     });
   }
 
-  // 2. Line Chart (Balance)
+  // 2. Line Chart (Balance / Solde)
   if (balanceChart.value) {
 
     const verticalHoverLine = {
@@ -285,28 +382,34 @@ const initCharts = () => {
 
       options: {
         ...commonOptions,
-        layout: { padding: { bottom: 20 } },
-        elements: { point: { radius: 0, hitRadius: 10, hoverRadius: 1 }, line: { borderWidth: 2, tension: 0.3 } },
+        layout: { padding: { bottom: 0 } },
+        elements: { point: { radius: 0, hitRadius: 10, hoverRadius: 4 }, line: { borderWidth: 2, tension: 0.3 } },
 
         scales: {
           x: {
             offset: false,
             grid: { display: false, drawBorder: false },
             ticks: {
-              maxTicksLimit: 100,
-              autoSkip: false,
-              minRotation: 45,
-              maxRotation: 45,
+              autoSkip: true,
+              maxTicksLimit: 8,
+              maxRotation: 0,
+              minRotation: 0,
 
               color: textColor,
-
-              font: { size: 10, weight: 'bold' }
+              font: { size: 12 }
             }
           },
           y: {
             beginAtZero: false,
             grid: { display: false, drawBorder: false },
-            ticks: { display: false }
+            ticks: {
+              display: true,
+              color: textColor,
+              font: { size: 12, weight: 'bold' },
+              callback: function(value) {
+                return value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+              }
+            }
           }
         },
 
@@ -314,13 +417,13 @@ const initCharts = () => {
         plugins: {
           legend: { display: false },
           tooltip: {
+            titleFont: { size: 13 },
+            bodyFont: { size: 13 },
             callbacks: {
-              title: (context) => {
-                const index = context[0].dataIndex;
-                const date = context[0].dataset.dates ? context[0].dataset.dates[index] : '';
-                return `Date : ${date}`;
-              },
-              label: (context) => `Solde : ${context.label}`
+              title: (context) => `Date : ${context[0].label}`,
+              label: (context) => {
+                return `Solde : ${context.raw.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
+              }
             }
           }
         }
@@ -328,7 +431,7 @@ const initCharts = () => {
     });
   }
 
-  // 3. SANKEY DIAGRAM
+  // 3. SANKEY DIAGRAM (Flux)
   if (sankeyChart.value) {
     const sankeyFlows = getSankeyData();
 
@@ -378,7 +481,10 @@ const initCharts = () => {
 
             color: textColor,
 
-            font: { size: 12, weight: 'bold' }
+            font: {
+              size: 14,
+              weight: 'bold'
+            }
           }]
         },
         options: {
@@ -388,6 +494,7 @@ const initCharts = () => {
           plugins: {
             legend: { display: false },
             tooltip: {
+              bodyFont: { size: 13 },
               callbacks: {
                 label: (ctx) => {
                   const item = ctx.raw;
@@ -405,7 +512,7 @@ const initCharts = () => {
 onMounted(() => {
   loadTransactions();
 
-  // 4. OBSERVATEUR DE CHANGEMENT DE THÈME (IMPORTANT)
+  // 4. OBSERVATEUR DE CHANGEMENT DE THÈME (Dark/Light)
   if (import.meta.client) {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
