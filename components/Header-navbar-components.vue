@@ -5,7 +5,7 @@
       <div class="flex items-center justify-between h-16">
         <!-- Logo -->
         <div class="flex items-center">
-          <NuxtLink to="/" class="text-xl font-semibold text-primary-600 dark:text-primary-400">Finantia</NuxtLink>
+          <NuxtLink to="/" class="text-xl font-semibold text-primary-600 dark:text-primary-400">AirGap</NuxtLink>
         </div>
 
         <NuxtLink
