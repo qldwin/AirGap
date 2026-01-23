@@ -1,4 +1,4 @@
-# Finantia - Application de Gestion Financière Personnelle
+# AirGap - Vos finances ne regardent que vous.
 
 Une application web open-source et complète pour gérer vos finances personnelles, développée avec Nuxt.js, Drizzle ORM, PostgreSQL.
 
@@ -37,8 +37,8 @@ Une application web open-source et complète pour gérer vos finances personnell
 
 1. **Cloner le repository**
 ```bash
-git clone https://github.com/qldwin/finantia.git
-cd finantia
+git clone https://github.com/qldwin/airgap.git
+cd airgap
 ```
 
 2. **Configurer les variables d'environnement**
@@ -79,7 +79,7 @@ npm run dev
 ## 🏗️ Architecture du Projet
 
 ```
-finantia/
+airgap/
 ├── components/          # Composants Vue réutilisables
 ├── stores/             # Stores Pinia pour l'état global
 ├── server/             # API côté serveur
@@ -97,7 +97,7 @@ Créez un fichier `.env` à la racine du projet :
 
 ```env
 # Database
-DATABASE_URL=postgresql://finantia_user:finantia_password@localhost:5432/finantia
+DATABASE_URL=postgresql://airgap_user:airgap_password@localhost:5432/airgap
 
 ```
 ## 📊 Base de Données
@@ -184,4 +184,4 @@ Pour toute question ou problème :
 
 ---
 
-**Finantia** - Gérez vos finances avec confiance et simplicité.
+**AirGap** - Vos finances ne regardent que vous.
