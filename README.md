@@ -173,7 +173,7 @@ L'application est entièrement responsive et fonctionne sur :
 
 ## 📄 Licence
 
-Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
+Ce projet est sous licence AGPLv3. Voir le fichier LICENSE pour plus de détails.
 
 ## 🆘 Support
 
