@@ -249,7 +249,7 @@
 <script setup>
 import Papa from 'papaparse';
 import { ref, onMounted, computed } from 'vue';
-=import CategorySelector from '~/components/CategorySelector.vue';
+import CategorySelector from '~/components/CategorySelector.vue';
 
 // --- CONFIGURATION ---
 definePageMeta({
@@ -371,7 +371,7 @@ const handleFileUpload = (event) => {
                 const descKey = keys.find(k => k.toLowerCase().includes('libell') || k.toLowerCase().includes('label'));
 
                 const rawAmount = row[amountKey];
-                const cleanAmount = typeof rawAmount === 'string' ? parseFloat(rawAmount.replace(/\s/g, '').replace(',', '.')) : Number(rawAmount);
+                const cleanAmount = typeof rawAmount === 'string' ? Number.parseFloat(rawAmount.replaceAll(/\s/g, '').replace(',', '.')) : Number(rawAmount);
 
                 let cleanDate = new Date();
                 if (dateKey && row[dateKey]) {

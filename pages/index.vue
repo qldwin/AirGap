@@ -67,18 +67,38 @@ const { data: apiResult, pending: loading } = await useFetch('/api/transactions'
 const transactions = computed(() => {
   const list = apiResult.value?.transactions || [];
 
-  return list.map(t => ({
+  // 1. Formatage simple
+  const formatted = list.map(t => ({
     ...t,
     amount: Number(t.amount),
-    typeStr: t.typeTransactionsId === 1 ? 'income' : 'expense',
-    type: t.typeTransactionsId === 1 ? 'income' : 'expense',
+    typeTransactionsId: Number(t.typeTransactionsId),
+    typeStr: Number(t.typeTransactionsId) === 1 ? 'income' : 'expense',
     dateObj: new Date(t.date),
     categoryName: t.category?.name || 'Aucune'
-  })).sort((a, b) => b.dateObj - a.dateObj);
+  }));
+
+  // 2. TRI DU PLUS VIEUX AU PLUS RÉCENT (Impératif pour le calcul du solde)
+  const chronological = formatted.sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
+
+  // 3. CALCUL DU SOLDE CUMULÉ
+  let currentRunningBalance = 0;
+
+  const withCumulative = chronological.map(t => {
+    const change = t.typeTransactionsId === 1 ? t.amount : -t.amount;
+    currentRunningBalance += change;
+
+    return {
+      ...t,
+      cumulativeBalance: currentRunningBalance // C'est cette valeur que le graphique attend !
+    };
+  });
+
+  // 4. On renvoie inversé (Récent en premier) car souvent préféré pour les listes
+  // Mais le graphique saura le retrier.
+  return [...withCumulative].sort((a, b) => b.dateObj.getTime() - a.dateObj.getTime());
 });
 
-
-// --- LOGIQUE KPIs ---
+// --- KPI CALCULATIONS ---
 const now = new Date();
 const currentMonth = now.getMonth();
 const currentYear = now.getFullYear();
@@ -86,16 +106,13 @@ const currentYear = now.getFullYear();
 const getPreviousMonth = (year, month) => month === 0 ? { year: year - 1, month: 11 } : { year, month: month - 1 };
 const { year: prevYear, month: prevMonth } = getPreviousMonth(currentYear, currentMonth);
 
-// --- Calculs Mois en cours ---
 const balance = computed(() => transactions.value.reduce((total, t) => total + (t.typeStr === 'income' ? t.amount : -t.amount), 0));
 const monthlyIncome = computed(() => transactions.value.filter(t => t.typeStr === 'income' && t.dateObj.getMonth() === currentMonth && t.dateObj.getFullYear() === currentYear).reduce((sum, t) => sum + t.amount, 0));
 const monthlyExpense = computed(() => transactions.value.filter(t => t.typeStr === 'expense' && t.dateObj.getMonth() === currentMonth && t.dateObj.getFullYear() === currentYear).reduce((sum, t) => sum + t.amount, 0));
 
-// --- Calculs Mois précédent ---
 const prevIncome = computed(() => transactions.value.filter(t => t.typeStr === 'income' && t.dateObj.getMonth() === prevMonth && t.dateObj.getFullYear() === prevYear).reduce((sum, t) => sum + t.amount, 0));
 const prevExpense = computed(() => transactions.value.filter(t => t.typeStr === 'expense' && t.dateObj.getMonth() === prevMonth && t.dateObj.getFullYear() === prevYear).reduce((sum, t) => sum + t.amount, 0));
 
-// --- Pourcentages ---
 const incomeChange = computed(() => prevIncome.value === 0 ? null : ((monthlyIncome.value - prevIncome.value) / Math.abs(prevIncome.value)) * 100);
 const expenseChange = computed(() => prevExpense.value === 0 ? null : ((monthlyExpense.value - prevExpense.value) / Math.abs(prevExpense.value)) * 100);
 const balanceChange = computed(() => {
@@ -104,7 +121,6 @@ const balanceChange = computed(() => {
   return prevBal === 0 ? null : ((curBal - prevBal) / Math.abs(prevBal)) * 100;
 });
 
-// --- FORMATTERS ---
 const formatCurrency = (val) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(val);
 const formatPercent = (val) => {
   if (val === null) return '-';

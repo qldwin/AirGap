@@ -1,49 +1,58 @@
 <template>
-  <div class="pt-16 pb-8 px-4">
-    <div class="max-w-10xl mx-auto">
-      <div class="card mb-8 p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
-        <div class="flex items-center gap-4">
-          <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Période :</span>
-          <div class="flex gap-4">
-            <label class="flex items-center cursor-pointer">
-              <input v-model="period" type="radio" value="month" class="mr-2 text-primary-600 focus:ring-primary-500">
-              <span class="text-sm">Ce mois</span>
-            </label>
-            <label class="flex items-center cursor-pointer">
-              <input v-model="period" type="radio" value="quarter" class="mr-2 text-primary-600 focus:ring-primary-500">
-              <span class="text-sm">Ce trimestre</span>
-            </label>
-            <label class="flex items-center cursor-pointer">
-              <input v-model="period" type="radio" value="year" class="mr-2 text-primary-600 focus:ring-primary-500">
-              <span class="text-sm">Cette année</span>
-            </label>
-          </div>
+  <div class="pt-4 pb-8 px-4">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="flex justify-center mb-10">
+        <div class="bg-gray-50 dark:bg-neutral-800/50 p-1.5 rounded-full inline-flex border border-gray-200 dark:border-neutral-700 backdrop-blur-sm">
+          <button
+              v-for="p in ['month', 'quarter', 'year']"
+              :key="p"
+              @click="period = p"
+              class="px-6 py-2 text-sm font-semibold rounded-full transition-all duration-300 ease-out"
+              :class="period === p
+              ? 'bg-white dark:bg-neutral-700 text-primary-600 dark:text-primary-400 shadow-md transform scale-105'
+              : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'"
+          >
+            {{ p === 'month' ? 'Mois' : p === 'quarter' ? 'Trimestre' : 'Année' }}
+          </button>
         </div>
       </div>
 
-      <div class="card mb-8 p-6 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
-        <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-4">Cashflow</h3>
+      <div class="card mb-8 p-8 bg-white dark:bg-neutral-900 rounded-3xl shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
+        <div class="flex justify-between items-end mb-8">
+          <div>
+            <h3 class="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Flux de Trésorerie</h3>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Visualisation des mouvements financiers</p>
+          </div>
+        </div>
         <ClientOnly>
-          <div style="height: 400px; position: relative;">
+          <div style="height: 450px; position: relative;">
             <canvas ref="sankeyChart" style="max-height: 100%; width: 100%;"/>
           </div>
         </ClientOnly>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <div class="card p-6 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
-          <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-4">Revenus vs Dépenses</h3>
+
+        <div class="card p-8 bg-white dark:bg-neutral-900 rounded-3xl shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
+          <div class="mb-8">
+            <h3 class="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Entrées vs Sorties</h3>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Comparatif des volumes</p>
+          </div>
           <ClientOnly>
-            <div style="height: 320px; position: relative;">
+            <div style="height: 350px; position: relative;">
               <canvas ref="incomeExpenseChart" style="max-height: 100%;"/>
             </div>
           </ClientOnly>
         </div>
 
-        <div class="card p-6 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
-          <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-4">Évolution du solde</h3>
+        <div class="card p-8 bg-white dark:bg-neutral-900 rounded-3xl shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
+          <div class="mb-8">
+            <h3 class="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Patrimoine</h3>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Évolution du solde réel</p>
+          </div>
           <ClientOnly>
-            <div style="height: 320px; position: relative;">
+            <div style="height: 350px; position: relative;">
               <canvas ref="balanceChart" style="max-height: 100%;"/>
             </div>
           </ClientOnly>
@@ -56,55 +65,60 @@
 <script setup>
 import { Chart, registerables } from "chart.js";
 import { SankeyController, Flow } from 'chartjs-chart-sankey';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
 
 Chart.register(...registerables, SankeyController, Flow);
 
-definePageMeta({
-  middleware: ['authenticated']
+// --- 1. PROPS ---
+const props = defineProps({
+  transactions: { type: Array, required: true, default: () => [] }
 });
 
-// --- État ---
-const loading = ref(true);
-const transactions = ref([]);
+// --- ÉTAT ---
 const period = ref('month');
-
 const incomeExpenseChart = ref(null);
 const balanceChart = ref(null);
 const sankeyChart = ref(null);
 
-const charts = {
-  incomeExpense: null,
-  balance: null,
-  sankey: null
-};
+const charts = { incomeExpense: null, balance: null, sankey: null };
 
-// --- Logique Métier (Inchangée) ---
-const loadTransactions = async () => {
-  try {
-    loading.value = true;
-    const response = await $fetch('/api/transactions');
-    const rawTransactions = response.transactions || [];
-
-    transactions.value = rawTransactions.map(t => ({
-      ...t,
-      amount: Number(t.amount),
-      typeStr: t.typeTransactionsId === 1 ? 'income' : 'expense',
-      dateObj: new Date(t.date),
-      categoryName: t.category?.name || 'Non catégorisé'
-    })).sort((a, b) => b.dateObj - a.dateObj);
-
-    nextTick(() => initCharts());
-  } catch (error) {
-    console.error('Erreur chargement transactions:', error);
-  } finally {
-    loading.value = false;
+// --- DESIGN SYSTEM (Modern Palette) ---
+const THEME = {
+  font: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+  colors: {
+    income: '#34d399', // Emerald 400 (Plus vibrant)
+    incomeHover: '#10b981',
+    expense: '#fb7185', // Rose 400
+    expenseHover: '#f43f5e',
+    balance: '#818cf8', // Indigo 400
+    balanceStroke: '#6366f1',
+    textLight: '#64748b',
+    textDark: '#94a3b8',
+    gridLight: '#e2e8f0',
+    gridDark: '#334155'
   }
 };
 
+// --- 2. NETTOYAGE ---
+const cleanTransactions = computed(() => {
+  if (!props.transactions || props.transactions.length === 0) return [];
+  return props.transactions.map(t => {
+    const d = new Date(t.date);
+    return {
+      ...t,
+      dateObj: Number.isNaN(d.getTime()) ? new Date() : d,
+      amount: Number(t.amount),
+      cumulativeBalance: Number(t.cumulativeBalance ?? 0)
+    };
+  });
+});
+
+// --- 3. FILTRAGE ---
 const filteredTransactions = computed(() => {
-  if (!transactions.value.length) return [];
+  const list = cleanTransactions.value;
+  if (!list.length) return [];
   const now = new Date();
-  let startDate;
+  let startDate = new Date();
   now.setHours(0,0,0,0);
 
   if (period.value === 'month') {
@@ -115,17 +129,14 @@ const filteredTransactions = computed(() => {
   } else {
     startDate = new Date(now.getFullYear(), 0, 1);
   }
-  return transactions.value.filter(t => t.dateObj >= startDate);
+
+  return list.filter(t => t.dateObj >= startDate).sort((a, b) => a.dateObj - b.dateObj);
 });
 
-// --- Préparation des Données Graphiques ---
-
+// --- 4. DATASETS ---
 const getIncomeVsExpensesData = () => {
-  const isYearly = period.value === 'year';
-  const labels = [];
-  const incomeData = [];
-  const expenseData = [];
   const groupedData = new Map();
+  const isYearly = period.value === 'year';
 
   filteredTransactions.value.forEach(t => {
     let key;
@@ -134,399 +145,247 @@ const getIncomeVsExpensesData = () => {
     } else {
       key = t.dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
     }
-
     if (!groupedData.has(key)) groupedData.set(key, { income: 0, expense: 0 });
-    if (t.typeStr === 'income') groupedData.get(key).income += t.amount;
-    else groupedData.get(key).expense += t.amount;
+    if (t.typeStr === 'income' || t.typeTransactionsId === 1) {
+      groupedData.get(key).income += t.amount;
+    } else {
+      groupedData.get(key).expense += t.amount;
+    }
   });
 
-  const sortedKeys = Array.from(groupedData.keys()).reverse();
-  sortedKeys.forEach(key => {
-    labels.push(key);
-    incomeData.push(groupedData.get(key).income);
-    expenseData.push(groupedData.get(key).expense);
-  });
-
+  const labels = Array.from(groupedData.keys());
   return {
     labels,
     datasets: [
-      { label: 'Revenus', data: incomeData, backgroundColor: 'rgba(76, 175, 80, 0.6)', borderColor: '#4CAF50', borderWidth: 1 },
-      { label: 'Dépenses', data: expenseData, backgroundColor: 'rgba(244, 67, 54, 0.6)', borderColor: '#F44336', borderWidth: 1 }
+      {
+        label: 'Revenus',
+        data: Array.from(groupedData.values()).map(v => v.income),
+        backgroundColor: THEME.colors.income,
+        hoverBackgroundColor: THEME.colors.incomeHover,
+        borderRadius: 50, // Pill shape
+        borderSkipped: false,
+        barThickness: 18, // Plus fin et élégant
+      },
+      {
+        label: 'Dépenses',
+        data: Array.from(groupedData.values()).map(v => v.expense),
+        backgroundColor: THEME.colors.expense,
+        hoverBackgroundColor: THEME.colors.expenseHover,
+        borderRadius: 50,
+        borderSkipped: false,
+        barThickness: 18,
+      }
     ]
   };
 };
 
 const getBalanceHistoryData = () => {
-  const sorted = [...filteredTransactions.value].sort((a, b) => a.dateObj - b.dateObj);
-
-  // 1. Groupement par jour
   const dailyMap = new Map();
-  let currentBalance = 0;
-
-  sorted.forEach(t => {
-    if (t.typeStr === 'income') currentBalance += t.amount;
-    else currentBalance -= t.amount;
-
-    const dateKey = t.dateObj.toLocaleDateString('fr-FR');
-    dailyMap.set(dateKey, {
-      balance: currentBalance,
-      dateObj: t.dateObj
-    });
-  });
-
-  // 2. Création des données pour le graphique
-  const data = [];
-  const labels = [];
-
-  dailyMap.forEach((value) => {
-    data.push(value.balance);
-
-    labels.push(value.dateObj.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit'
-    }));
+  filteredTransactions.value.forEach(t => {
+    const dateKey = t.dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+    dailyMap.set(dateKey, t.cumulativeBalance);
   });
 
   return {
-    labels,
+    labels: Array.from(dailyMap.keys()),
     datasets: [{
-      label: 'Solde en fin de journée',
-      data,
-      borderColor: '#3b82f6',
-      backgroundColor: 'rgba(59, 130, 246, 0.1)',
+      label: 'Solde',
+      data: Array.from(dailyMap.values()),
+      borderColor: THEME.colors.balanceStroke,
+      borderWidth: 3,
+      backgroundColor: (ctx) => {
+        const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.3)');
+        gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+        return gradient;
+      },
       fill: true,
-      tension: 0.3,
-      pointRadius: 0,
-      pointHitRadius: 10,
-      pointHoverRadius: 4,
-      borderWidth: 2
+      tension: 0.4, // Courbe lissée
+      pointRadius: 0, // Invisible par défaut
+      pointHoverRadius: 6, // Visible au survol
+      pointBackgroundColor: '#ffffff',
+      pointBorderColor: THEME.colors.balanceStroke,
+      pointBorderWidth: 2,
+      pointHitRadius: 20 // Facilite la sélection
     }]
   };
 };
 
 const getSankeyData = () => {
-  const incomeCategories = {};
-  const expenseCategories = {};
-
+  const incomeCats = {};
+  const expenseCats = {};
   filteredTransactions.value.forEach(t => {
-    if (t.typeStr === 'income') {
-      incomeCategories[t.categoryName] = (incomeCategories[t.categoryName] || 0) + t.amount;
+    const cat = t.categoryName || 'Autre';
+    if (t.typeStr === 'income' || t.typeTransactionsId === 1) {
+      incomeCats[cat] = (incomeCats[cat] || 0) + t.amount;
     } else {
-      expenseCategories[t.categoryName] = (expenseCategories[t.categoryName] || 0) + t.amount;
+      expenseCats[cat] = (expenseCats[cat] || 0) + t.amount;
     }
   });
 
   const data = [];
-  const CENTRAL_NODE = 'Budget Total';
-
-  Object.entries(incomeCategories).forEach(([cat, amount]) => {
-    data.push({ from: cat, to: CENTRAL_NODE, flow: amount });
-  });
-
-  Object.entries(expenseCategories).forEach(([cat, amount]) => {
-    data.push({ from: CENTRAL_NODE, to: cat, flow: amount });
-  });
-
+  Object.entries(incomeCats).forEach(([c, v]) => data.push({ from: c, to: 'Budget', flow: v }));
+  Object.entries(expenseCats).forEach(([c, v]) => data.push({ from: 'Budget', to: c, flow: v }));
   return data;
 };
 
-// --- Gestion des Graphiques ---
+// --- 5. INITIALISATION ---
 
 const destroyCharts = () => {
-  Object.values(charts).forEach(c => {
-    if (c) c.destroy();
-  });
+  Object.values(charts).forEach(c => { if (c) c.destroy(); });
+  charts.incomeExpense = null;
+  charts.balance = null;
+  charts.sankey = null;
 };
 
-// 1. Fonction pour détecter la couleur actuelle
-const getThemeTextColor = () => {
-  if (import.meta.client) {
-    const isDark = document.documentElement.classList.contains('dark');
-    return isDark ? '#e5e5e5' : '#1f2937';
-  }
-  return '#1f2937';
-};
+// Configuration partagée pour un look cohérent
+const getChartConfig = (isDark) => {
+  const textColor = isDark ? THEME.colors.textDark : THEME.colors.textLight;
+  const gridColor = isDark ? THEME.colors.gridDark : THEME.colors.gridLight;
 
-const initCharts = () => {
-  destroyCharts();
-
-  // 1. Détection du thème
-  const textColor = getThemeTextColor();
-  const gridColor = textColor === '#e5e5e5' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-
-  const commonOptions = {
+  return {
     responsive: true,
     maintainAspectRatio: false,
+    font: { family: THEME.font },
     plugins: {
       legend: {
-        position: 'bottom',
+        align: 'end',
         labels: {
           color: textColor,
-          font: { size: 14 }
+          font: { family: THEME.font, size: 12, weight: 600 },
+          usePointStyle: true,
+          boxWidth: 8,
+          padding: 20
+        }
+      },
+      tooltip: {
+        backgroundColor: isDark ? '#1e293b' : '#ffffff',
+        titleColor: isDark ? '#f1f5f9' : '#1e293b',
+        bodyColor: isDark ? '#94a3b8' : '#64748b',
+        borderColor: isDark ? '#334155' : '#e2e8f0',
+        borderWidth: 1,
+        padding: 12,
+        cornerRadius: 12, // Tooltip très arrondi
+        displayColors: true,
+        boxPadding: 6,
+        titleFont: { family: THEME.font, size: 13, weight: 700 },
+        bodyFont: { family: THEME.font, size: 12, weight: 500 },
+        callbacks: {
+          label: (context) => {
+            let label = context.dataset.label || '';
+            if (label) label += ': ';
+            if (context.parsed.y !== null) {
+              label += new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(context.parsed.y);
+            }
+            return label;
+          }
         }
       }
     },
     scales: {
-      x: { ticks: { color: textColor }, grid: { color: gridColor } },
-      y: { ticks: { color: textColor }, grid: { color: gridColor } }
+      x: {
+        grid: { display: false, drawBorder: false },
+        ticks: { color: textColor, font: { family: THEME.font, size: 11 } }
+      },
+      y: {
+        border: { display: false },
+        grid: { color: gridColor, borderDash: [4, 4], drawBorder: false }, // Pointillés discrets
+        ticks: {
+          color: textColor,
+          padding: 10,
+          font: { family: THEME.font, size: 11, weight: 500 },
+          callback: (value) => new Intl.NumberFormat('fr-FR', {
+            style: 'currency', currency: 'EUR', maximumFractionDigits: 0
+          }).format(value)
+        }
+      }
     }
   };
+};
 
-  // 1. Bar Chart (Revenus vs Dépenses)
-  if (incomeExpenseChart.value) {
-    charts.incomeExpense = new Chart(incomeExpenseChart.value, {
-      type: 'bar',
-      data: getIncomeVsExpensesData(),
-      options: {
-        ...commonOptions,
+const initCharts = () => {
+  if (!cleanTransactions.value.length) return;
 
-        barPercentage: 0.7,
-        categoryPercentage: 0.8,
-
-        elements: {
-          bar: {
-            borderRadius: 6,
-            borderSkipped: 'bottom'
-          }
-        },
-
-        scales: {
-          x: {
-            grid: { display: false, drawBorder: false },
-            ticks: {
-              color: textColor,
-              font: { size: 13 }
-            }
-          },
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: gridColor,
-              drawBorder: false,
-              borderDash: [5, 5]
-            },
-            ticks: {
-              color: textColor,
-              font: { size: 12, weight: 'bold' },
-              callback: function(value) {
-                return value.toLocaleString('fr-FR', {
-                  style: 'currency',
-                  currency: 'EUR',
-                  maximumFractionDigits: 0
-                });
-              }
-            }
-          }
-        },
-
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              color: textColor,
-              usePointStyle: true,
-              padding: 20,
-              font: { size: 14 }
-            }
-          },
-          tooltip: {
-            bodyFont: { size: 13 },
-            callbacks: {
-              label: (context) => {
-                let label = context.dataset.label || '';
-                if (label) label += ': ';
-                if (context.parsed.y !== null) {
-                  label += context.parsed.y.toLocaleString('fr-FR', {
-                    style: 'currency',
-                    currency: 'EUR'
-                  });
-                }
-                return label;
-              }
-            }
-          }
-        }
-      }
-    });
+  // Sécurité DOM (Retry)
+  if (!incomeExpenseChart.value || !balanceChart.value) {
+    setTimeout(initCharts, 100);
+    return;
   }
 
-  // 2. Line Chart (Balance / Solde)
-  if (balanceChart.value) {
+  destroyCharts();
 
-    const verticalHoverLine = {
-      id: 'verticalHoverLine',
-      beforeDatasetsDraw(chart) {
-        const { ctx, tooltip, chartArea: { bottom } } = chart;
-        if (tooltip._active && tooltip._active.length) {
-          const activePoint = tooltip._active[0];
-          const x = activePoint.element.x;
-          const y = activePoint.element.y;
+  const isDark = document.documentElement.classList.contains('dark');
+  const commonOptions = getChartConfig(isDark);
 
-          ctx.save();
-          ctx.beginPath();
-          ctx.moveTo(x, y);
-          ctx.lineTo(x, bottom);
-          ctx.lineWidth = 1;
-          ctx.strokeStyle = '#3b82f6';
-          ctx.setLineDash([5, 5]);
-          ctx.stroke();
-          ctx.restore();
+  // 1. BAR CHART
+  charts.incomeExpense = new Chart(incomeExpenseChart.value, {
+    type: 'bar',
+    data: getIncomeVsExpensesData(),
+    options: {
+      ...commonOptions,
+      scales: {
+        ...commonOptions.scales,
+        x: { ...commonOptions.scales.x, grid: { display: false } }
+      }
+    }
+  });
+
+  // 2. LINE CHART
+  charts.balance = new Chart(balanceChart.value, {
+    type: 'line',
+    data: getBalanceHistoryData(),
+    options: {
+      ...commonOptions,
+      interaction: { mode: 'index', intersect: false }, // Interaction fluide
+      scales: {
+        ...commonOptions.scales,
+        y: {
+          ...commonOptions.scales.y,
+          beginAtZero: false // Dynamique pour voir les variations
         }
       }
-    };
+    }
+  });
 
-    charts.balance = new Chart(balanceChart.value, {
-      type: 'line',
-      data: getBalanceHistoryData(),
-      plugins: [verticalHoverLine],
-
-      options: {
-        ...commonOptions,
-        layout: { padding: { bottom: 0 } },
-        elements: { point: { radius: 0, hitRadius: 10, hoverRadius: 4 }, line: { borderWidth: 2, tension: 0.3 } },
-
-        scales: {
-          x: {
-            offset: false,
-            grid: { display: false, drawBorder: false },
-            ticks: {
-              autoSkip: true,
-              maxTicksLimit: 8,
-              maxRotation: 0,
-              minRotation: 0,
-
-              color: textColor,
-              font: { size: 12 }
-            }
-          },
-          y: {
-            beginAtZero: false,
-            grid: { display: false, drawBorder: false },
-            ticks: {
-              display: true,
-              color: textColor,
-              font: { size: 12, weight: 'bold' },
-              callback: function(value) {
-                return value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
-              }
-            }
-          }
-        },
-
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            titleFont: { size: 13 },
-            bodyFont: { size: 13 },
-            callbacks: {
-              title: (context) => `Date : ${context[0].label}`,
-              label: (context) => {
-                return `Solde : ${context.raw.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
-              }
-            }
-          }
-        }
-      }
-    });
-  }
-
-  // 3. SANKEY DIAGRAM (Flux)
+  // 3. SANKEY
   if (sankeyChart.value) {
-    const sankeyFlows = getSankeyData();
-
-    const getNodeTotal = (nodeName) => {
-      let total = 0;
-      if (nodeName === 'Budget Total') {
-        sankeyFlows.forEach(flow => { if (flow.to === 'Budget Total') total += flow.flow; });
-      } else if (sankeyFlows.some(f => f.to === nodeName)) {
-        sankeyFlows.forEach(flow => { if (flow.to === nodeName) total += flow.flow; });
-      } else {
-        sankeyFlows.forEach(flow => { if (flow.from === nodeName) total += flow.flow; });
-      }
-      return total;
-    };
-
-    const customLabels = {};
-    const allNodes = new Set();
-    sankeyFlows.forEach(f => { allNodes.add(f.from); allNodes.add(f.to); });
-
-    allNodes.forEach(nodeName => {
-      const amount = getNodeTotal(nodeName);
-      const formattedAmount = amount.toLocaleString('fr-FR', {
-        style: 'currency', currency: 'EUR', maximumFractionDigits: 0
-      });
-      customLabels[nodeName] = `${nodeName} (${formattedAmount})`;
-    });
-
-    const getColor = (key) => {
-      if (key === 'Budget Total') return '#3b82f6';
-      const isIncome = sankeyFlows.some(f => f.from === key && f.to === 'Budget Total');
-      return isIncome ? '#4CAF50' : '#F44336';
-    };
-
-    if (sankeyFlows.length) {
+    const sData = getSankeyData();
+    if (sData.length > 0) {
       charts.sankey = new Chart(sankeyChart.value, {
         type: 'sankey',
         data: {
           datasets: [{
-            label: 'Flux financier',
-            data: sankeyFlows,
-            labels: customLabels,
-            colorFrom: (c) => getColor(c.dataset.data[c.dataIndex].from),
-            colorTo: (c) => getColor(c.dataset.data[c.dataIndex].to),
+            data: sData,
+            colorFrom: (c) => c.dataset.data[c.dataIndex].from === 'Budget' ? THEME.colors.expense : THEME.colors.income,
+            colorTo: (c) => c.dataset.data[c.dataIndex].to === 'Budget' ? THEME.colors.income : THEME.colors.expense,
             colorMode: 'gradient',
-            nodeWidth: 20,
+            alpha: 0.6,
             size: 'max',
-
-            color: textColor,
-
-            font: {
-              size: 14,
-              weight: 'bold'
-            }
+            color: isDark ? '#e2e8f0' : '#334155',
+            font: { family: THEME.font, size: 12, weight: 600 }
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           layout: { padding: 20 },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              bodyFont: { size: 13 },
-              callbacks: {
-                label: (ctx) => {
-                  const item = ctx.raw;
-                  return `${item.from} -> ${item.to}: ${item.flow.toLocaleString('fr-FR', {style: 'currency', currency: 'EUR'})}`;
-                }
-              }
-            }
-          }
+          plugins: { legend: { display: false }, tooltip: commonOptions.plugins.tooltip }
         }
       });
     }
   }
 };
 
-onMounted(() => {
-  loadTransactions();
+// --- LIFECYCLE ---
+watch([() => props.transactions, period], () => { nextTick(() => initCharts()); }, { deep: true, immediate: true });
 
-  // 4. OBSERVATEUR DE CHANGEMENT DE THÈME (Dark/Light)
+onMounted(() => {
   if (import.meta.client) {
     const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          initCharts();
-        }
-      });
+      mutations.forEach((m) => { if (m.attributeName === 'class') initCharts(); });
     });
-
     observer.observe(document.documentElement, { attributes: true });
+    setTimeout(initCharts, 300);
   }
-});
-
-watch(period, () => {
-  nextTick(() => initCharts());
 });
 </script>
