@@ -7,11 +7,11 @@
           <button
               v-for="p in ['month', 'quarter', 'year']"
               :key="p"
-              @click="period = p"
               class="px-6 py-2 text-sm font-semibold rounded-full transition-all duration-300 ease-out"
               :class="period === p
               ? 'bg-white dark:bg-neutral-700 text-primary-600 dark:text-primary-400 shadow-md transform scale-105'
               : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'"
+              @click="period = p"
           >
             {{ p === 'month' ? 'Mois' : p === 'quarter' ? 'Trimestre' : 'Année' }}
           </button>
@@ -82,20 +82,24 @@ const sankeyChart = ref(null);
 
 const charts = { incomeExpense: null, balance: null, sankey: null };
 
-// --- DESIGN SYSTEM (Modern Palette) ---
+// --- DESIGN SYSTEM ---
 const THEME = {
   font: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
   colors: {
-    income: '#34d399', // Emerald 400 (Plus vibrant)
+    income: '#34d399', // Emerald 400
     incomeHover: '#10b981',
+    incomeSoft: 'rgba(52, 211, 153, 0.15)',
     expense: '#fb7185', // Rose 400
     expenseHover: '#f43f5e',
-    balance: '#818cf8', // Indigo 400
-    balanceStroke: '#6366f1',
+    expenseSoft: 'rgba(251, 113, 133, 0.15)',
+    balance: '#6366f1', // Indigo 500
     textLight: '#64748b',
     textDark: '#94a3b8',
     gridLight: '#e2e8f0',
-    gridDark: '#334155'
+    gridDark: '#334155',
+    // Couleurs de fond pour le masquage Sankey
+    cardBgLight: '#ffffff',
+    cardBgDark: '#171717' // correspond à neutral-900
   }
 };
 
@@ -107,8 +111,8 @@ const cleanTransactions = computed(() => {
     return {
       ...t,
       dateObj: Number.isNaN(d.getTime()) ? new Date() : d,
-      amount: Number(t.amount),
-      cumulativeBalance: Number(t.cumulativeBalance ?? 0)
+      amount: Math.abs(Number(t.amount)),
+      cumulativeBalance: t.cumulativeBalance === undefined ? 0 : Number(t.cumulativeBalance)
     };
   });
 });
@@ -146,6 +150,7 @@ const getIncomeVsExpensesData = () => {
       key = t.dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
     }
     if (!groupedData.has(key)) groupedData.set(key, { income: 0, expense: 0 });
+
     if (t.typeStr === 'income' || t.typeTransactionsId === 1) {
       groupedData.get(key).income += t.amount;
     } else {
@@ -162,9 +167,9 @@ const getIncomeVsExpensesData = () => {
         data: Array.from(groupedData.values()).map(v => v.income),
         backgroundColor: THEME.colors.income,
         hoverBackgroundColor: THEME.colors.incomeHover,
-        borderRadius: 50, // Pill shape
+        borderRadius: 50,
         borderSkipped: false,
-        barThickness: 18, // Plus fin et élégant
+        barThickness: 18,
       },
       {
         label: 'Dépenses',
@@ -191,7 +196,7 @@ const getBalanceHistoryData = () => {
     datasets: [{
       label: 'Solde',
       data: Array.from(dailyMap.values()),
-      borderColor: THEME.colors.balanceStroke,
+      borderColor: THEME.colors.balance,
       borderWidth: 3,
       backgroundColor: (ctx) => {
         const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 400);
@@ -200,13 +205,13 @@ const getBalanceHistoryData = () => {
         return gradient;
       },
       fill: true,
-      tension: 0.4, // Courbe lissée
-      pointRadius: 0, // Invisible par défaut
-      pointHoverRadius: 6, // Visible au survol
+      tension: 0.4,
+      pointRadius: 0,
+      pointHoverRadius: 6,
       pointBackgroundColor: '#ffffff',
-      pointBorderColor: THEME.colors.balanceStroke,
+      pointBorderColor: THEME.colors.balance,
       pointBorderWidth: 2,
-      pointHitRadius: 20 // Facilite la sélection
+      pointHitRadius: 20
     }]
   };
 };
@@ -216,10 +221,12 @@ const getSankeyData = () => {
   const expenseCats = {};
   filteredTransactions.value.forEach(t => {
     const cat = t.categoryName || 'Autre';
+    const val = Math.abs(t.amount);
+
     if (t.typeStr === 'income' || t.typeTransactionsId === 1) {
-      incomeCats[cat] = (incomeCats[cat] || 0) + t.amount;
+      incomeCats[cat] = (incomeCats[cat] || 0) + val;
     } else {
-      expenseCats[cat] = (expenseCats[cat] || 0) + t.amount;
+      expenseCats[cat] = (expenseCats[cat] || 0) + val;
     }
   });
 
@@ -229,7 +236,7 @@ const getSankeyData = () => {
   return data;
 };
 
-// --- 5. INITIALISATION ---
+// --- 5. CONFIGURATION & INITIALISATION ---
 
 const destroyCharts = () => {
   Object.values(charts).forEach(c => { if (c) c.destroy(); });
@@ -238,7 +245,6 @@ const destroyCharts = () => {
   charts.sankey = null;
 };
 
-// Configuration partagée pour un look cohérent
 const getChartConfig = (isDark) => {
   const textColor = isDark ? THEME.colors.textDark : THEME.colors.textLight;
   const gridColor = isDark ? THEME.colors.gridDark : THEME.colors.gridLight;
@@ -265,7 +271,7 @@ const getChartConfig = (isDark) => {
         borderColor: isDark ? '#334155' : '#e2e8f0',
         borderWidth: 1,
         padding: 12,
-        cornerRadius: 12, // Tooltip très arrondi
+        cornerRadius: 12,
         displayColors: true,
         boxPadding: 6,
         titleFont: { family: THEME.font, size: 13, weight: 700 },
@@ -289,7 +295,7 @@ const getChartConfig = (isDark) => {
       },
       y: {
         border: { display: false },
-        grid: { color: gridColor, borderDash: [4, 4], drawBorder: false }, // Pointillés discrets
+        grid: { color: gridColor, borderDash: [4, 4], drawBorder: false },
         ticks: {
           color: textColor,
           padding: 10,
@@ -306,7 +312,6 @@ const getChartConfig = (isDark) => {
 const initCharts = () => {
   if (!cleanTransactions.value.length) return;
 
-  // Sécurité DOM (Retry)
   if (!incomeExpenseChart.value || !balanceChart.value) {
     setTimeout(initCharts, 100);
     return;
@@ -330,27 +335,30 @@ const initCharts = () => {
     }
   });
 
-  // 2. LINE CHART
+  // 2. LINE CHART (MONOCHROME INDIGO)
   charts.balance = new Chart(balanceChart.value, {
     type: 'line',
     data: getBalanceHistoryData(),
     options: {
       ...commonOptions,
-      interaction: { mode: 'index', intersect: false }, // Interaction fluide
+      interaction: { mode: 'index', intersect: false },
       scales: {
         ...commonOptions.scales,
         y: {
           ...commonOptions.scales.y,
-          beginAtZero: false // Dynamique pour voir les variations
+          beginAtZero: false
         }
       }
     }
   });
 
-  // 3. SANKEY
+  // 3. SANKEY (ESPACEMENT AMÉLIORÉ)
   if (sankeyChart.value) {
     const sData = getSankeyData();
     if (sData.length > 0) {
+      // Couleur de bordure = couleur de fond de la carte pour simuler l'espace
+      const cardBgColor = isDark ? THEME.colors.cardBgDark : THEME.colors.cardBgLight;
+
       charts.sankey = new Chart(sankeyChart.value, {
         type: 'sankey',
         data: {
@@ -358,9 +366,19 @@ const initCharts = () => {
             data: sData,
             colorFrom: (c) => c.dataset.data[c.dataIndex].from === 'Budget' ? THEME.colors.expense : THEME.colors.income,
             colorTo: (c) => c.dataset.data[c.dataIndex].to === 'Budget' ? THEME.colors.income : THEME.colors.expense,
+
+            // --- AJUSTEMENTS VISUELS ---
             colorMode: 'gradient',
             alpha: 0.6,
             size: 'max',
+            // Astuce pour l'espacement : bordure épaisse de la même couleur que le fond
+            borderWidth: 4,
+            borderColor: cardBgColor,
+            // Nœuds plus fins
+            nodeWidth: 12,
+            // Plus d'espace vertical entre les flux
+            nodePadding: 30,
+
             color: isDark ? '#e2e8f0' : '#334155',
             font: { family: THEME.font, size: 12, weight: 600 }
           }]
@@ -369,7 +387,23 @@ const initCharts = () => {
           responsive: true,
           maintainAspectRatio: false,
           layout: { padding: 20 },
-          plugins: { legend: { display: false }, tooltip: commonOptions.plugins.tooltip }
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              ...commonOptions.plugins.tooltip,
+              displayColors: false,
+              callbacks: {
+                label: (context) => {
+                  const item = context.raw;
+                  if (!item) return '';
+                  const val = new Intl.NumberFormat('fr-FR', {
+                    style: 'currency', currency: 'EUR'
+                  }).format(item.flow);
+                  return `${item.from} → ${item.to} : ${val}`;
+                }
+              }
+            }
+          }
         }
       });
     }
