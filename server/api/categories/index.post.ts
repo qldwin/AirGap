@@ -13,7 +13,7 @@ const createCategorySchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
-    await requireAuth(event);
+    const user = await requireAuth(event);
 
     const body = await readValidatedBody(event, (b) => createCategorySchema.safeParse(b));
 
@@ -22,7 +22,10 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
-        const newCategory = await createCategory(body.data);
+        const newCategory = await createCategory({
+            ...body.data,
+            userId: user.id
+        });
 
         return {
             success: true,
@@ -30,7 +33,6 @@ export default defineEventHandler(async (event) => {
         };
 
     } catch (error: any) {
-        // Gestion des erreurs spécifiques BDD
         if (error.code === '23505') { // Unique constraint
             throw createError({ statusCode: 409, message: `La catégorie "${body.data.name}" existe déjà.` });
         }

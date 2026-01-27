@@ -19,7 +19,10 @@ export const accounts = pgTable('accounts', {
 });
 
 export const accountRelations = relations(accounts, ({one,many}) => ({
-    user: one(users),
+    user: one(users, {
+        fields: [accounts.userId],
+        references: [users.id],
+    }),
     categories: many(assoAccountsCategories),
     transactions: many(transactions),
     budgets: many(budgets),
