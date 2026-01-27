@@ -1,9 +1,8 @@
 <template>
   <div class="py-8">
     <div class="max-w-6xl mx-auto px-4">
-
-      <div class="flex items-center justify-between mb-8">
-        <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-50">Tableau de bord</h1>
+      <div>
+        <h1 class="text-4xl font-black tracking-tighter italic">Tableau de bord</h1>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

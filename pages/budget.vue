@@ -2,7 +2,9 @@
   <div class="pt-16 pb-8 px-4">
     <div class="max-w-6xl mx-auto">
       <div class="flex items-center justify-between mb-8">
-        <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-50">Budgets</h1>
+        <div>
+          <h1 class="text-4xl font-black tracking-tighter italic">Budgets</h1>
+        </div>
 
         <div class="flex items-center space-x-3">
           <button

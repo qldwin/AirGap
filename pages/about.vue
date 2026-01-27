@@ -1,7 +1,9 @@
 <template>
   <div class="py-12">
     <div class="max-w-3xl mx-auto">
-      <h1 class="text-4xl font-bold mb-6 text-neutral-900 dark:text-neutral-50">À propos de AirGap</h1>
+      <div>
+        <h1 class="text-4xl font-black tracking-tighter italic">À propos</h1>
+      </div>
       
       <div class="card mb-8">
         <h2 class="text-2xl font-semibold mb-4 text-neutral-900 dark:text-neutral-50">Notre mission</h2>
@@ -33,3 +35,5 @@
     </div>
   </div>
 </template>
+<script setup lang="ts">
+</script>
