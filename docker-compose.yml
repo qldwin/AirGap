@@ -6,9 +6,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: Xy9#mP2$kL
-      POSTGRES_USER: finantia
-      POSTGRES_DB: finantia
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
 
   adminer:
     image: adminer
@@ -23,5 +23,14 @@ services:
       - "3000:3000"
     depends_on:
       - db
+    command: >
+      sh -c "
+            until nc -z db 5432; do
+              echo 'En attente de la base de données...';
+              sleep 1;
+            done;
+            echo 'La DB est prête !';
+            npx drizzle-kit push && node .output/server/index.mjs"
     environment:
-      DATABASE_URL: postgresql://finantia:example@finantia-db-riudtf:5432/finantia
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD}
