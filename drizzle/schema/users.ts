@@ -1,10 +1,10 @@
-import {pgTable, serial, varchar, timestamp} from "drizzle-orm/pg-core"
-import {accounts} from "./accounts";
-import {budgets} from "./budgets";
-import {transactions} from "./transactions";
-import {relations} from "drizzle-orm";
+import { pgTable, serial, varchar, timestamp } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { accounts } from "./accounts";
+import { budgets } from "./budgets";
+import { transactions } from "./transactions";
+import { categories } from "./categories";
 
-// Table User
 export const users = pgTable('users', {
     id: serial('id').primaryKey(),
     email: varchar('email', {length: 255}).notNull().unique(),
@@ -19,4 +19,5 @@ export const userRelations = relations(users, ({many}) => ({
     accounts: many(accounts),
     budgets: many(budgets),
     transactions: many(transactions),
+    categories: many(categories),
 }));

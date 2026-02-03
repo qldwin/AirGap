@@ -1,6 +1,6 @@
 {
-  "id": "867604bd-0afb-4249-8d34-3ba9dcc1c07e",
-  "prevId": "104c1606-b57b-4ba4-a3ac-fd6fdb52ee05",
+  "id": "c9b62c54-1e7c-4eb8-ac41-8b691bd70e1d",
+  "prevId": "21dea4d0-5510-4fb1-a300-a9d931d9c444",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -141,34 +141,28 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.budgetCategories": {
-      "name": "budgetCategories",
+    "public.assoBudgetCategories": {
+      "name": "assoBudgetCategories",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
         "budgetId": {
           "name": "budgetId",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
         "categoryId": {
           "name": "categoryId",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "budgetCategories_budgetId_budgets_id_fk": {
-          "name": "budgetCategories_budgetId_budgets_id_fk",
-          "tableFrom": "budgetCategories",
+        "assoBudgetCategories_budgetId_budgets_id_fk": {
+          "name": "assoBudgetCategories_budgetId_budgets_id_fk",
+          "tableFrom": "assoBudgetCategories",
           "tableTo": "budgets",
           "columnsFrom": [
             "budgetId"
@@ -179,9 +173,9 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "budgetCategories_categoryId_categories_id_fk": {
-          "name": "budgetCategories_categoryId_categories_id_fk",
-          "tableFrom": "budgetCategories",
+        "assoBudgetCategories_categoryId_categories_id_fk": {
+          "name": "assoBudgetCategories_categoryId_categories_id_fk",
+          "tableFrom": "assoBudgetCategories",
           "tableTo": "categories",
           "columnsFrom": [
             "categoryId"
@@ -194,8 +188,8 @@
         }
       },
       "compositePrimaryKeys": {
-        "budgetCategories_budgetId_categoryId_pk": {
-          "name": "budgetCategories_budgetId_categoryId_pk",
+        "assoBudgetCategories_budgetId_categoryId_pk": {
+          "name": "assoBudgetCategories_budgetId_categoryId_pk",
           "columns": [
             "budgetId",
             "categoryId"
@@ -207,16 +201,10 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.transactionsCategories": {
-      "name": "transactionsCategories",
+    "public.assoTransactionsCategories": {
+      "name": "assoTransactionsCategories",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
         "transactionId": {
           "name": "transactionId",
           "type": "integer",
@@ -232,9 +220,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "transactionsCategories_transactionId_transactions_id_fk": {
-          "name": "transactionsCategories_transactionId_transactions_id_fk",
-          "tableFrom": "transactionsCategories",
+        "assoTransactionsCategories_transactionId_transactions_id_fk": {
+          "name": "assoTransactionsCategories_transactionId_transactions_id_fk",
+          "tableFrom": "assoTransactionsCategories",
           "tableTo": "transactions",
           "columnsFrom": [
             "transactionId"
@@ -245,9 +233,9 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "transactionsCategories_categoryId_categories_id_fk": {
-          "name": "transactionsCategories_categoryId_categories_id_fk",
-          "tableFrom": "transactionsCategories",
+        "assoTransactionsCategories_categoryId_categories_id_fk": {
+          "name": "assoTransactionsCategories_categoryId_categories_id_fk",
+          "tableFrom": "assoTransactionsCategories",
           "tableTo": "categories",
           "columnsFrom": [
             "categoryId"
@@ -260,8 +248,8 @@
         }
       },
       "compositePrimaryKeys": {
-        "transactionsCategories_transactionId_categoryId_pk": {
-          "name": "transactionsCategories_transactionId_categoryId_pk",
+        "assoTransactionsCategories_transactionId_categoryId_pk": {
+          "name": "assoTransactionsCategories_transactionId_categoryId_pk",
           "columns": [
             "transactionId",
             "categoryId"
@@ -293,7 +281,7 @@
           "name": "accountId",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "name": {
           "name": "name",
@@ -403,6 +391,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "type_id": {
+          "name": "type_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
@@ -426,112 +420,13 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.recurrences": {
-      "name": "recurrences",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "parentType": {
-          "name": "parentType",
-          "type": "varchar(20)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "parentId": {
-          "name": "parentId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "frequency": {
-          "name": "frequency",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "startDate": {
-          "name": "startDate",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "endDate": {
-          "name": "endDate",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "occurrences": {
-          "name": "occurrences",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.sender_recipient": {
-      "name": "sender_recipient",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "accountId": {
-          "name": "accountId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
       "foreignKeys": {
-        "sender_recipient_accountId_accounts_id_fk": {
-          "name": "sender_recipient_accountId_accounts_id_fk",
-          "tableFrom": "sender_recipient",
-          "tableTo": "accounts",
+        "categories_type_id_typeTransactions_id_fk": {
+          "name": "categories_type_id_typeTransactions_id_fk",
+          "tableFrom": "categories",
+          "tableTo": "typeTransactions",
           "columnsFrom": [
-            "accountId"
+            "type_id"
           ],
           "columnsTo": [
             "id"
@@ -542,6 +437,142 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.import_rules": {
+      "name": "import_rules",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "keyword": {
+          "name": "keyword",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category_id": {
+          "name": "category_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "import_rules_user_id_users_id_fk": {
+          "name": "import_rules_user_id_users_id_fk",
+          "tableFrom": "import_rules",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "import_rules_category_id_categories_id_fk": {
+          "name": "import_rules_category_id_categories_id_fk",
+          "tableFrom": "import_rules",
+          "tableTo": "categories",
+          "columnsFrom": [
+            "category_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "password": {
+          "name": "password",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deletedAt": {
+          "name": "deletedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -629,6 +660,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
@@ -659,10 +697,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "transactions_senderRecipientId_sender_recipient_id_fk": {
-          "name": "transactions_senderRecipientId_sender_recipient_id_fk",
+        "transactions_senderRecipientId_senderRecipient_id_fk": {
+          "name": "transactions_senderRecipientId_senderRecipient_id_fk",
           "tableFrom": "transactions",
-          "tableTo": "sender_recipient",
+          "tableTo": "senderRecipient",
           "columnsFrom": [
             "senderRecipientId"
           ],
@@ -692,6 +730,57 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.senderRecipient": {
+      "name": "senderRecipient",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "accountId": {
+          "name": "accountId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "senderRecipient_accountId_accounts_id_fk": {
+          "name": "senderRecipient_accountId_accounts_id_fk",
+          "tableFrom": "senderRecipient",
+          "tableTo": "accounts",
+          "columnsFrom": [
+            "accountId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.typeTransactions": {
       "name": "typeTransactions",
       "schema": "",
@@ -704,7 +793,7 @@
         },
         "type": {
           "name": "type",
-          "type": "type_transaction_enum",
+          "type": "typeTransactionEnum",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
@@ -718,8 +807,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.users": {
-      "name": "users",
+    "public.recurrences": {
+      "name": "recurrences",
       "schema": "",
       "columns": {
         "id": {
@@ -728,30 +817,41 @@
           "primaryKey": true,
           "notNull": true
         },
-        "email": {
-          "name": "email",
-          "type": "varchar(255)",
+        "parentType": {
+          "name": "parentType",
+          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true
         },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
+        "parentId": {
+          "name": "parentId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "frequency": {
+          "name": "frequency",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "startDate": {
+          "name": "startDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "endDate": {
+          "name": "endDate",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         },
-        "password": {
-          "name": "password",
-          "type": "varchar(255)",
+        "occurrences": {
+          "name": "occurrences",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "notNull": false
         },
         "createdAt": {
           "name": "createdAt",
@@ -759,34 +859,20 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "deletedAt": {
-          "name": "deletedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "users_email_unique": {
-          "name": "users_email_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
     }
   },
   "enums": {
-    "public.type_transaction_enum": {
-      "name": "type_transaction_enum",
+    "public.typeTransactionEnum": {
+      "name": "typeTransactionEnum",
       "schema": "public",
       "values": [
         "depense",

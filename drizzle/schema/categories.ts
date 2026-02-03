@@ -1,15 +1,16 @@
-import {pgTable, serial, varchar, timestamp, integer} from 'drizzle-orm/pg-core'
-import {relations} from 'drizzle-orm';
-import {boolean} from "drizzle-orm/pg-core/columns/boolean";
-import {assoBudgetCategories} from "./assoBudgetCategories";
-import {assoTransactionsCategories} from "./assoTransactionsCategories";
-import {assoAccountsCategories} from "./assoAccountsCategories";
+import { pgTable, serial, varchar, timestamp, integer, boolean } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
+import { assoBudgetCategories } from "./assoBudgetCategories";
+import { assoTransactionsCategories } from "./assoTransactionsCategories";
+import { assoAccountsCategories } from "./assoAccountsCategories";
 import { typeTransactions } from "./typeTransactions";
-// Table Category
+import { users } from "./users";
+
 export const categories = pgTable('categories', {
     id: serial('id').primaryKey(),
     name: varchar('name', {length: 255}).notNull(),
     typeId: integer('type_id').references(() => typeTransactions.id).notNull(),
+    userId: integer('user_id').references(() => users.id),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
     updatedAt: timestamp('updatedAt').notNull().defaultNow(),
     isDefault: boolean('isDefault').default(true),
@@ -22,5 +23,9 @@ export const categoryRelations = relations(categories, ({many, one}) => ({
     type: one(typeTransactions, {
         fields: [categories.typeId],
         references: [typeTransactions.id],
+    }),
+    user: one(users, {
+        fields: [categories.userId],
+        references: [users.id],
     }),
 }));

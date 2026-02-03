@@ -25,8 +25,25 @@ export const transactions = pgTable('transactions', {
 });
 
 export const transactionRelations = relations(transactions, ({ one, many }) => ({
-    account: one(accounts, { fields: [transactions.accountId], references: [accounts.id] }),
-    senderRecipient: many(transactions),
-    typeTransactions: one(typeTransactions, { fields: [transactions.typeTransactionsId], references: [typeTransactions.id] }),
+    user: one(users, {
+        fields: [transactions.userId],
+        references: [users.id]
+    }),
+
+    account: one(accounts, {
+        fields: [transactions.accountId],
+        references: [accounts.id]
+    }),
+
+    senderRecipient: one(senderRecipient, {
+        fields: [transactions.senderRecipientId],
+        references: [senderRecipient.id]
+    }),
+
+    typeTransactions: one(typeTransactions, {
+        fields: [transactions.typeTransactionsId],
+        references: [typeTransactions.id]
+    }),
+
     categories: many(assoTransactionsCategories),
 }));
