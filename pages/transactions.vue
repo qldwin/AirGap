@@ -3,7 +3,7 @@
     <div class="max-w-6xl mx-auto">
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
         <div>
-          <h1 class="text-4xl font-black tracking-tighter italic">Transactions</h1>
+          <h1 class="text-4xl font-black tracking-tighter">Transactions</h1>
         </div>
 
         <div class="flex items-center gap-4">

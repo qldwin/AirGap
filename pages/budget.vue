@@ -3,7 +3,7 @@
     <div class="max-w-6xl mx-auto">
       <div class="flex items-center justify-between mb-8">
         <div>
-          <h1 class="text-4xl font-black tracking-tighter italic">Budgets</h1>
+          <h1 class="text-4xl font-black tracking-tighter">Budgets</h1>
         </div>
 
         <div class="flex items-center space-x-3">
