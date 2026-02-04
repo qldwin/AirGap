@@ -6,7 +6,7 @@ import { relations } from 'drizzle-orm';
 export const importRules = pgTable('import_rules', {
     id: serial('id').primaryKey(),
     userId: integer('user_id').references(() => users.id),
-    keyword: varchar('keyword', { length: 255 }).notNull(), // ex: "uber eats"
+    keyword: varchar('keyword', { length: 255 }).notNull(),
     categoryId: integer('category_id').references(() => categories.id).notNull(),
     createdAt: timestamp('created_at').defaultNow(),
 });

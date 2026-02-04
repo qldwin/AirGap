@@ -1,6 +1,6 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center">
-    <div class="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeModal"></div>
+    <div class="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeModal"/>
 
     <div class="bg-white dark:bg-neutral-800 shadow-xl rounded-lg w-full max-w-md mx-auto z-50 relative">
       <div class="p-6">
@@ -8,32 +8,32 @@
           {{ isEditing ? 'Modifier la transaction' : 'Nouvelle transaction' }}
         </h2>
 
-        <form @submit.prevent="submitForm" class="space-y-4">
+        <form class="space-y-4" @submit.prevent="submitForm">
           <div>
             <label for="description" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Description</label>
             <input
-                type="text"
                 id="description"
                 v-model="form.description"
+                type="text"
                 class="w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
                 placeholder="Ex: Salaire, Courses Leclerc, Loyer..."
                 required
-            />
+            >
           </div>
 
           <div>
             <label for="amount" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Montant</label>
             <div class="relative">
               <input
-                  type="number"
                   id="amount"
                   v-model.number="form.amount"
+                  type="number"
                   class="w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors pr-10"
                   step="0.01"
                   min="0.01"
                   placeholder="0.00"
                   required
-              />
+              >
               <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-500">€</span>
             </div>
           </div>
@@ -43,20 +43,20 @@
             <div class="flex gap-3 mt-1">
               <label class="flex items-center cursor-pointer">
                 <input
-                    type="radio"
                     v-model="form.type"
+                    type="radio"
                     value="income"
                     class="mr-2"
-                />
+                >
                 <span class="text-green-600 dark:text-green-400 font-medium">Revenu</span>
               </label>
               <label class="flex items-center cursor-pointer">
                 <input
-                    type="radio"
                     v-model="form.type"
+                    type="radio"
                     value="expense"
                     class="mr-2"
-                />
+                >
                 <span class="text-red-600 dark:text-red-400 font-medium">Dépense</span>
               </label>
             </div>
@@ -86,19 +86,19 @@
           <div>
             <label for="date" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Date</label>
             <input
-                type="date"
                 id="date"
                 v-model="form.date"
+                type="date"
                 class="w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
                 required
-            />
+            >
           </div>
 
           <div class="flex justify-end gap-3 pt-4 border-t border-neutral-100 dark:border-neutral-700 mt-4">
             <button
                 type="button"
-                @click="closeModal"
                 class="px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                @click="closeModal"
             >
               Annuler
             </button>
@@ -176,7 +176,6 @@ const filteredCategories = computed(() => {
 
 // --- WATCHERS ---
 
-// 1. Reset automatique de la catégorie si on change le Type
 watch(() => form.value.type, (newType, oldType) => {
   if (oldType && !props.transaction) {
     form.value.categoryId = null;
@@ -188,7 +187,6 @@ watch(() => form.value.type, (newType, oldType) => {
   }
 });
 
-// 2. Initialisation du formulaire quand on ouvre en mode EDIT
 watch(
     () => props.transaction,
     (newTransaction) => {
@@ -212,7 +210,6 @@ watch(
     { immediate: true }
 );
 
-// 3. Reset du formulaire quand on ouvre en mode CRÉATION
 watch(() => isOpen.value, (open) => {
   if (open && !props.transaction) {
     form.value = {
@@ -234,7 +231,6 @@ const submitForm = async () => {
   try {
     isLoading.value = true;
 
-    // 1. Préparation du Payload pour l'API
     const typeId = form.value.type === 'income' ? TYPE_INCOME : TYPE_EXPENSE;
 
     const payload = {
@@ -250,7 +246,6 @@ const submitForm = async () => {
 
     let response;
 
-    // 2. Appel API (POST ou PATCH)
     if (isEditing.value) {
       response = await $fetch(`/api/transactions/${props.transaction.id}`, {
         method: 'PATCH',

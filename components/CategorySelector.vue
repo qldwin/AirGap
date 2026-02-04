@@ -98,11 +98,6 @@ import {
   ListboxOption,
 } from '@headlessui/vue';
 
-// --- ICÔNES ---
-const ChevronDownIcon = () => h('svg', { fill: "none", viewBox: "0 0 24 24", stroke: "currentColor" }, [h('path', { 'stroke-linecap': "round", 'stroke-linejoin': "round", 'stroke-width': "2", d: "M19 9l-7 7-7-7" })]);
-const SearchIcon = () => h('svg', { fill: "none", viewBox: "0 0 24 24", stroke: "currentColor" }, [h('path', { 'stroke-linecap': "round", 'stroke-linejoin': "round", 'stroke-width': "2", d: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" })]);
-const CheckIcon = () => h('svg', { fill: "none", viewBox: "0 0 24 24", stroke: "currentColor" }, [h('path', { 'stroke-linecap': "round", 'stroke-linejoin': "round", 'stroke-width': "2", d: "M5 13l4 4L19 7" })]);
-
 const props = defineProps({
   modelValue: { type: [Number, String, null], default: null },
   categories: { type: Array, required: true },

@@ -433,12 +433,10 @@ const handleFileUpload = async (event) => {
   showMissingOnly.value = true;
 
   try {
-    // On attend un court instant pour laisser l'UI respirer
     await new Promise(resolve => setTimeout(resolve, 50));
 
     const results = await parseCSV(file);
 
-    // Filtrage et Mapping mis à plat
     const formattedTransactions = results.data
         .filter(row => Object.keys(row).some(k =>
             k.toLowerCase().includes('montant') ||
@@ -452,7 +450,6 @@ const handleFileUpload = async (event) => {
       return;
     }
 
-    // Classification
     const response = await $fetch('/api/transactions/classify', {
       method: 'POST',
       body: { transactions: formattedTransactions }

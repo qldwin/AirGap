@@ -68,7 +68,6 @@ export const getTransactionById = async (transactionId: number, userId: number) 
 
     return {
         ...row,
-        // 🔓 Déchiffrement de la description pour l'affichage
         description: decryptText(row.description || ''),
         category: row.categoryName ? { id: row.categoryId, name: row.categoryName } : null
     };
@@ -90,7 +89,6 @@ export const updateTransaction = async (
     updateData: Partial<typeof transactions.$inferInsert>,
     newCategoryId?: number | null
 ) => {
-    // 🔒 Chiffrement de la description si elle est mise à jour
     const finalUpdateData = { ...updateData };
     if (finalUpdateData.description) {
         finalUpdateData.description = encryptText(finalUpdateData.description);
@@ -130,14 +128,12 @@ export const getUserTransactions = async (userId: number) => {
 
     return rows.map(row => ({
         ...row,
-        // Déchiffrement de la description pour la liste
         description: decryptText(row.description || ''),
         category: row.categoryName ? { id: row.categoryId, name: row.categoryName } : null
     }));
 }
 
 export const createTransaction = async (data: typeof transactions.$inferInsert, categoryId?: number) => {
-    // Chiffrement de la description à la création
     const encryptedData = {
         ...data,
         description: data.description ? encryptText(data.description) : ''
@@ -161,7 +157,6 @@ export const importTransactionsBulk = async (userId: number, rawTransactions: an
 
         const categoryMap = new Map((await tx.select().from(categories)).map(c => [c.name.toLowerCase().trim(), c.id]));
 
-        // Logique Anti-doublon avec Chiffrement :
         const existing = await tx.select().from(transactions).where(eq(transactions.userId, userId));
         const signatures = new Set(existing.map(t =>
             getTransactionSignature(new Date(t.date), Number(t.amount), decryptText(t.description || ''))
@@ -181,7 +176,6 @@ export const importTransactionsBulk = async (userId: number, rawTransactions: an
             const [newTx] = await tx.insert(transactions).values({
                 userId,
                 accountId: t.accountId || 1,
-                // 🔒 Chiffrement avant insertion
                 description: encryptText(t.description?.trim() || 'Import CSV'),
                 amount: String(amount),
                 date: dateObj,

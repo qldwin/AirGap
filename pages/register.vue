@@ -94,7 +94,6 @@ async function handleRegister() {
     body: form,
   })
       .then(() => {
-        // Redirect to login or dashboard
         navigateTo('/login');
       })
       .catch((error) => {

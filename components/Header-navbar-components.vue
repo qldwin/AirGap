@@ -3,7 +3,6 @@
       class="fixed w-full top-0 left-0 z-50 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 transition-colors duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
-        <!-- Logo -->
         <div class="flex items-center">
           <NuxtLink to="/" class="text-xl font-semibold text-primary-600 dark:text-primary-400">AirGap</NuxtLink>
         </div>
@@ -96,7 +95,6 @@
             Se connecter
           </NuxtLink>
 
-          <!-- Theme switcher -->
           <button
               class="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
               aria-label="Changer de thème"

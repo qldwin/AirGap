@@ -8,10 +8,8 @@ const paramsSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-    // 1. Sécurité : On récupère l'utilisateur connecté (sinon 401)
     const user = await requireAuth(event)
 
-    // 2. Validation : On récupère l'ID depuis l'URL (router params)
     const params = await getValidatedRouterParams(event, (params) => paramsSchema.safeParse(params))
 
     if (!params.success) {
@@ -21,10 +19,8 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // 3. Appel du service
     const transaction = await getTransactionById(params.data.id, user.id)
 
-    // 4. Vérification d'existence
     if (!transaction) {
         throw createError({
             statusCode: 404, // Not Found

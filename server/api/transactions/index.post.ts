@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { createTransaction } from '~/server/services/transactions.service'
 import { requireAuth } from '~/server/utils/auth'
 
-// 1. Validation du Body
 const createTransactionSchema = z.object({
     amount: z.number({ required_error: "Le montant est requis" })
         .positive("Le montant doit être positif"),
@@ -21,10 +20,8 @@ const createTransactionSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-    // 1. Sécurité (Important : await est présent)
     const user = await requireAuth(event)
 
-    // 2. Validation
     const body = await readValidatedBody(event, (b) => createTransactionSchema.safeParse(b))
 
     if (!body.success) {
@@ -34,7 +31,6 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // 3. Préparation des données
     const { categoryId, ...restBody } = body.data
 
     const transactionData = {
@@ -51,7 +47,6 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
-        // 4. Appel du Service
         const newTransaction = await createTransaction(transactionData, categoryId)
 
         return {

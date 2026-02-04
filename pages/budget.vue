@@ -180,16 +180,13 @@ definePageMeta({
   middleware: ['authenticated']
 });
 
-// État global
 const loading = ref(true);
 const isSubmitting = ref(false);
 
-// Données
 const budgets = ref([]);
 const transactions = ref([]);
 const categories = ref([]);
 
-// Modal et Formulaire
 const showBudgetModal = ref(false);
 const editingBudget = ref(null);
 const budgetForm = ref({
@@ -206,8 +203,6 @@ const expenseCategories = computed(() => {
   if (!categories.value || categories.value.length === 0) return [];
 
   return categories.value.filter(c => {
-    // On vérifie le typeId (format objet JS) OU type_id (format brut BDD)
-    // On utilise == pour accepter "2" (string) et 2 (number)
     const type = c.typeId ?? c.type_id;
     return type == 2;
   });
@@ -222,7 +217,6 @@ const sortedBudgets = computed(() => {
 const loadInitialData = async () => {
   loading.value = true;
   try {
-    // Promise.allSettled attend que tout finisse, succès ou échec
     const results = await Promise.allSettled([
       $fetch('/api/budgets'),
       $fetch('/api/transactions'),
@@ -236,7 +230,7 @@ const loadInitialData = async () => {
       budgets.value = budgetsResult.value.budgets || [];
     } else {
       console.error("Erreur chargement budgets:", budgetsResult.reason);
-      budgets.value = []; // On initialise vide pour ne pas casser la vue
+      budgets.value = [];
     }
 
     // 2. Gestion des Transactions
@@ -249,7 +243,6 @@ const loadInitialData = async () => {
     // 3. Gestion des Catégories (CELLE QUI VOUS INTÉRESSE)
     if (catsResult.status === 'fulfilled') {
       const data = catsResult.value;
-      // On gère les deux formats possibles (tableau direct ou objet {categories: []})
       if (Array.isArray(data)) {
         categories.value = data;
       } else if (data && data.categories) {
@@ -346,7 +339,6 @@ const saveBudget = async () => {
       endDate = endOfYear(now);
     }
 
-    // 2. Construction du payload pour l'API
     const payload = {
       name: budgetForm.value.name,
       amount: Number(budgetForm.value.amount),
@@ -360,7 +352,6 @@ const saveBudget = async () => {
     let response;
 
     if (editingBudget.value) {
-      // PATCH
       response = await $fetch(`/api/budgets/${editingBudget.value.id}`, {
         method: 'PATCH',
         body: payload
@@ -371,7 +362,6 @@ const saveBudget = async () => {
         budgets.value[index] = response.budget;
       }
     } else {
-      // POST
       response = await $fetch('/api/budgets', {
         method: 'POST',
         body: payload

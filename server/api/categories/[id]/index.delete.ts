@@ -26,7 +26,6 @@ export default defineEventHandler(async (event) => {
         };
 
     } catch (error: any) {
-        // Erreur 23503 : Foreign Key Violation (Liée à des transactions/budgets)
         if (error.code === '23503') {
             throw createError({
                 statusCode: 409,

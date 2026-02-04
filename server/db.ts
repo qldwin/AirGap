@@ -5,7 +5,6 @@ import * as schema from '../drizzle/schema/index';
 
 const connectionString = process.env.DATABASE_URL;
 
-// 1. Vérification de sécurité
 if (!connectionString) {
     throw new Error("❌ ERREUR CRITIQUE : La variable d'environnement DATABASE_URL est manquante ou vide !");
 }

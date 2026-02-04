@@ -71,7 +71,7 @@ Chart.register(...registerables, SankeyController, Flow);
 
 // --- 1. PROPS ---
 const props = defineProps({
-  transactions: { type: Array, required: true, default: () => [] }
+  transactions: { type: Array, required: false, default: () => [] }
 });
 
 // --- ÉTAT ---
@@ -86,20 +86,19 @@ const charts = { incomeExpense: null, balance: null, sankey: null };
 const THEME = {
   font: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
   colors: {
-    income: '#34d399', // Emerald 400
+    income: '#34d399',
     incomeHover: '#10b981',
     incomeSoft: 'rgba(52, 211, 153, 0.15)',
-    expense: '#fb7185', // Rose 400
+    expense: '#fb7185',
     expenseHover: '#f43f5e',
     expenseSoft: 'rgba(251, 113, 133, 0.15)',
-    balance: '#6366f1', // Indigo 500
+    balance: '#6366f1',
     textLight: '#64748b',
     textDark: '#94a3b8',
     gridLight: '#e2e8f0',
     gridDark: '#334155',
-    // Couleurs de fond pour le masquage Sankey
     cardBgLight: '#ffffff',
-    cardBgDark: '#171717' // correspond à neutral-900
+    cardBgDark: '#171717'
   }
 };
 
@@ -335,7 +334,7 @@ const initCharts = () => {
     }
   });
 
-  // 2. LINE CHART (MONOCHROME INDIGO)
+  // 2. LINE CHART
   charts.balance = new Chart(balanceChart.value, {
     type: 'line',
     data: getBalanceHistoryData(),
@@ -352,11 +351,11 @@ const initCharts = () => {
     }
   });
 
-  // 3. SANKEY (ESPACEMENT AMÉLIORÉ)
+  // 3. SANKEY
   if (sankeyChart.value) {
     const sData = getSankeyData();
     if (sData.length > 0) {
-      // Couleur de bordure = couleur de fond de la carte pour simuler l'espace
+
       const cardBgColor = isDark ? THEME.colors.cardBgDark : THEME.colors.cardBgLight;
 
       charts.sankey = new Chart(sankeyChart.value, {
@@ -371,12 +370,9 @@ const initCharts = () => {
             colorMode: 'gradient',
             alpha: 0.6,
             size: 'max',
-            // Astuce pour l'espacement : bordure épaisse de la même couleur que le fond
             borderWidth: 4,
             borderColor: cardBgColor,
-            // Nœuds plus fins
             nodeWidth: 12,
-            // Plus d'espace vertical entre les flux
             nodePadding: 30,
 
             color: isDark ? '#e2e8f0' : '#334155',

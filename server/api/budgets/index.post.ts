@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { createBudget } from '~/server/services/budgets.service'
 import { requireAuth } from '~/server/utils/auth'
 
-// 1. Schéma de validation
 const createBudgetSchema = z.object({
     name: z.string({ required_error: "Le nom est requis" })
         .min(1, "Le nom ne peut pas être vide"),

@@ -8,10 +8,8 @@ const paramsSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-    // 1. Sécurité : AJOUT DE "await" ICI
     const user = await requireAuth(event)
 
-    // 2. Validation des paramètres
     const params = await getValidatedRouterParams(event, (params) => paramsSchema.safeParse(params))
 
     if (!params.success) {
@@ -21,10 +19,8 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // 3. Appel du service
     const deletedTransaction = await deleteTransaction(params.data.id, user.id)
 
-    // 4. Vérification
     if (!deletedTransaction) {
         throw createError({
             statusCode: 404,

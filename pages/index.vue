@@ -92,7 +92,6 @@ const transactions = computed(() => {
   return [...withCumulative].sort((a, b) => b.dateObj.getTime() - a.dateObj.getTime());
 });
 
-// --- KPI CALCULATIONS ---
 const now = new Date();
 const currentMonth = now.getMonth();
 const currentYear = now.getFullYear();

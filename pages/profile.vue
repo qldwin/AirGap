@@ -18,8 +18,8 @@
                 Nom
                 <input
                     id="name"
-                    type="text"
                     v-model="form.name"
+                    type="text"
                     class="w-full mt-1 px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                 >
               </label>
@@ -105,8 +105,8 @@
         <p class="text-neutral-600 dark:text-neutral-400 mb-4">Attention, la suppression est définitive.</p>
         <button
             class="px-4 py-2 bg-white text-red-600 border border-red-300 rounded-lg hover:bg-red-600 hover:text-white transition-colors"
-            @click="showDeleteModal = true"
             :disabled="isLoading"
+            @click="showDeleteModal = true"
         >
           Supprimer mon compte
         </button>
@@ -127,20 +127,20 @@
               placeholder="Votre mot de passe"
               class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none dark:bg-neutral-800 dark:border-neutral-600"
               @keyup.enter="confirmDeleteAccount"
-          />
+          >
         </div>
 
         <div class="flex justify-end gap-3">
           <button
-              @click="showDeleteModal = false"
               class="px-4 py-2 text-neutral-600 hover:bg-neutral-100 rounded-lg dark:text-neutral-300 dark:hover:bg-neutral-800"
+              @click="showDeleteModal = false"
           >
             Annuler
           </button>
           <button
-              @click="confirmDeleteAccount"
-              :disabled="isLoading || !passwordForDeletion"
               class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+              :disabled="isLoading || !passwordForDeletion"
+              @click="confirmDeleteAccount"
           >
             <span v-if="isLoading">Suppression...</span>
             <span v-else>Confirmer la suppression</span>
