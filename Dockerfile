@@ -14,4 +14,4 @@ COPY . ./
 # Build Nuxt
 RUN npm run build
 EXPOSE 3000
-ENTRYPOINT [ "bash", "./entrypoint.sh" ]
+ENTRYPOINT [ "sh", "./entrypoint.sh" ]

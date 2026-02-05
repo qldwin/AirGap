@@ -1,2 +1,5 @@
+#!/bin/sh
+set -e
+
 npx drizzle-kit migrate
-node .output/server/index.mjs
+exec node .output/server/index.mjs
