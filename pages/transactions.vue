@@ -44,7 +44,7 @@
 
           <button
               type="button"
-              class="bg-primary-600 text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-primary-700 transition-all shadow-lg shadow-primary-500/20 active:scale-95 flex items-center gap-2"
+              class="bg-primary-600 text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-primary-700 transition-all shadow-lg shadow-primary-500/20 active:scale-95 flex items-center gap-2"
               @click="openTransactionModal"
           >
             <PlusIcon class="h-4 w-4 stroke-[3]" />
