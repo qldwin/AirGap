@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:20
 
 WORKDIR /app
 
@@ -14,4 +14,4 @@ COPY . ./
 # Build Nuxt
 RUN npm run build
 EXPOSE 3000
-ENTRYPOINT [ "sh", "./entrypoint.sh" ]
+ENTRYPOINT [ "bash", "./entrypoint.sh" ]
