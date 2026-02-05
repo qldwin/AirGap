@@ -3,11 +3,11 @@
     <div class="max-w-7xl mx-auto">
 
       <div class="flex justify-center mb-10">
-        <div class="bg-gray-50 dark:bg-neutral-800/50 p-1.5 rounded-full inline-flex border border-gray-200 dark:border-neutral-700 backdrop-blur-sm">
+        <div class="bg-gray-50 dark:bg-neutral-800/50 p-1.5 rounded-lg inline-flex border border-gray-200 dark:border-neutral-700 backdrop-blur-sm">
           <button
               v-for="p in ['month', 'quarter', 'year']"
               :key="p"
-              class="px-6 py-2 text-sm font-semibold rounded-full transition-all duration-300 ease-out"
+              class="px-6 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ease-out"
               :class="period === p
               ? 'bg-white dark:bg-neutral-700 text-primary-600 dark:text-primary-400 shadow-md transform scale-105'
               : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'"
@@ -18,10 +18,10 @@
         </div>
       </div>
 
-      <div class="card mb-8 p-8 bg-white dark:bg-neutral-900 rounded-3xl shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
+      <div class="card mb-8 p-8 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
         <div class="flex justify-between items-end mb-8">
           <div>
-            <h3 class="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Flux de Trésorerie</h3>
+            <h3 class="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Cashflow</h3>
             <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Visualisation des mouvements financiers</p>
           </div>
         </div>
@@ -34,9 +34,9 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
 
-        <div class="card p-8 bg-white dark:bg-neutral-900 rounded-3xl shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
+        <div class="card p-8 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
           <div class="mb-8">
-            <h3 class="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Entrées vs Sorties</h3>
+            <h3 class="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Revenus vs Dépenses</h3>
             <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Comparatif des volumes</p>
           </div>
           <ClientOnly>
@@ -46,9 +46,9 @@
           </ClientOnly>
         </div>
 
-        <div class="card p-8 bg-white dark:bg-neutral-900 rounded-3xl shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
+        <div class="card p-8 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
           <div class="mb-8">
-            <h3 class="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Patrimoine</h3>
+            <h3 class="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Solde du compte</h3>
             <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Évolution du solde réel</p>
           </div>
           <ClientOnly>
@@ -84,7 +84,6 @@ const charts = { incomeExpense: null, balance: null, sankey: null };
 
 // --- DESIGN SYSTEM ---
 const THEME = {
-  font: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
   colors: {
     income: '#34d399',
     incomeHover: '#10b981',
@@ -98,7 +97,7 @@ const THEME = {
     gridLight: '#e2e8f0',
     gridDark: '#334155',
     cardBgLight: '#ffffff',
-    cardBgDark: '#171717'
+    cardBgDark: 'rgba(51,65,85,0)',
   }
 };
 
@@ -139,7 +138,7 @@ const filteredTransactions = computed(() => {
 // --- 4. DATASETS ---
 const getIncomeVsExpensesData = () => {
   const groupedData = new Map();
-  const isYearly = period.value === 'year';
+  const isYearly = period.value === 'month';
 
   filteredTransactions.value.forEach(t => {
     let key;
@@ -166,7 +165,7 @@ const getIncomeVsExpensesData = () => {
         data: Array.from(groupedData.values()).map(v => v.income),
         backgroundColor: THEME.colors.income,
         hoverBackgroundColor: THEME.colors.incomeHover,
-        borderRadius: 50,
+        borderRadius: 3,
         borderSkipped: false,
         barThickness: 18,
       },
@@ -175,7 +174,7 @@ const getIncomeVsExpensesData = () => {
         data: Array.from(groupedData.values()).map(v => v.expense),
         backgroundColor: THEME.colors.expense,
         hoverBackgroundColor: THEME.colors.expenseHover,
-        borderRadius: 50,
+        borderRadius: 3,
         borderSkipped: false,
         barThickness: 18,
       }
@@ -365,18 +364,15 @@ const initCharts = () => {
             data: sData,
             colorFrom: (c) => c.dataset.data[c.dataIndex].from === 'Budget' ? THEME.colors.expense : THEME.colors.income,
             colorTo: (c) => c.dataset.data[c.dataIndex].to === 'Budget' ? THEME.colors.income : THEME.colors.expense,
-
-            // --- AJUSTEMENTS VISUELS ---
-            colorMode: 'gradient',
             alpha: 0.6,
             size: 'max',
-            borderWidth: 4,
+            borderWidth: 8,
             borderColor: cardBgColor,
             nodeWidth: 12,
             nodePadding: 30,
 
             color: isDark ? '#e2e8f0' : '#334155',
-            font: { family: THEME.font, size: 12, weight: 600 }
+            font: { family: THEME.font, size: 13, weight: 600 }
           }]
         },
         options: {

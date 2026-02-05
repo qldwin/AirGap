@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     content: [
         './components/**/*.{vue,js}',
         './layouts/**/*.vue',
@@ -6,6 +6,7 @@ module.exports = {
         './plugins/**/*.{js,ts}',
         './nuxt.config.{js,ts}',
         './app.vue',
+        './node_modules/@nuxt/ui/dist/**/*.{js,vue,ts}',
     ],
     darkMode: 'class',
     theme: {
@@ -32,14 +33,14 @@ module.exports = {
                     400: '#b2bac8',
                     500: '#909cb1',
                     600: '#768297',
-                    700: '#62697c',
-                    800: '#505968',
-                    900: '#3b424e',
-                    950: '#1e222a',
+                    700: '#314158',
+                    800: '#10182b',
+                    900: '#0f172b',
+                    950: '#020618',
                 }
             },
             fontFamily: {
-                sans: ['Inter', 'system-ui', 'sans-serif'],
+                sans: ['Sora', 'Inter', 'system-ui', 'sans-serif'],
             },
         },
     },
