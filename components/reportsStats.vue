@@ -3,18 +3,50 @@
     <div class="max-w-7xl mx-auto">
 
       <div class="flex justify-center mb-10">
-        <div class="bg-gray-50 dark:bg-neutral-800/50 p-1.5 rounded-lg inline-flex border border-gray-200 dark:border-neutral-700 backdrop-blur-sm">
+        <div class="bg-gray-50 dark:bg-neutral-800/50 p-1.5 rounded-lg inline-flex items-center gap-2 border border-gray-200 dark:border-neutral-700 backdrop-blur-sm z-20">
+
           <button
               v-for="p in ['month', 'quarter', 'year']"
               :key="p"
               class="px-6 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ease-out"
               :class="period === p
-              ? 'bg-white dark:bg-neutral-700 text-primary-600 dark:text-primary-400 shadow-md transform scale-105'
-              : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'"
-              @click="period = p"
+        ? 'bg-white dark:bg-neutral-700 text-primary-600 dark:text-primary-400 shadow-md transform scale-105'
+        : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'"
+              @click="changePeriod(p)"
           >
             {{ p === 'month' ? 'Mois' : p === 'quarter' ? 'Trimestre' : 'Année' }}
           </button>
+
+          <div v-if="period === 'year'" class="h-4 w-px bg-gray-300 dark:bg-neutral-600 mx-1"></div>
+
+          <div v-if="period === 'year'" class="relative">
+
+            <button
+                class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-primary-600 dark:bg-neutral-700 rounded-lg shadow-md transition-all"
+                @click="isYearMenuOpen = !isYearMenuOpen"
+            >
+              {{ selectedYear }}
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform" :class="isYearMenuOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+
+            <div
+                v-if="isYearMenuOpen"
+                class="absolute top-full mt-2 right-0 w-32 bg-white dark:bg-neutral-700 rounded-lg shadow-xl border border-gray-100 dark:border-neutral-700 overflow-hidden z-50"
+            >
+              <button
+                  v-for="annee in anneesData?.years"
+                  :key="annee"
+                  class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                  :class="selectedYear === annee ? 'text-primary-600 font-bold bg-indigo-50 dark:bg-neutral-700/50' : 'text-neutral-600 dark:text-neutral-300'"
+                  @click="selectYear(annee)"
+              >
+                {{ annee }}
+              </button>
+            </div>
+
+          </div>
         </div>
       </div>
 
@@ -33,7 +65,6 @@
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-
         <div class="card p-8 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
           <div class="mb-8">
             <h3 class="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Revenus vs Dépenses</h3>
@@ -67,9 +98,36 @@ import { Chart, registerables } from "chart.js";
 import { SankeyController, Flow } from 'chartjs-chart-sankey';
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
 
+// --- CONFIGURATION ---
+const CURRENT_YEAR_FIXED = new Date().getFullYear(); // 2026 (ou année actuelle)
+const isYearMenuOpen = ref(false);
+const { data: anneesData } = await useFetch('/api/calendar/years');
+const selectedYear = ref(CURRENT_YEAR_FIXED);
+const { data: transactionsData } = await useFetch('/api/calendar/', {
+  query: { year: selectedYear },
+  watch: [selectedYear]
+});
+const { data: currentYearData } = await useFetch('/api/calendar/', {
+  query: { year: CURRENT_YEAR_FIXED },
+  key: 'static-balance-chart'
+});
+
+// --- ACTIONS UI ---
+const changePeriod = (p) => {
+  if (period.value === p) return;
+  period.value = p;
+  if (p !== 'year') {
+    selectedYear.value = CURRENT_YEAR_FIXED;
+  }
+};
+
+const selectYear = (annee) => {
+  selectedYear.value = annee;
+  isYearMenuOpen.value = false;
+};
+
 Chart.register(...registerables, SankeyController, Flow);
 
-// --- 1. PROPS ---
 const props = defineProps({
   transactions: { type: Array, required: false, default: () => [] }
 });
@@ -79,120 +137,155 @@ const period = ref('month');
 const incomeExpenseChart = ref(null);
 const balanceChart = ref(null);
 const sankeyChart = ref(null);
-
 const charts = { incomeExpense: null, balance: null, sankey: null };
 
-// --- DESIGN SYSTEM ---
 const THEME = {
   colors: {
-    income: '#34d399',
-    incomeHover: '#10b981',
-    incomeSoft: 'rgba(52, 211, 153, 0.15)',
-    expense: '#fb7185',
-    expenseHover: '#f43f5e',
-    expenseSoft: 'rgba(251, 113, 133, 0.15)',
-    balance: '#6366f1',
-    textLight: '#64748b',
-    textDark: '#94a3b8',
-    gridLight: '#e2e8f0',
-    gridDark: '#334155',
-    cardBgLight: '#ffffff',
-    cardBgDark: 'rgba(51,65,85,0)',
+    income: '#34d399', expense: '#fb7185', balance: '#6366f1',
+    textLight: '#64748b', textDark: '#94a3b8',
+    gridLight: '#e2e8f0', gridDark: '#334155',
+    cardBgLight: '#ffffff', cardBgDark: 'rgba(51,65,85,0)',
   }
 };
 
-// --- 2. NETTOYAGE ---
+// =========================================================================
+// LOGIQUE A : DYNAMIQUE (Bar Chart & Sankey)
+// =========================================================================
+
 const cleanTransactions = computed(() => {
-  if (!props.transactions || props.transactions.length === 0) return [];
-  return props.transactions.map(t => {
+  let source = [];
+  if (transactionsData.value?.transactions) source = transactionsData.value.transactions;
+  else source = props.transactions;
+
+  if (!source || source.length === 0) return [];
+
+  return source.map(t => {
     const d = new Date(t.date);
     return {
       ...t,
+      categoryName: t.category ? t.category.name : (t.categoryName || 'Autre'),
       dateObj: Number.isNaN(d.getTime()) ? new Date() : d,
       amount: Math.abs(Number(t.amount)),
-      cumulativeBalance: t.cumulativeBalance === undefined ? 0 : Number(t.cumulativeBalance)
+      typeStr: t.typeStr || (Number(t.amount) >= 0 ? 'income' : 'expense'),
     };
   });
 });
 
-// --- 3. FILTRAGE ---
 const filteredTransactions = computed(() => {
   const list = cleanTransactions.value;
   if (!list.length) return [];
   const now = new Date();
-  let startDate = new Date();
-  now.setHours(0,0,0,0);
+  const currentYear = now.getFullYear();
+  const userYear = selectedYear.value;
+  let startDate, endDate;
 
   if (period.value === 'month') {
-    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    startDate = new Date(currentYear, now.getMonth(), 1);
+    endDate = new Date(currentYear, now.getMonth() + 1, 0);
   } else if (period.value === 'quarter') {
     const quarter = Math.floor(now.getMonth() / 3);
-    startDate = new Date(now.getFullYear(), quarter * 3, 1);
+    startDate = new Date(currentYear, quarter * 3, 1);
+    endDate = new Date(currentYear, (quarter + 1) * 3, 0);
   } else {
-    startDate = new Date(now.getFullYear(), 0, 1);
+    startDate = new Date(userYear, 0, 1);
+    endDate = new Date(userYear + 1, 0, 1);
   }
 
-  return list.filter(t => t.dateObj >= startDate).sort((a, b) => a.dateObj - b.dateObj);
+  return list
+      .filter(t => t.dateObj >= startDate && t.dateObj < endDate)
+      .sort((a, b) => a.dateObj - b.dateObj);
 });
 
-// --- 4. DATASETS ---
 const getIncomeVsExpensesData = () => {
   const groupedData = new Map();
-  const isYearly = period.value === 'month';
+  const useMonthlyGrouping = period.value === 'year' || period.value === 'quarter';
 
   filteredTransactions.value.forEach(t => {
     let key;
-    if (isYearly) {
-      key = t.dateObj.toLocaleString('fr-FR', { month: 'short' });
-    } else {
-      key = t.dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
-    }
-    if (!groupedData.has(key)) groupedData.set(key, { income: 0, expense: 0 });
+    if (useMonthlyGrouping) key = t.dateObj.toLocaleString('fr-FR', { month: 'short' });
+    else key = t.dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
 
-    if (t.typeStr === 'income' || t.typeTransactionsId === 1) {
-      groupedData.get(key).income += t.amount;
-    } else {
-      groupedData.get(key).expense += t.amount;
-    }
+    if (!groupedData.has(key)) groupedData.set(key, { income: 0, expense: 0 });
+    if (t.typeStr === 'income' || t.typeTransactionsId === 1) groupedData.get(key).income += t.amount;
+    else groupedData.get(key).expense += t.amount;
   });
 
-  const labels = Array.from(groupedData.keys());
   return {
-    labels,
+    labels: Array.from(groupedData.keys()),
     datasets: [
-      {
-        label: 'Revenus',
-        data: Array.from(groupedData.values()).map(v => v.income),
-        backgroundColor: THEME.colors.income,
-        hoverBackgroundColor: THEME.colors.incomeHover,
-        borderRadius: 3,
-        borderSkipped: false,
-        barThickness: 18,
-      },
-      {
-        label: 'Dépenses',
-        data: Array.from(groupedData.values()).map(v => v.expense),
-        backgroundColor: THEME.colors.expense,
-        hoverBackgroundColor: THEME.colors.expenseHover,
-        borderRadius: 3,
-        borderSkipped: false,
-        barThickness: 18,
-      }
+      { label: 'Revenus', data: Array.from(groupedData.values()).map(v => v.income), backgroundColor: THEME.colors.income, borderRadius: 3 },
+      { label: 'Dépenses', data: Array.from(groupedData.values()).map(v => v.expense), backgroundColor: THEME.colors.expense, borderRadius: 3 }
     ]
   };
 };
 
-const getBalanceHistoryData = () => {
-  const dailyMap = new Map();
+const getSankeyData = () => {
+  const incomeCats = {};
+  const expenseCats = {};
+
   filteredTransactions.value.forEach(t => {
-    const dateKey = t.dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
-    dailyMap.set(dateKey, t.cumulativeBalance);
+    const cat = t.categoryName || 'Autre';
+    const val = Math.abs(t.amount);
+
+    if (t.typeStr === 'income' || t.typeTransactionsId === 1) {
+      incomeCats[cat] = (incomeCats[cat] || 0) + val;
+    } else {
+      expenseCats[cat] = (expenseCats[cat] || 0) + val;
+    }
   });
+
+  const data = [];
+  Object.entries(incomeCats).forEach(([c, v]) => data.push({ from: c, to: 'Budget', flow: v }));
+  Object.entries(expenseCats).forEach(([c, v]) => data.push({ from: 'Budget', to: c, flow: v }));
+
+  return data;
+};
+
+// =========================================================================
+// LOGIQUE B : STATIQUE (Line Chart)
+// =========================================================================
+
+const currentYearBalanceData = computed(() => {
+  const source = currentYearData.value?.transactions || [];
+  const initialBalance = currentYearData.value?.initialBalance || 0;
+
+  if (!source.length && initialBalance === 0) return { labels: [], datasets: [] };
+
+  const mapped = source.map(t => {
+    const rawAmount = Number(t.amount);
+    return {
+      dateObj: new Date(t.date),
+      amount: Math.abs(rawAmount),
+      typeStr: t.typeStr || (rawAmount >= 0 ? 'income' : 'expense'),
+    };
+  }).sort((a, b) => a.dateObj - b.dateObj);
+
+  let runningBalance = initialBalance;
+  const dailyMap = new Map();
+
+  const startDate = new Date(CURRENT_YEAR_FIXED, 0, 1);
+  const startKey = startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+
+  dailyMap.set(startKey, initialBalance);
+
+  mapped.forEach(t => {
+    if (t.typeStr === 'income') runningBalance += t.amount;
+    else runningBalance -= t.amount;
+
+    if (t.dateObj.getFullYear() === CURRENT_YEAR_FIXED) {
+      const dateKey = t.dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+      dailyMap.set(dateKey, runningBalance);
+    }
+  });
+
+  const now = new Date();
+  const todayKey = now.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+  dailyMap.set(todayKey, runningBalance);
 
   return {
     labels: Array.from(dailyMap.keys()),
     datasets: [{
-      label: 'Solde',
+      label: `Solde ${CURRENT_YEAR_FIXED}`,
       data: Array.from(dailyMap.values()),
       borderColor: THEME.colors.balance,
       borderWidth: 3,
@@ -212,35 +305,21 @@ const getBalanceHistoryData = () => {
       pointHitRadius: 20
     }]
   };
-};
+});
 
-const getSankeyData = () => {
-  const incomeCats = {};
-  const expenseCats = {};
-  filteredTransactions.value.forEach(t => {
-    const cat = t.categoryName || 'Autre';
-    const val = Math.abs(t.amount);
+// =========================================================================
+// RENDU GRAPHIQUE
+// =========================================================================
 
-    if (t.typeStr === 'income' || t.typeTransactionsId === 1) {
-      incomeCats[cat] = (incomeCats[cat] || 0) + val;
-    } else {
-      expenseCats[cat] = (expenseCats[cat] || 0) + val;
-    }
-  });
+const renderDynamicCharts = () => {
+  if (import.meta.server) return;
+  if (!cleanTransactions.value.length) return;
 
-  const data = [];
-  Object.entries(incomeCats).forEach(([c, v]) => data.push({ from: c, to: 'Budget', flow: v }));
-  Object.entries(expenseCats).forEach(([c, v]) => data.push({ from: 'Budget', to: c, flow: v }));
-  return data;
-};
+  const isDark = document.documentElement.classList.contains('dark');
+  const commonOptions = getChartConfig(isDark);
 
-// --- 5. CONFIGURATION & INITIALISATION ---
-
-const destroyCharts = () => {
-  Object.values(charts).forEach(c => { if (c) c.destroy(); });
-  charts.incomeExpense = null;
-  charts.balance = null;
-  charts.sankey = null;
+  drawIncomeExpenseChart(commonOptions);
+  drawSankeyChart(isDark, commonOptions);
 };
 
 const getChartConfig = (isDark) => {
@@ -256,7 +335,6 @@ const getChartConfig = (isDark) => {
         align: 'end',
         labels: {
           color: textColor,
-          font: { family: THEME.font, size: 12, weight: 600 },
           usePointStyle: true,
           boxWidth: 8,
           padding: 20
@@ -269,18 +347,22 @@ const getChartConfig = (isDark) => {
         borderColor: isDark ? '#334155' : '#e2e8f0',
         borderWidth: 1,
         padding: 12,
-        cornerRadius: 12,
         displayColors: true,
-        boxPadding: 6,
-        titleFont: { family: THEME.font, size: 13, weight: 700 },
-        bodyFont: { family: THEME.font, size: 12, weight: 500 },
         callbacks: {
-          label: (context) => {
-            let label = context.dataset.label || '';
-            if (label) label += ': ';
-            if (context.parsed.y !== null) {
-              label += new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(context.parsed.y);
+          label: (ctx) => {
+            let label = ctx.dataset.label || '';
+
+            if (label) {
+              label += ': ';
             }
+
+            if (ctx.parsed.y !== null) {
+              label += new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR'
+              }).format(ctx.parsed.y);
+            }
+
             return label;
           }
         }
@@ -288,7 +370,7 @@ const getChartConfig = (isDark) => {
     },
     scales: {
       x: {
-        grid: { display: false, drawBorder: false },
+        grid: { display: false },
         ticks: { color: textColor, font: { family: THEME.font, size: 11 } }
       },
       y: {
@@ -298,29 +380,112 @@ const getChartConfig = (isDark) => {
           color: textColor,
           padding: 10,
           font: { family: THEME.font, size: 11, weight: 500 },
-          callback: (value) => new Intl.NumberFormat('fr-FR', {
-            style: 'currency', currency: 'EUR', maximumFractionDigits: 0
-          }).format(value)
+          callback: (v) => new Intl.NumberFormat('fr-FR', {
+            style: 'currency',
+            currency: 'EUR',
+            maximumFractionDigits: 0
+          }).format(v)
         }
       }
     }
   };
 };
 
-const initCharts = () => {
-  if (!cleanTransactions.value.length) return;
+const getSankeyChartConfig = (sData, isDark, commonOptions) => {
+  return {
+    type: 'sankey',
+    data: {
+      datasets: [{
+        data: sData,
+        colorFrom: (c) => c.dataset.data[c.dataIndex].from === 'Budget' ? THEME.colors.expense : THEME.colors.income,
+        colorTo: (c) => c.dataset.data[c.dataIndex].to === 'Budget' ? THEME.colors.income : THEME.colors.expense,
+        alpha: 0.6,
+        size: 'max',
+        borderWidth: 8,
+        borderColor: isDark ? THEME.colors.cardBgDark : THEME.colors.cardBgLight,
+        nodeWidth: 12,
+        nodePadding: 30,
+        color: isDark ? '#e2e8f0' : '#334155',
+        labels: {
+          color: isDark ? '#e2e8f0' : '#334155',
+          font: { size: 12, weight: 'bold' }
+        }
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: 20 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          ...commonOptions.plugins.tooltip,
+          callbacks: {
+            label: (context) => {
+              const item = context.raw;
+              if (!item) return '';
+              const val = new Intl.NumberFormat('fr-FR', {
+                style: 'currency', currency: 'EUR'
+              }).format(item.flow);
+              return `${item.from} → ${item.to} : ${val}`;
+            },
+            title: (context) => {
+              const item = context[0].raw;
+              return `${item.from} vers ${item.to}`;
+            }
+          }
+        }
+      }
+    }
+  };
+};
 
-  if (!incomeExpenseChart.value || !balanceChart.value) {
-    setTimeout(initCharts, 100);
-    return;
+const drawSankeyChart = (isDark, commonOptions) => {
+  if (charts.sankey) {
+    charts.sankey.destroy();
+    charts.sankey = null;
   }
 
-  destroyCharts();
+  if (!sankeyChart.value) return;
+
+  const sData = getSankeyData();
+  if (!sData.length) return;
+
+  const config = getSankeyChartConfig(sData, isDark, commonOptions);
+  charts.sankey = new Chart(sankeyChart.value, config);
+};
+
+const renderBalanceChart = () => {
+  if (import.meta.server) return;
+
+  if (!currentYearBalanceData.value.labels.length) return;
 
   const isDark = document.documentElement.classList.contains('dark');
   const commonOptions = getChartConfig(isDark);
 
-  // 1. BAR CHART
+  if (charts.balance) { charts.balance.destroy(); charts.balance = null; }
+
+  if (balanceChart.value) {
+    charts.balance = new Chart(balanceChart.value, {
+      type: 'line',
+      data: currentYearBalanceData.value,
+      options: {
+        ...commonOptions,
+        interaction: { mode: 'index', intersect: false },
+        scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, beginAtZero: false } }
+      }
+    });
+  }
+};
+
+const drawIncomeExpenseChart = (commonOptions) => {
+  if (charts.incomeExpense) {
+    charts.incomeExpense.destroy();
+    charts.incomeExpense = null;
+  }
+
+  if (!incomeExpenseChart.value) return;
+
   charts.incomeExpense = new Chart(incomeExpenseChart.value, {
     type: 'bar',
     data: getIncomeVsExpensesData(),
@@ -332,86 +497,33 @@ const initCharts = () => {
       }
     }
   });
-
-  // 2. LINE CHART
-  charts.balance = new Chart(balanceChart.value, {
-    type: 'line',
-    data: getBalanceHistoryData(),
-    options: {
-      ...commonOptions,
-      interaction: { mode: 'index', intersect: false },
-      scales: {
-        ...commonOptions.scales,
-        y: {
-          ...commonOptions.scales.y,
-          beginAtZero: false
-        }
-      }
-    }
-  });
-
-  // 3. SANKEY
-  if (sankeyChart.value) {
-    const sData = getSankeyData();
-    if (sData.length > 0) {
-
-      const cardBgColor = isDark ? THEME.colors.cardBgDark : THEME.colors.cardBgLight;
-
-      charts.sankey = new Chart(sankeyChart.value, {
-        type: 'sankey',
-        data: {
-          datasets: [{
-            data: sData,
-            colorFrom: (c) => c.dataset.data[c.dataIndex].from === 'Budget' ? THEME.colors.expense : THEME.colors.income,
-            colorTo: (c) => c.dataset.data[c.dataIndex].to === 'Budget' ? THEME.colors.income : THEME.colors.expense,
-            alpha: 0.6,
-            size: 'max',
-            borderWidth: 8,
-            borderColor: cardBgColor,
-            nodeWidth: 12,
-            nodePadding: 30,
-
-            color: isDark ? '#e2e8f0' : '#334155',
-            font: { family: THEME.font, size: 13, weight: 600 }
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: { padding: 20 },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              ...commonOptions.plugins.tooltip,
-              displayColors: false,
-              callbacks: {
-                label: (context) => {
-                  const item = context.raw;
-                  if (!item) return '';
-                  const val = new Intl.NumberFormat('fr-FR', {
-                    style: 'currency', currency: 'EUR'
-                  }).format(item.flow);
-                  return `${item.from} → ${item.to} : ${val}`;
-                }
-              }
-            }
-          }
-        }
-      });
-    }
-  }
 };
 
-// --- LIFECYCLE ---
-watch([() => props.transactions, period], () => { nextTick(() => initCharts()); }, { deep: true, immediate: true });
+// --- WATCHERS ---
+watch([() => props.transactions, transactionsData, period], () => {
+  nextTick(() => renderDynamicCharts());
+}, { deep: true, immediate: true });
+
+watch(currentYearData, () => {
+  nextTick(() => renderBalanceChart());
+}, { immediate: true });
 
 onMounted(() => {
   if (import.meta.client) {
     const observer = new MutationObserver((mutations) => {
-      mutations.forEach((m) => { if (m.attributeName === 'class') initCharts(); });
+      mutations.forEach((m) => {
+        if (m.attributeName === 'class') {
+          renderDynamicCharts();
+          renderBalanceChart();
+        }
+      });
     });
     observer.observe(document.documentElement, { attributes: true });
-    setTimeout(initCharts, 300);
+
+    setTimeout(() => {
+      renderDynamicCharts();
+      renderBalanceChart();
+    }, 300);
   }
 });
 </script>
