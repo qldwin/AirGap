@@ -4,7 +4,7 @@ import {getUserTransactionsByYear} from "~/server/services/calendar.service";
 export default defineEventHandler(async (event) => {
     const user = await requireAuth(event)
 
-    const { year } = getQuery(event)
+    const { year , month, quarter } = getQuery(event)
 
     if (!year || Number.isNaN(Number(year))) {
         throw createError({
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
-        const result = await getUserTransactionsByYear(user.id, Number(year))
+        const result = await getUserTransactionsByYear(user.id, Number(year), month ? Number(month) : undefined, quarter ? Number(quarter) : undefined);
 
         return {
             success: true,

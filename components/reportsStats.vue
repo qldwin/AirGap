@@ -1,10 +1,8 @@
 <template>
   <div class="pt-4 pb-8 px-4">
     <div class="max-w-7xl mx-auto">
-
       <div class="flex justify-center mb-10">
         <div class="bg-gray-50 dark:bg-neutral-800/50 p-1.5 rounded-lg inline-flex items-center gap-2 border border-gray-200 dark:border-neutral-700 backdrop-blur-sm z-20">
-
           <button
               v-for="p in ['month', 'quarter', 'year']"
               :key="p"
@@ -17,7 +15,9 @@
             {{ p === 'month' ? 'Mois' : p === 'quarter' ? 'Trimestre' : 'Année' }}
           </button>
 
-          <div v-if="period === 'year'" class="h-4 w-px bg-gray-300 dark:bg-neutral-600 mx-1"></div>
+<!--       START CALENDAR FOR YEAR SELECTION-->
+
+          <div v-if="period === 'year'" class="h-4 w-px bg-gray-300 dark:bg-neutral-600 mx-1"/>
 
           <div v-if="period === 'year'" class="relative">
 
@@ -45,8 +45,70 @@
                 {{ annee }}
               </button>
             </div>
-
           </div>
+<!--        END CALENDAR YEAR SELECTION-->
+<!--        START CALENDAR MONTH SELECTION-->
+          <div v-if="period === 'month'" class="h-4 w-px bg-gray-300 dark:bg-neutral-600 mx-1"/>
+
+          <div v-if="period === 'month'" class="relative">
+
+            <button
+                class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-primary-600 dark:bg-neutral-700 rounded-lg shadow-md transition-all"
+                @click="isMonthMenuOpen = !isMonthMenuOpen"
+            >
+              {{ monthNames[selectedMonth - 1] }}
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform" :class="isMonthMenuOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+
+            <div
+                v-if="isMonthMenuOpen"
+                class="absolute top-full mt-2 right-0 w-32 bg-white dark:bg-neutral-700 rounded-lg shadow-xl border border-gray-100 dark:border-neutral-700 overflow-hidden z-50"
+            >
+              <button
+                  v-for="mois in moisData?.months"
+                  :key="mois"
+                  class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                  :class="selectedMonth === mois ? 'text-primary-600 font-bold bg-indigo-50 dark:bg-neutral-700/50' : 'text-neutral-600 dark:text-neutral-300'"
+                  @click="selectMonth(mois)"
+              >
+                {{ monthNames[mois - 1] }}
+              </button>
+            </div>
+          </div>
+<!--         END CALENDAR MONTH SELECTION-->
+<!--         START CALENDAR QUARTER SELECTION-->
+          <div v-if="period === 'quarter'" class="h-4 w-px bg-gray-300 dark:bg-neutral-600 mx-1"/>
+
+          <div v-if="period === 'quarter'" class="relative">
+
+            <button
+                class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-primary-600 dark:bg-neutral-700 rounded-lg shadow-md transition-all"
+                @click="isQuarterMenuOpen = !isQuarterMenuOpen"
+            >
+              {{ quarterLabels[selectedQuarter] }}
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform" :class="isQuarterMenuOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+
+            <div
+                v-if="isQuarterMenuOpen"
+                class="absolute top-full mt-2 right-0 w-32 bg-white dark:bg-neutral-700 rounded-lg shadow-xl border border-gray-100 dark:border-neutral-700 overflow-hidden z-50"
+            >
+              <button
+                  v-for="trimestre in trimestresData?.quarters"
+                  :key="trimestre"
+                  class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                  :class="selectedQuarter === trimestre ? 'text-primary-600 font-bold bg-indigo-50 dark:bg-neutral-700/50' : 'text-neutral-600 dark:text-neutral-300'"
+                  @click="selectQuarter(trimestre)"
+              >
+                {{ quarterLabels[trimestre] }}
+              </button>
+            </div>
+          </div>
+<!--         END CALENDAR QUARTER SELECTION-->
         </div>
       </div>
 
@@ -99,17 +161,38 @@ import { SankeyController, Flow } from 'chartjs-chart-sankey';
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
 
 // --- CONFIGURATION ---
-const CURRENT_YEAR_FIXED = new Date().getFullYear(); // 2026 (ou année actuelle)
+const CURRENT_YEAR_FIXED = new Date().getFullYear();
 const isYearMenuOpen = ref(false);
+const CURRENT_MONTH_FIXED = new Date().getMonth() + 1;
+const isMonthMenuOpen = ref(false);
+const CURRENT_QUARTER_FIXED = Math.floor(new Date().getMonth() / 3) + 1;
+const isQuarterMenuOpen = ref(false);
+const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+const quarterLabels = { 1: "Jan. - Mars", 2: "Avr. - Juin", 3: "Juil. - Sept.", 4: "Oct. - Déc." };
+
 const { data: anneesData } = await useFetch('/api/calendar/years');
 const selectedYear = ref(CURRENT_YEAR_FIXED);
-const { data: transactionsData } = await useFetch('/api/calendar/', {
-  query: { year: selectedYear },
-  watch: [selectedYear]
+const { data: transactionsYearsData } = await useFetch('/api/calendar/', {
+  query: { year: selectedYear},
+  watch: [selectedYear],
 });
-const { data: currentYearData } = await useFetch('/api/calendar/', {
+
+const { data: transactionsFixed2026Data } = await useFetch('/api/calendar/', {
   query: { year: CURRENT_YEAR_FIXED },
-  key: 'static-balance-chart'
+});
+
+const { data: trimestresData } = await useFetch('/api/calendar/quarters');
+const selectedQuarter = ref(CURRENT_QUARTER_FIXED);
+const { data: transactionsQuarterData } = await useFetch('/api/calendar/', {
+  query: { quarter: selectedQuarter, year: selectedYear },
+  watch: [selectedQuarter, selectedYear],
+});
+
+const { data: moisData } = await useFetch('/api/calendar/months');
+const selectedMonth = ref(CURRENT_MONTH_FIXED);
+const { data: transactionsMonthData } = await useFetch('/api/calendar/', {
+  query: {  month: selectedMonth, year: selectedYear },
+  watch: [selectedMonth, selectedYear],
 });
 
 // --- ACTIONS UI ---
@@ -119,11 +202,24 @@ const changePeriod = (p) => {
   if (p !== 'year') {
     selectedYear.value = CURRENT_YEAR_FIXED;
   }
+  if (p !== 'month') {
+    selectedMonth.value = CURRENT_MONTH_FIXED;
+  }
 };
 
 const selectYear = (annee) => {
   selectedYear.value = annee;
   isYearMenuOpen.value = false;
+};
+
+const selectMonth = (mois) => {
+  selectedMonth.value = mois;
+  isMonthMenuOpen.value = false;
+};
+
+const selectQuarter = (trimestre) => {
+  selectedQuarter.value = trimestre;
+  isQuarterMenuOpen.value = false;
 };
 
 Chart.register(...registerables, SankeyController, Flow);
@@ -153,13 +249,23 @@ const THEME = {
 // =========================================================================
 
 const cleanTransactions = computed(() => {
-  let source = [];
-  if (transactionsData.value?.transactions) source = transactionsData.value.transactions;
-  else source = props.transactions;
+  let rawData = [];
 
-  if (!source || source.length === 0) return [];
+  switch (period.value) {
+    case 'year':
+      rawData = transactionsYearsData.value?.transactions;
+      break;
+    case 'month':
+      rawData = transactionsMonthData.value?.transactions;
+      break;
+    case 'quarter':
+      rawData = transactionsQuarterData.value?.transactions;
+      break;
+  }
 
-  return source.map(t => {
+  if (!rawData || rawData.length === 0) return [];
+
+  return rawData.map(t => {
     const d = new Date(t.date);
     return {
       ...t,
@@ -174,26 +280,8 @@ const cleanTransactions = computed(() => {
 const filteredTransactions = computed(() => {
   const list = cleanTransactions.value;
   if (!list.length) return [];
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const userYear = selectedYear.value;
-  let startDate, endDate;
 
-  if (period.value === 'month') {
-    startDate = new Date(currentYear, now.getMonth(), 1);
-    endDate = new Date(currentYear, now.getMonth() + 1, 0);
-  } else if (period.value === 'quarter') {
-    const quarter = Math.floor(now.getMonth() / 3);
-    startDate = new Date(currentYear, quarter * 3, 1);
-    endDate = new Date(currentYear, (quarter + 1) * 3, 0);
-  } else {
-    startDate = new Date(userYear, 0, 1);
-    endDate = new Date(userYear + 1, 0, 1);
-  }
-
-  return list
-      .filter(t => t.dateObj >= startDate && t.dateObj < endDate)
-      .sort((a, b) => a.dateObj - b.dateObj);
+  return list.sort((a, b) => a.dateObj - b.dateObj);
 });
 
 const getIncomeVsExpensesData = () => {
@@ -246,8 +334,8 @@ const getSankeyData = () => {
 // =========================================================================
 
 const currentYearBalanceData = computed(() => {
-  const source = currentYearData.value?.transactions || [];
-  const initialBalance = currentYearData.value?.initialBalance || 0;
+  const source = transactionsFixed2026Data.value?.transactions || [];
+  const initialBalance = transactionsFixed2026Data.value?.initialBalance || 0;
 
   if (!source.length && initialBalance === 0) return { labels: [], datasets: [] };
 
@@ -263,7 +351,7 @@ const currentYearBalanceData = computed(() => {
   let runningBalance = initialBalance;
   const dailyMap = new Map();
 
-  const startDate = new Date(CURRENT_YEAR_FIXED, 0, 1);
+  const startDate = new Date(selectedYear.value, 0, 1);
   const startKey = startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
 
   dailyMap.set(startKey, initialBalance);
@@ -272,15 +360,17 @@ const currentYearBalanceData = computed(() => {
     if (t.typeStr === 'income') runningBalance += t.amount;
     else runningBalance -= t.amount;
 
-    if (t.dateObj.getFullYear() === CURRENT_YEAR_FIXED) {
+    if (t.dateObj.getFullYear() === selectedYear.value) {
       const dateKey = t.dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
       dailyMap.set(dateKey, runningBalance);
     }
   });
 
   const now = new Date();
-  const todayKey = now.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
-  dailyMap.set(todayKey, runningBalance);
+  if(now.getFullYear() === selectedYear.value) {
+    const todayKey = now.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+    dailyMap.set(todayKey, runningBalance);
+  }
 
   return {
     labels: Array.from(dailyMap.keys()),
@@ -463,7 +553,9 @@ const renderBalanceChart = () => {
   const isDark = document.documentElement.classList.contains('dark');
   const commonOptions = getChartConfig(isDark);
 
-  if (charts.balance) { charts.balance.destroy(); charts.balance = null; }
+  if(charts.balance) {
+    charts.balance.destroy();
+  }
 
   if (balanceChart.value) {
     charts.balance = new Chart(balanceChart.value, {
@@ -471,6 +563,7 @@ const renderBalanceChart = () => {
       data: currentYearBalanceData.value,
       options: {
         ...commonOptions,
+        animation: {duration: 0},
         interaction: { mode: 'index', intersect: false },
         scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, beginAtZero: false } }
       }
@@ -500,13 +593,15 @@ const drawIncomeExpenseChart = (commonOptions) => {
 };
 
 // --- WATCHERS ---
-watch([() => props.transactions, transactionsData, period], () => {
-  nextTick(() => renderDynamicCharts());
+watch([() => props.transactions, transactionsMonthData, transactionsQuarterData, period], () => {
+  nextTick(() => {
+    renderDynamicCharts();
+  });
 }, { deep: true, immediate: true });
 
-watch(currentYearData, () => {
+watch(transactionsFixed2026Data, () => {
   nextTick(() => renderBalanceChart());
-}, { immediate: true });
+}, { deep: true });
 
 onMounted(() => {
   if (import.meta.client) {

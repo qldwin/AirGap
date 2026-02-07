@@ -5,11 +5,21 @@ import { transactions } from '~/drizzle/schema/transactions'
 import { categories } from '~/drizzle/schema/categories'
 import { typeTransactions } from '~/drizzle/schema/typeTransactions'
 import { assoTransactionsCategories } from "~/drizzle/schema/assoTransactionsCategories";
-import { and, eq, gte, lt, desc, sql } from 'drizzle-orm' // Ajoute desc et sql si besoin
+import { and, eq, desc, sql } from 'drizzle-orm'
 
-export const getUserTransactionsByYear = async (userId: number, year: number) => {
-    const startDate = new Date(year, 0, 1)
-    const endDate = new Date(year + 1, 0, 1)
+export const getUserTransactionsByYear = async (userId: number, year: number, month?: number, quarter?: number) => {
+    let startDate = new Date(year, 0, 1);
+    let endDate = new Date(year + 1, 0, 1);
+
+    if (month) {
+        startDate = new Date(year, month - 1, 1);
+        endDate = new Date(year, month, 1);
+    }
+    else if (quarter) {
+        const startMonth = (quarter - 1) * 3;
+        startDate = new Date(year, startMonth, 1);
+        endDate = new Date(year, startMonth + 3, 1);
+    }
 
     const pastTransactions = await db.select({
         amount: transactions.amount,
@@ -19,7 +29,7 @@ export const getUserTransactionsByYear = async (userId: number, year: number) =>
         .leftJoin(typeTransactions, eq(transactions.typeTransactionsId, typeTransactions.id))
         .where(and(
             eq(transactions.userId, userId),
-            lt(transactions.date, startDate)
+            sql`${transactions.date}::timestamp < ${startDate}`
         ));
 
     const initialBalance = pastTransactions.reduce((acc, t) => {
@@ -43,8 +53,8 @@ export const getUserTransactionsByYear = async (userId: number, year: number) =>
         .leftJoin(typeTransactions, eq(transactions.typeTransactionsId, typeTransactions.id))
         .where(and(
             eq(transactions.userId, userId),
-            gte(transactions.date, startDate),
-            lt(transactions.date, endDate)
+            sql`${transactions.date}::timestamp >= ${startDate}`,
+            sql`${transactions.date}::timestamp < ${endDate}`
         ))
         .orderBy(transactions.date)
 
@@ -63,7 +73,7 @@ export const getUserTransactionsByYear = async (userId: number, year: number) =>
 }
 
 export const getAvailableYears = async (userId: number) => {
-    const yearSql = sql<number>`EXTRACT(YEAR FROM ${transactions.date})`
+    const yearSql = sql<number>`EXTRACT(YEAR FROM ${transactions.date}::timestamp)`
 
     const rows = await db.select({
         year: yearSql
@@ -74,5 +84,33 @@ export const getAvailableYears = async (userId: number) => {
         .orderBy(desc(yearSql))
 
     return rows.map(row => row.year)
+}
+
+export const getAvailableMonths = async (userId: number) => {
+    const monthSql = sql<number>`EXTRACT(MONTH FROM ${transactions.date}::timestamp)`
+
+    const rows = await db.select({
+        month: monthSql
+    })
+        .from(transactions)
+        .where(eq(transactions.userId, userId))
+        .groupBy(monthSql)
+        .orderBy(desc(monthSql))
+
+    return rows.map(row => row.month)
+}
+
+export const getAvailableQuarters = async (userId: number) => {
+    const quarterSql = sql<number>`EXTRACT(QUARTER FROM ${transactions.date}::timestamp)`
+
+    const rows = await db.select({
+        quarter: quarterSql
+    })
+        .from(transactions)
+        .where(eq(transactions.userId, userId))
+        .groupBy(quarterSql)
+        .orderBy(desc(quarterSql))
+
+    return rows.map(row => row.quarter)
 }
 

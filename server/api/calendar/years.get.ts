@@ -1,5 +1,4 @@
 // server/api/calendar/years.get.ts
-
 import { getAvailableYears } from '~/server/services/calendar.service'
 
 export default defineEventHandler(async (event) => {

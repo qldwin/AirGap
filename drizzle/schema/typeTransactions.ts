@@ -5,6 +5,7 @@ import {transactions} from "./transactions";
 export const typeTransactionEnum = pgEnum("typeTransactionEnum", [
     "depense",
     "revenu",
+    "default"
 ]);
 
 // Table TypeTransaction
