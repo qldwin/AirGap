@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
     const dataToUpdate = {
         ...transactionFields,
         amount: transactionFields.amount ? String(transactionFields.amount) : undefined,
-        updatedAt: new Date() // On met à jour la date de modification
+        updatedAt: new Date()
     }
 
     try {

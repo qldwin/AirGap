@@ -148,35 +148,47 @@ export const createTransaction = async (data: typeof transactions.$inferInsert, 
     });
 }
 
+type TransactionInsert = typeof transactions.$inferInsert;
+type AssociationInsert = typeof assoTransactionsCategories.$inferInsert;
+
 export const importTransactionsBulk = async (userId: number, rawTransactions: any[]) => {
     return await db.transaction(async (tx) => {
         const now = new Date();
-
         const rules = (await tx.select().from(importRules).where(or(eq(importRules.userId, userId), isNull(importRules.userId))))
             .sort((a, b) => b.keyword.length - a.keyword.length);
-
         const categoryMap = new Map((await tx.select().from(categories)).map(c => [c.name.toLowerCase().trim(), c.id]));
-
         const existing = await tx.select().from(transactions).where(eq(transactions.userId, userId));
         const signatures = new Set(existing.map(t =>
-            getTransactionSignature(new Date(t.date), Number(t.amount), decryptText(t.description || ''))
+            getTransactionSignature(new Date(t.date), Number(t.amount), decryptText(t.description || '').toLowerCase().trim())
         ));
 
         let importedCount = 0;
+        let skippedCount = 0;
+
+        const transactionsToInsert: TransactionInsert[] = [];
+        const associatedCategories: (number | undefined)[] = [];
 
         for (const t of rawTransactions) {
             const amount = Math.abs(Number(t.amount));
             const dateObj = new Date(t.date);
-            const typeId = Number(t.amount) >= 0 ? 1 : 2;
+            const cleanDesc = t.description?.trim() || 'Import CSV';
 
-            if (signatures.has(getTransactionSignature(dateObj, amount, t.description))) continue;
+            if (signatures.has(getTransactionSignature(dateObj, amount, cleanDesc.toLowerCase()))) {
+                skippedCount++;
+                continue;
+            }
 
-            const matchedId = await resolveCategory(tx, t, typeId, rules, categoryMap);
+            const typeId = t.typeTransactionsId || (Number(t.amount) >= 0 ? 1 : 2);
+            let matchedId = await resolveCategory(tx, t, typeId, rules, categoryMap);
 
-            const [newTx] = await tx.insert(transactions).values({
+            if (!matchedId) {
+                matchedId = categoryMap.get('non catégorisé');
+            }
+
+            transactionsToInsert.push({
                 userId,
                 accountId: t.accountId || 1,
-                description: encryptText(t.description?.trim() || 'Import CSV'),
+                description: encryptText(cleanDesc),
                 amount: String(amount),
                 date: dateObj,
                 typeTransactionsId: typeId,
@@ -184,13 +196,42 @@ export const importTransactionsBulk = async (userId: number, rawTransactions: an
                 recurrence: 'Aucune',
                 startRecurrence: dateObj,
                 updatedAt: now
-            }).returning({ id: transactions.id });
+            });
 
-            if (matchedId) {
-                await tx.insert(assoTransactionsCategories).values({ transactionId: newTx.id, categoryId: matchedId });
-            }
+            associatedCategories.push(matchedId);
             importedCount++;
         }
+
+        const BATCH_SIZE = 100;
+
+        for (let i = 0; i < transactionsToInsert.length; i += BATCH_SIZE) {
+            const txBatch = transactionsToInsert.slice(i, i + BATCH_SIZE);
+            const catBatch = associatedCategories.slice(i, i + BATCH_SIZE);
+
+            if (txBatch.length > 0) {
+                const insertedRows = await tx.insert(transactions)
+                    .values(txBatch)
+                    .returning({ id: transactions.id });
+
+                const associationRows: AssociationInsert[] = [];
+
+                insertedRows.forEach((row, index) => {
+                    const catId = catBatch[index];
+                    if (catId) {
+                        associationRows.push({
+                            transactionId: row.id,
+                            categoryId: catId
+                        });
+                    }
+                });
+
+                if (associationRows.length > 0) {
+                    await tx.insert(assoTransactionsCategories).values(associationRows);
+                }
+            }
+        }
+
+        console.log(`📊 Bilan : ${importedCount} importés, ${skippedCount} sautés (doublons)`);
         return importedCount;
     });
 };

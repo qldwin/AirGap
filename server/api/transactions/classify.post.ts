@@ -12,7 +12,6 @@ export default defineEventHandler(async (event) => {
         if (tx.selectedCategoryId) return tx;
 
         const description = (tx.description || '').toLowerCase();
-
         const matchingRule = rules.find((rule) =>
             description.includes(rule.keyword.toLowerCase())
         );
@@ -25,8 +24,12 @@ export default defineEventHandler(async (event) => {
             };
         }
 
-        return tx;
+        return {
+            ...tx,
+            typeTransactionsId: 3,
+            selectedCategoryId: null,
+            status: 'ready'
+        };
     });
-
     return { transactions: enrichedTransactions };
 });

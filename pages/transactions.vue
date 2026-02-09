@@ -114,142 +114,6 @@
       </div>
     </div>
 
-    <div v-if="pendingImport.length > 0 || isParsing" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
-      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] flex flex-col">
-
-        <div class="p-6 border-b border-neutral-200 dark:border-neutral-700 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
-          <div>
-            <h2 class="text-xl font-bold text-neutral-900 dark:text-neutral-50">Valider l'importation</h2>
-            <p v-if="isParsing" class="text-sm text-neutral-500 mt-1 animate-pulse">Lecture du fichier en cours...</p>
-            <p v-else class="text-sm text-neutral-500 mt-1">
-              {{ pendingImport.length }} transactions trouvées
-              <span v-if="hasMissingCategories" class="text-red-500 font-medium">
-                (dont {{ pendingImport.filter(t => !t.selectedCategoryId).length }} à classer)
-              </span>
-            </p>
-          </div>
-
-          <div v-if="!isParsing && hasMissingCategories" class="flex items-center bg-yellow-50 dark:bg-yellow-900/20 px-3 py-2 rounded-lg border border-yellow-200 dark:border-yellow-700/50">
-            <input
-                id="filterMissing"
-                v-model="showMissingOnly"
-                type="checkbox"
-                class="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            >
-            <label for="filterMissing" class="ml-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 cursor-pointer select-none">
-              Masquer les transactions validées
-            </label>
-          </div>
-
-          <button class="text-neutral-400 hover:text-neutral-500 sm:ml-4" @click="closeImportModal">
-            <svg class="h-6 w-6" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-
-        <div class="p-6 overflow-y-auto flex-1">
-          <table class="w-full text-sm text-left">
-            <thead class="text-xs text-neutral-500 uppercase bg-neutral-50 dark:bg-neutral-900/50">
-            <tr>
-              <th class="px-4 py-3">Date</th>
-              <th class="px-4 py-3">Description</th>
-              <th class="px-4 py-3 text-right">Montant</th>
-              <th class="px-4 py-3 w-1/3">Catégorie</th>
-            </tr>
-            </thead>
-            <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
-
-            <template v-if="isParsing">
-              <tr v-for="i in 6" :key="i" class="animate-pulse bg-white dark:bg-neutral-800">
-                <td class="px-4 py-3"><div class="h-4 bg-gray-200 dark:bg-neutral-700 rounded w-20"/></td>
-                <td class="px-4 py-3">
-                  <div class="h-4 bg-gray-200 dark:bg-neutral-700 rounded w-48 mb-2"/>
-                  <div class="h-3 bg-gray-100 dark:bg-neutral-700/50 rounded w-32"/>
-                </td>
-                <td class="px-4 py-3"><div class="h-4 bg-gray-200 dark:bg-neutral-700 rounded w-16 ml-auto"/></td>
-                <td class="px-4 py-3"><div class="h-9 bg-gray-200 dark:bg-neutral-700 rounded w-full"/></td>
-              </tr>
-            </template>
-
-            <template v-else>
-              <tr v-for="(row, index) in displayedImports" :key="index" class="bg-white dark:bg-neutral-800">
-                <td class="px-4 py-3 whitespace-nowrap text-neutral-700 dark:text-neutral-300">
-                  {{ formatDate(row.date) }}
-                </td>
-                <td class="px-4 py-3 text-neutral-700 dark:text-neutral-300">
-                  {{ row.description }}
-                </td>
-                <td class="px-4 py-3 text-right font-medium" :class="row.amount >= 0 ? 'text-green-600' : 'text-red-600'">
-                  {{ formatCurrency(row.amount) }}
-                </td>
-
-                <td class="px-4 py-3">
-                  <div v-if="row.selectedCategoryId && !showMissingOnly" class="flex items-center text-green-600 font-medium">
-                    <span class="mr-2">✅</span>
-                    {{ categories.find(c => c.id === row.selectedCategoryId)?.name }}
-                    <button class="ml-2 text-xs text-neutral-400 hover:text-neutral-600 underline" @click="row.selectedCategoryId = null">
-                      Modifier
-                    </button>
-                  </div>
-
-                  <div v-else>
-                    <CategorySelector
-                        v-model="row.selectedCategoryId"
-                        :categories="categories"
-                        placeholder="Choisir une catégorie..."
-                    />
-                  </div>
-                </td>
-              </tr>
-
-              <tr v-if="displayedImports.length === 0 && pendingImport.length > 0">
-                <td colspan="4" class="text-center py-12 text-neutral-500">
-                  <div class="flex flex-col items-center justify-center">
-                    <span class="text-2xl mb-2">🎉</span>
-                    <p class="font-medium">Toutes les transactions affichées sont catégorisées !</p>
-                    <p class="text-sm mt-1">Décochez la case pour revérifier toutes les lignes.</p>
-                  </div>
-                </td>
-              </tr>
-            </template>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="p-6 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 flex justify-between items-center">
-          <div class="text-sm">
-            <template v-if="!isParsing">
-              <span v-if="hasMissingCategories" class="text-red-600 font-bold flex items-center">
-                ⚠️ Il reste des transactions non catégorisées !
-              </span>
-              <span v-else class="text-green-600 font-bold">
-                Tout est prêt !
-              </span>
-            </template>
-            <template v-else>
-              <span class="text-neutral-400 italic">Analyse en cours...</span>
-            </template>
-          </div>
-
-          <div class="flex space-x-3">
-            <button
-                class="px-4 py-2 border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-700"
-                @click="closeImportModal"
-            >
-              Annuler
-            </button>
-            <button
-                :disabled="hasMissingCategories || isImporting || isParsing"
-                class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                @click="saveTransactions"
-            >
-              <span v-if="isImporting" class="mr-2 animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"/>
-              Valider l'import
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <TransactionModal
         v-model="showTransactionModal"
         :transaction="selectedTransaction"
@@ -262,7 +126,6 @@
 <script setup>
 import Papa from 'papaparse';
 import { ref, onMounted, computed } from 'vue';
-import CategorySelector from '~/components/CategorySelector.vue';
 import {
   MagnifyingGlassIcon,
   ArrowUpTrayIcon,
@@ -303,18 +166,6 @@ const transactions = ref([]);
 const loading = ref(true);
 const showTransactionModal = ref(false);
 const selectedTransaction = ref(null);
-
-// --- COMPUTED PROPERTIES ---
-const displayedImports = computed(() => {
-  if (showMissingOnly.value) {
-    return pendingImport.value.filter(t => !t.selectedCategoryId);
-  }
-  return pendingImport.value;
-});
-
-const hasMissingCategories = computed(() => {
-  return pendingImport.value.some(t => !t.selectedCategoryId);
-});
 
 // --- HELPER FUNCTIONS ---
 const isIncome = (t) => t.typeTransactionsId === TYPE_INCOME;
@@ -391,7 +242,7 @@ const transformCSVRow = (row) => {
   if (dateKey && row[dateKey]) {
     const dateStr = row[dateKey];
     cleanDate = dateStr.includes('/')
-        ? new Date(dateStr.split('/').reverse().join('-')) // Format DD/MM/YYYY -> YYYY-MM-DD
+        ? new Date(dateStr.split('/').reverse().join('-'))
         : new Date(dateStr);
   }
 
@@ -445,20 +296,12 @@ const handleFileUpload = async (event) => {
         ))
         .map(transformCSVRow);
 
-    if (formattedTransactions.length === 0) {
-      alert("Aucune transaction valide trouvée.");
-      return;
-    }
-
     const response = await $fetch('/api/transactions/classify', {
       method: 'POST',
       body: { transactions: formattedTransactions }
     });
 
-    pendingImport.value = response.transactions;
-    if (!pendingImport.value.some(t => !t.selectedCategoryId)) {
-      showMissingOnly.value = false;
-    }
+    await saveTransactions(response.transactions);
 
   } catch (err) {
     console.error("Erreur mapping/classification:", err);
@@ -476,12 +319,17 @@ const closeImportModal = () => {
 }
 
 // --- IMPORT CSV : SAUVEGARDE ---
-const saveTransactions = async () => {
+const saveTransactions = async (data) => {
+  if (!data || data.length === 0) {
+    console.error("❌ Erreur : Tentative d'importation d'un tableau vide !");
+    return;
+  }
+
   try {
     isImporting.value = true;
     const response = await $fetch('/api/transactions/import', {
       method: 'POST',
-      body: { transactions: pendingImport.value }
+      body: { transactions: data }
     });
 
     alert(`${response.count} transactions importées avec succès !`);
