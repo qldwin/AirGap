@@ -1,5 +1,5 @@
 import { createUser, getUserByEmail } from './user.service'
-import { hashPassword, verifyPassword } from '~/server/utils/hashing'
+import { hashUserPassword, verifyUserPassword } from '~/server/utils/hashing'
 import type { users } from '~/drizzle/schema/users'
 
 /**
@@ -15,11 +15,11 @@ export const registerUser = async (data: typeof users.$inferInsert) => {
         })
     }
 
-    const hashedPassword = await hashPassword(data.password)
+    const hashedUserPassword = await hashUserPassword(data.password)
 
     return await createUser({
         ...data,
-        password: hashedPassword
+        password: hashedUserPassword
     })
 }
 
@@ -40,7 +40,7 @@ export const loginUser = async (email: string, passwordPlain: string) => {
         })
     }
 
-    const isMatch = await verifyPassword(user.password, passwordPlain)
+    const isMatch = await verifyUserPassword(user.password, passwordPlain)
 
     if (!isMatch) {
         return null

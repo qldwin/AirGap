@@ -1,7 +1,7 @@
 // server/api/user/password.patch.ts
 import { z } from 'zod'
 import { getUserByEmail, updateUserPassword } from '~/server/services/user.service'
-import { verifyPassword, hashPassword } from '~/server/utils/hashing'
+import { verifyUserPassword, hashUserPassword } from '~/server/utils/hashing'
 
 const passwordChangeSchema = z.object({
     currentPassword: z.string().min(1, "Le mot de passe actuel est requis"),
@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 404, message: "Utilisateur introuvable" })
     }
 
-    const isPasswordValid = await verifyPassword(userInDb.password, currentPassword)
+    const isPasswordValid = await verifyUserPassword(userInDb.password, currentPassword)
     if (!isPasswordValid) {
         throw createError({
             statusCode: 403,
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    const newHashedPassword = await hashPassword(newPassword)
+    const newHashedPassword = await hashUserPassword(newPassword)
 
     await updateUserPassword(session.user.id, newHashedPassword)
 
