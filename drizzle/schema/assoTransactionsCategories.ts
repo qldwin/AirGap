@@ -1,12 +1,12 @@
-import {integer, pgTable, primaryKey} from "drizzle-orm/pg-core";
+import {uuid, pgTable, primaryKey} from "drizzle-orm/pg-core";
 import {relations} from "drizzle-orm";
 import {categories} from "./categories";
 import {transactions} from "./transactions";
 
 // Table assoTransactionsCategories
 export const assoTransactionsCategories = pgTable('assoTransactionsCategories', {
-    transactionId: integer('transactionId').notNull().references(() => transactions.id),
-    categoryId: integer('categoryId').notNull().references(() => categories.id),
+    transactionId: uuid('transactionId').notNull().references(() => transactions.id),
+    categoryId: uuid('categoryId').notNull().references(() => categories.id),
 }, (table) => {
     return [
         primaryKey({columns: [table.transactionId, table.categoryId]}),

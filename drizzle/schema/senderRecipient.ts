@@ -1,11 +1,11 @@
-import { pgTable, serial, varchar, integer } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar } from 'drizzle-orm/pg-core';
 import { accounts } from './accounts';
 import { relations } from 'drizzle-orm';
 import { transactions } from './transactions';
 
 export const senderRecipient = pgTable('senderRecipient', {
-    id: serial('id').primaryKey(),
-    accountId: integer('accountId').references(() => accounts.id),
+    id: uuid('id').primaryKey(),
+    accountId: uuid('accountId').references(() => accounts.id),
     name: varchar('name', { length: 50 }).notNull(),
     description: varchar('description', { length: 255 }),
 });

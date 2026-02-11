@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, timestamp, integer, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, varchar, timestamp, uuid, boolean } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { assoBudgetCategories } from "./assoBudgetCategories";
 import { assoTransactionsCategories } from "./assoTransactionsCategories";
@@ -7,10 +7,10 @@ import { typeTransactions } from "./typeTransactions";
 import { users } from "./users";
 
 export const categories = pgTable('categories', {
-    id: serial('id').primaryKey(),
+    id: uuid('id').primaryKey(),
     name: varchar('name', {length: 255}).notNull(),
-    typeId: integer('type_id').references(() => typeTransactions.id).notNull(),
-    userId: integer('user_id').references(() => users.id),
+    typeId: uuid('type_id').references(() => typeTransactions.id).notNull(),
+    userId: uuid('user_id').references(() => users.id),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
     updatedAt: timestamp('updatedAt').notNull().defaultNow(),
     isDefault: boolean('isDefault').default(true),

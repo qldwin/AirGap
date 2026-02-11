@@ -1,4 +1,4 @@
-import {pgTable, serial, integer, varchar, decimal, timestamp} from "drizzle-orm/pg-core";
+import {pgTable, uuid, varchar, decimal, timestamp} from "drizzle-orm/pg-core";
 import {users} from "./users";
 import {relations} from "drizzle-orm";
 import {accounts} from "./accounts";
@@ -6,9 +6,9 @@ import {assoBudgetCategories} from "./assoBudgetCategories";
 
 // Table Budget
 export const budgets = pgTable('budgets', {
-    id: serial('id').primaryKey(),
-    userId: integer('userId').notNull().references(() => users.id),
-    accountId: integer('accountId').references(() => accounts.id),
+    id: uuid('id').primaryKey(),
+    userId: uuid('userId').notNull().references(() => users.id),
+    accountId: uuid('accountId').references(() => accounts.id),
     name: varchar('name', {length: 255}).notNull(),
     amount: decimal('amount', {precision: 15, scale: 3}).notNull(),
     recurrence: varchar('recurrence').notNull(),

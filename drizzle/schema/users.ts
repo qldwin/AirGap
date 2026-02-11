@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, timestamp } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { accounts } from "./accounts";
 import { budgets } from "./budgets";
@@ -6,7 +6,7 @@ import { transactions } from "./transactions";
 import { categories } from "./categories";
 
 export const users = pgTable('users', {
-    id: serial('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     email: varchar('email', {length: 255}).notNull().unique(),
     name: varchar('name', {length: 255}),
     password: varchar('password', {length: 255}).notNull(),

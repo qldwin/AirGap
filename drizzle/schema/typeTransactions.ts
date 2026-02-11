@@ -1,4 +1,4 @@
-import {pgTable, serial, pgEnum} from "drizzle-orm/pg-core";
+import {pgTable, uuid, pgEnum} from "drizzle-orm/pg-core";
 import {relations} from "drizzle-orm";
 import {transactions} from "./transactions";
 
@@ -10,7 +10,7 @@ export const typeTransactionEnum = pgEnum("typeTransactionEnum", [
 
 // Table TypeTransaction
 export const typeTransactions = pgTable('typeTransactions', {
-    id: serial('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     type: typeTransactionEnum("type").notNull(),
 })
 
