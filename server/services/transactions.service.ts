@@ -272,7 +272,28 @@ export async function prepareTransactionRow(t: RawTransaction, signatures: Set<s
     return { transaction, matchedId };
 }
 
-export const importTransactionsBulk = async (userId: string, rawTransactions: RawTransaction[], targetAccountId: string) => {
+export const importTransactionsBulk = async (userId: string, rawTransactions: ZodObject<{
+    date: ZodDate;
+    description: ZodString;
+    amount: ZodNumber;
+    accountId: ZodOptional<ZodString>;
+    selectedCategoryId: ZodOptional<ZodNullable<ZodString>>;
+    categoryName: ZodOptional<ZodNullable<ZodString>>
+}, "strip", ZodTypeAny, objectOutputType<{
+    date: ZodDate;
+    description: ZodString;
+    amount: ZodNumber;
+    accountId: ZodOptional<ZodString>;
+    selectedCategoryId: ZodOptional<ZodNullable<ZodString>>;
+    categoryName: ZodOptional<ZodNullable<ZodString>>
+}, ZodTypeAny, "strip">, objectInputType<{
+    date: ZodDate;
+    description: ZodString;
+    amount: ZodNumber;
+    accountId: ZodOptional<ZodString>;
+    selectedCategoryId: ZodOptional<ZodNullable<ZodString>>;
+    categoryName: ZodOptional<ZodNullable<ZodString>>
+}, ZodTypeAny, "strip">>["_output"][], targetAccountId: string) => {
     return await db.transaction(async (tx) => {
 
         let importedCount = 0;
