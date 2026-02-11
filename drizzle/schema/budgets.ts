@@ -11,7 +11,7 @@ export const budgets = pgTable('budgets', {
     accountId: uuid('accountId').references(() => accounts.id),
     name: varchar('name', {length: 255}).notNull(),
     amount: decimal('amount', {precision: 15, scale: 3}).notNull(),
-    recurrence: varchar("recurrence", { length: 50 }).notNull(),
+    recurrence: varchar("recurrence", { length: 30 }).notNull(),
     startRecurrence: timestamp('startRecurrence').notNull(),
     endRecurrence: timestamp('endRecurrence'),
     startDate: timestamp('startDate').notNull(),
