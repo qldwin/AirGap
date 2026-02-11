@@ -34,7 +34,7 @@ CREATE TABLE "budgets" (
 	"accountId" uuid,
 	"name" varchar(255) NOT NULL,
 	"amount" numeric(15, 3) NOT NULL,
-	"recurrence" varchar NOT NULL,
+	"recurrence" varchar(30) NOT NULL,
 	"startRecurrence" timestamp NOT NULL,
 	"endRecurrence" timestamp,
 	"startDate" timestamp NOT NULL,
