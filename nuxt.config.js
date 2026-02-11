@@ -3,7 +3,7 @@ export default defineNuxtConfig({
     css: ["~/assets/css/styles.css"],
     modules: ["@nuxt/ui", "nuxt-auth-utils", "@nuxt/eslint"],
     runtimeConfig: {
-         databaseUrl: process.env.DATABASE_URL,
+         databaseUrl: '',
     },
     vite: {
         resolve: {
