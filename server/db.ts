@@ -1,18 +1,20 @@
-// server/db.ts
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from '../drizzle/schema/index';
 import { useRuntimeConfig } from '#imports';
 
-const config = useRuntimeConfig();
+console.log("🚀 DÉMARRAGE VERSION SÉCURISÉE 🚀");
 
+const config = useRuntimeConfig();
 const connectionString = config.databaseUrl;
 
+// 2. Vérification sécurisée
 if (!connectionString) {
-    throw new Error("❌ ERREUR CRITIQUE : La variable d'environnement DATABASE_URL est manquante ou vide !");
+    throw new Error("❌ ERREUR : La variable databaseUrl est VIDE. Vérifiez NUXT_DATABASE_URL dans Dokploy.");
 }
 
-console.log("🔌 Initialisation Base de Données...");
+const hiddenUrl = connectionString.replace(/:[^:]*@/, ':****@');
+console.log(`🔌 Connexion DB vers : ${hiddenUrl}`);
 
 const pool = new Pool({
     connectionString: connectionString,
