@@ -6,48 +6,49 @@ import { requireAuth } from '~/server/utils/auth'
 const createTransactionSchema = z.object({
     amount: z.number({ required_error: "Le montant est requis" })
         .positive("Le montant doit être positif"),
-
     description: z.string({ required_error: "La description est requise" })
         .min(1, "La description ne peut pas être vide"),
-
     date: z.coerce.date({ required_error: "La date est requise" }),
-
-    accountId: z.number({ required_error: "Le compte est requis" }).int(),
-
-    typeTransactionsId: z.number({ required_error: "Le type est requis" }).int(),
-
-    categoryId: z.number().int().optional(),
+    accountId: z.string({ required_error: "Le compte est requis" })
+        .uuid("L'ID du compte est invalide"),
+    typeTransactionsId: z.string({ required_error: "Le type est requis" })
+        .uuid("L'ID du type est invalide"),
+    categoryId: z.string().uuid().optional().or(z.literal('')),
 })
 
 export default defineEventHandler(async (event) => {
     const user = await requireAuth(event)
 
-    const body = await readValidatedBody(event, (b) => createTransactionSchema.safeParse(b))
+    const result = await readValidatedBody(event, (b) => createTransactionSchema.safeParse(b))
 
-    if (!body.success) {
+    if (!result.success) {
+        console.error("Erreur validation Zod:", result.error);
+
         throw createError({
             statusCode: 400,
-            message: body.error.issues[0].message
+            message: result.error.issues[0].message
         })
     }
 
-    const { categoryId, ...restBody } = body.data
+    const { categoryId, ...restBody } = result.data
 
     const transactionData = {
         ...restBody,
         userId: user.id,
-        amount: String(body.data.amount),
+        amount: String(result.data.amount),
 
         devise: "EUR",
         recurrence: "Aucune",
-        startRecurrence: body.data.date,
+        startRecurrence: result.data.date,
 
         createdAt: new Date(),
         updatedAt: new Date(),
     }
 
     try {
-        const newTransaction = await createTransaction(transactionData, categoryId)
+        const finalCategoryId = categoryId === '' ? undefined : categoryId;
+
+        const newTransaction = await createTransaction(transactionData, finalCategoryId)
 
         return {
             success: true,

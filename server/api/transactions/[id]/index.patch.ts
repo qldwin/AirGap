@@ -4,20 +4,20 @@ import { updateTransaction } from '~/server/services/transactions.service'
 import { requireAuth } from '~/server/utils/auth'
 
 const paramsSchema = z.object({
-    id: z.coerce.number().int().positive()
+    id: z.string().uuid()
 })
 
 const updateTransactionSchema = z.object({
-    amount: z.number().positive({ message: "Le montant doit être positif" }).optional(),
+    amount: z.number().positive({message: "Le montant doit être positif"}).optional(),
     description: z.string().min(1).optional(),
     date: z.coerce.date().optional(),
 
-    typeTransactionsId: z.number().int().optional(),
+    typeTransactionsId: z.string().uuid().optional(),
     devise: z.string().length(3).optional(),
     recurrence: z.string().optional(),
 
-    categoryId: z.number().int().nullable().optional(),
-    accountId: z.number().int().optional(),
+    categoryId: z.string().uuid().nullable().optional().or(z.literal('')),
+    accountId: z.string().uuid().optional(),
 })
 
 export default defineEventHandler(async (event) => {

@@ -2,7 +2,7 @@
     import { categories } from '~/drizzle/schema/categories'
     import {eq, asc, and, isNull, or} from 'drizzle-orm'
 
-    export const getAllCategories = async (userId: number, typeId?: number) => {
+    export const getAllCategories = async (userId: string, typeId?: string) => {
         const userCondition = or(
             isNull(categories.userId),
             eq(categories.userId, userId)
@@ -18,7 +18,7 @@
             .orderBy(asc(categories.name));
     }
 
-    export const getCategoryById = async (categoryId: number) => {
+    export const getCategoryById = async (categoryId: string) => {
         const result = await db.select()
             .from(categories)
             .where(eq(categories.id, categoryId))
@@ -27,7 +27,7 @@
         return result[0];
     }
 
-    export const createCategory = async (data: { name: string; typeId: number; userId: number }) => {
+    export const createCategory = async (data: { name: string; typeId: string; userId: string }) => {
         const [newCategory] = await db.insert(categories).values({
             name: data.name,
             typeId: data.typeId,
@@ -38,7 +38,7 @@
     };
 
     export const updateCategory = async (
-        categoryId: number,
+        categoryId: string,
         updateData: Partial<typeof categories.$inferInsert>
     ) => {
         const [updatedCategory] = await db.update(categories)
@@ -49,7 +49,7 @@
         return updatedCategory;
     }
 
-    export const deleteCategory = async (categoryId: number) => {
+    export const deleteCategory = async (categoryId: string) => {
         const [deletedCategory] = await db.delete(categories)
             .where(eq(categories.id, categoryId))
             .returning();

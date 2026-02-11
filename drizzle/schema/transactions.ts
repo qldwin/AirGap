@@ -1,4 +1,4 @@
-import {pgTable, serial, integer, timestamp, numeric, varchar, text} from 'drizzle-orm/pg-core';
+import {pgTable, uuid, timestamp, numeric, varchar, text} from 'drizzle-orm/pg-core';
 import {accounts} from './accounts';
 import {relations} from "drizzle-orm";
 import {senderRecipient} from "./senderRecipient";
@@ -8,11 +8,11 @@ import {users} from "./users";
 
 // Table Transactions
 export const transactions = pgTable('transactions', {
-    id: serial('id').primaryKey(),
-    userId: integer('userId').notNull().references(() => users.id),
-    accountId: integer('accountId').notNull().references(() => accounts.id),
-    senderRecipientId: integer('senderRecipientId').references(() => senderRecipient.id),
-    typeTransactionsId: integer('typeTransactionsId').notNull().references(() => typeTransactions.id),
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('userId').notNull().references(() => users.id),
+    accountId: uuid('accountId').notNull().references(() => accounts.id),
+    senderRecipientId: uuid('senderRecipientId').references(() => senderRecipient.id),
+    typeTransactionsId: uuid('typeTransactionsId').notNull().references(() => typeTransactions.id),
     description: text('description').notNull(),
     devise: varchar('devise', { length: 3 }).notNull(),
     amount: numeric('amount').notNull(),

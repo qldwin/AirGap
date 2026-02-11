@@ -38,30 +38,19 @@
             </div>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+          <fieldset class="border-none p-0 m-0">
+            <legend class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Type</legend>
             <div class="flex gap-3 mt-1">
               <label class="flex items-center cursor-pointer">
-                <input
-                    v-model="form.type"
-                    type="radio"
-                    value="income"
-                    class="mr-2"
-                >
+                <input v-model="form.type" type="radio" value="income" class="mr-2">
                 <span class="text-green-600 dark:text-green-400 font-medium">Revenu</span>
               </label>
               <label class="flex items-center cursor-pointer">
-                <input
-                    v-model="form.type"
-                    type="radio"
-                    value="expense"
-                    class="mr-2"
-                >
+                <input v-model="form.type" type="radio" value="expense" class="mr-2">
                 <span class="text-red-600 dark:text-red-400 font-medium">Dépense</span>
               </label>
             </div>
-            </label>
-          </div>
+          </fieldset>
 
           <div>
             <label for="category" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Catégorie</label>
@@ -70,14 +59,12 @@
                 v-model="form.categoryId"
                 class="w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
                 :disabled="isLoadingCategories"
-                required
             >
-              <option :value="null" disabled>Sélectionner une catégorie</option>
+              <option :value="null">Aucune catégorie</option>
               <option v-for="cat in filteredCategories" :key="cat.id" :value="cat.id">
                 {{ cat.name }}
               </option>
             </select>
-
             <p v-if="filteredCategories.length === 0 && !isLoadingCategories" class="text-xs text-orange-500 mt-1">
               Aucune catégorie trouvée pour ce type.
             </p>
@@ -107,8 +94,7 @@
                 class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
                 :disabled="isLoading"
             >
-              <span v-if="isLoading">En cours...</span>
-              <span v-else>{{ isEditing ? 'Enregistrer' : 'Ajouter' }}</span>
+              {{ isLoading ? 'En cours...' : (isEditing ? 'Enregistrer' : 'Ajouter') }}
             </button>
           </div>
         </form>
@@ -118,32 +104,22 @@
 </template>
 
 <script setup>
-// --- CONSTANTES ---
-const TYPE_INCOME = 1;
-const TYPE_EXPENSE = 2;
+import { ref, computed, onMounted, watch } from 'vue';
 
-// --- PROPS & EMITS ---
 const props = defineProps({
   modelValue: Boolean,
-  transaction: {
-    type: Object,
-    default: null
-  }
+  transaction: { type: Object, default: null },
+  types: { type: Array, default: () => [] },
+  accountId: { type: String, default: null }
 });
 
 const emits = defineEmits(['update:modelValue', 'transaction-added', 'transaction-updated']);
 
-// --- STATE ---
+const getTypeId = (slug) => props.types.find(t => t.type === slug)?.id;
+
 const isLoading = ref(false);
 const isLoadingCategories = ref(true);
 const allCategories = ref([]);
-
-const isOpen = computed({
-  get: () => props.modelValue,
-  set: (value) => emits('update:modelValue', value)
-});
-
-const isEditing = computed(() => !!props.transaction);
 const today = new Date().toISOString().split('T')[0];
 
 const form = ref({
@@ -154,119 +130,81 @@ const form = ref({
   date: today
 });
 
-// --- API : CHARGEMENT CATÉGORIES ---
+const isOpen = computed({
+  get: () => props.modelValue,
+  set: (value) => emits('update:modelValue', value)
+});
+
+const isEditing = computed(() => !!props.transaction);
+
+const filteredCategories = computed(() => {
+  const uuid = getTypeId(form.value.type === 'income' ? 'revenu' : 'depense');
+  return uuid ? allCategories.value.filter(c => c.typeId === uuid) : [];
+});
+
 onMounted(async () => {
   try {
     isLoadingCategories.value = true;
     const response = await $fetch('/api/categories');
     allCategories.value = response.categories || [];
   } catch (e) {
-    console.error("Erreur lors du chargement des catégories:", e);
+    console.error("Erreur catégories modal:", e);
   } finally {
     isLoadingCategories.value = false;
   }
 });
 
-// --- COMPUTED : FILTRAGE ---
-const filteredCategories = computed(() => {
-  const currentTypeId = form.value.type === 'income' ? TYPE_INCOME : TYPE_EXPENSE;
-
-  return allCategories.value.filter(c => c.typeId === currentTypeId);
-});
-
-// --- WATCHERS ---
-
 watch(() => form.value.type, (newType, oldType) => {
-  if (oldType && !props.transaction) {
-    form.value.categoryId = null;
-  } else if (oldType && props.transaction) {
-    const initialType = props.transaction.typeTransactionsId === TYPE_INCOME ? 'income' : 'expense';
-    if (newType !== initialType) {
-      form.value.categoryId = null;
-    }
-  }
+  if (oldType && !props.transaction) form.value.categoryId = null;
 });
 
-watch(
-    () => props.transaction,
-    (newTransaction) => {
-      if (newTransaction) {
-        const formType = newTransaction.typeTransactionsId === TYPE_INCOME ? 'income' : 'expense';
-
-        let formattedDate = today;
-        if (newTransaction.date) {
-          formattedDate = new Date(newTransaction.date).toISOString().split('T')[0];
-        }
-
-        form.value = {
-          description: newTransaction.description,
-          amount: newTransaction.amount,
-          type: formType,
-          categoryId: newTransaction.categoryId || null,
-          date: formattedDate
-        };
-      }
-    },
-    { immediate: true }
-);
-
-watch(() => isOpen.value, (open) => {
-  if (open && !props.transaction) {
+watch(() => props.transaction, (newTx) => {
+  if (newTx) {
+    const incomeUUID = getTypeId('revenu');
     form.value = {
-      description: '',
-      amount: '',
-      type: 'expense',
-      categoryId: null,
-      date: today
+      description: newTx.description,
+      amount: newTx.amount,
+      type: newTx.typeTransactionsId === incomeUUID ? 'income' : 'expense',
+      categoryId: newTx.categoryId || null,
+      date: newTx.date ? new Date(newTx.date).toISOString().split('T')[0] : today
     };
   }
+}, { immediate: true });
+
+watch(isOpen, (open) => {
+  if (open && !props.transaction) {
+    form.value = { description: '', amount: '', type: 'expense', categoryId: null, date: today };
+  }
 });
 
-const closeModal = () => {
-  isOpen.value = false;
-};
+const closeModal = () => isOpen.value = false;
 
-// --- SUBMIT ---
 const submitForm = async () => {
   try {
     isLoading.value = true;
+    const typeId = getTypeId(form.value.type === 'income' ? 'revenu' : 'depense');
 
-    const typeId = form.value.type === 'income' ? TYPE_INCOME : TYPE_EXPENSE;
+    if (!typeId) throw new Error("UUID du type manquant");
 
     const payload = {
       description: form.value.description,
       amount: Number(form.value.amount),
-      date: form.value.date ? new Date(form.value.date).toISOString() : new Date().toISOString(),
-
+      date: new Date(form.value.date).toISOString(),
       typeTransactionsId: typeId,
       categoryId: form.value.categoryId,
-
-      accountId: 1
+      accountId: props.accountId
     };
 
-    let response;
+    const url = isEditing.value ? `/api/transactions/${props.transaction.id}` : '/api/transactions';
+    const method = isEditing.value ? 'PATCH' : 'POST';
 
-    if (isEditing.value) {
-      response = await $fetch(`/api/transactions/${props.transaction.id}`, {
-        method: 'PATCH',
-        body: payload
-      });
-      emits('transaction-updated', response.transaction || response);
-
-    } else {
-      response = await $fetch('/api/transactions', {
-        method: 'POST',
-        body: payload
-      });
-      emits('transaction-added', response.transaction || response);
-    }
+    const response = await $fetch(url, { method, body: payload });
+    emits(isEditing.value ? 'transaction-updated' : 'transaction-added', response.transaction || response);
 
     closeModal();
-
   } catch (error) {
-    console.error('Erreur:', error);
-    const message = error.response?._data?.statusMessage || error.message || "Erreur lors de l'enregistrement";
-    alert("Erreur : " + message);
+    console.error('Erreur soumission:', error);
+    alert("Erreur : " + (error.response?._data?.message || error.message));
   } finally {
     isLoading.value = false;
   }

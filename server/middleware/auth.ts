@@ -5,12 +5,12 @@ import { eq } from 'drizzle-orm';
 export default defineEventHandler(async (event) => {
     if (event.path.startsWith('/api/auth')) return;
 
-
     const userIdCookie = getCookie(event, 'userId');
 
     if (userIdCookie) {
         try {
-            const userId = Number.parseInt(userIdCookie);
+            const userId = userIdCookie;
+
             const user = await db.query.users.findFirst({
                 where: eq(users.id, userId),
                 columns: { id: true, email: true, name: true }
@@ -21,7 +21,6 @@ export default defineEventHandler(async (event) => {
             }
 
         } catch (e) {
-            // Token invalide ou erreur DB
             deleteCookie(event, 'userId');
             console.error(e);
         }

@@ -3,12 +3,12 @@ import { updateCategory } from '~/server/services/categories.service';
 import { requireAuth } from '~/server/utils/auth';
 
 const paramsSchema = z.object({
-    id: z.coerce.number().int().positive()
+    id: z.string().uuid()
 });
 
 const updateCategorySchema = z.object({
     name: z.string().min(1).optional(),
-    typeId: z.number().int().optional(),
+    typeId: z.string().uuid().optional(),
     isDefault: z.boolean().optional()
 });
 

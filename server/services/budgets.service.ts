@@ -5,7 +5,7 @@ import { categories } from '~/drizzle/schema/categories'
 import { assoBudgetCategories } from '~/drizzle/schema/assoBudgetCategories'
 import { and, desc, eq } from 'drizzle-orm'
 
-export const getUserBudgets = async (userId: number) => {
+export const getUserBudgets = async (userId: string) => {
     const rows = await db.select({
         id: budgets.id,
         name: budgets.name,
@@ -54,7 +54,7 @@ export const getUserBudgets = async (userId: number) => {
 
 export const createBudget = async (
     data: typeof budgets.$inferInsert,
-    categoryIds?: number[]
+    categoryIds?: string[]
 ) => {
     return await db.transaction(async (tx) => {
         const [newBudget] = await tx.insert(budgets)
@@ -86,10 +86,10 @@ export const createBudget = async (
 }
 
 export const updateBudget = async (
-    budgetId: number,
-    userId: number,
+    budgetId: string,
+    userId: string,
     updateData: Partial<typeof budgets.$inferInsert>,
-    newCategoryIds?: number[]
+    newCategoryIds?: string[]
 ) => {
     return await db.transaction(async (tx) => {
         let updatedBudget = null;
@@ -137,7 +137,7 @@ export const updateBudget = async (
     });
 }
 
-export const deleteBudget = async (budgetId: number, userId: number) => {
+export const deleteBudget = async (budgetId: string, userId: string) => {
     return await db.transaction(async (tx) => {
         await tx.delete(assoBudgetCategories)
             .where(eq(assoBudgetCategories.budgetId, budgetId));
@@ -150,7 +150,7 @@ export const deleteBudget = async (budgetId: number, userId: number) => {
     });
 }
 
-export const getBudgetById = async (budgetId: number, userId: number) => {
+export const getBudgetById = async (budgetId: string, userId: string) => {
     const result = await getUserBudgets(userId);
     return result.find(b => b.id === budgetId) || null;
 }

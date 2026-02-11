@@ -6,9 +6,9 @@ const importSchema = z.object({
     transactions: z.array(z.object({
         date: z.coerce.date(),
         description: z.string(),
-        amount: z.number(),
-        accountId: z.number().int().default(1),
-        selectedCategoryId: z.number().int().nullable().optional(),
+        amount: z.coerce.number(),
+        accountId: z.string().uuid(),
+        selectedCategoryId: z.string().uuid().nullable().optional(),
         categoryName: z.string().nullable().optional()
     }))
 });

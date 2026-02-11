@@ -2,7 +2,7 @@
 import type { H3Event } from 'h3'
 
 export interface UserSession {
-    id: number;
+    id: string;
     email: string;
     username?: string;
 }
@@ -17,5 +17,5 @@ export const requireAuth = async (event: H3Event): Promise<UserSession> => {
         })
     }
 
-    return session.user as UserSession
+    return session.user as unknown as UserSession;
 }

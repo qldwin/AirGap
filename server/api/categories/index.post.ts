@@ -6,7 +6,8 @@ const createCategorySchema = z.object({
     name: z.string({ required_error: "Le nom est requis" })
         .min(1, "Le nom ne peut pas être vide"),
 
-    typeId: z.number({ required_error: "Le type est requis" }).int(),
+    typeId: z.string({ required_error: "Le type est requis" })
+        .uuid("Le type de catégorie est invalide"),
 
     isDefault: z.boolean().optional().default(false)
 });

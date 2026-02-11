@@ -13,9 +13,9 @@ const createBudgetSchema = z.object({
     startDate: z.coerce.date({ required_error: "La date de début est requise" }),
     endDate: z.coerce.date({ required_error: "La date de fin est requise" }),
 
-    accountId: z.number().int().optional().nullable(),
+    accountId: z.string().uuid().optional().nullable().or(z.literal('')),
 
-    categoryIds: z.array(z.number().int()).optional()
+    categoryIds: z.array(z.string().uuid()).optional()
 })
 
 export default defineEventHandler(async (event) => {

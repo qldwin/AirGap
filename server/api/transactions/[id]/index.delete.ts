@@ -4,7 +4,7 @@ import { deleteTransaction } from '~/server/services/transactions.service'
 import { requireAuth } from '~/server/utils/auth'
 
 const paramsSchema = z.object({
-    id: z.coerce.number().int().positive()
+    id: z.string().uuid()
 })
 
 export default defineEventHandler(async (event) => {
