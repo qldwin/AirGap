@@ -212,10 +212,10 @@ const submitForm = async () => {
     const payload = {
       description: form.value.description,
       amount: Number(form.value.amount),
-      date: form.value.date ? new Date(form.value.date).toISOString() : new Date().toISOString(),
+      date: form.value.date,
       typeTransaction: typeValue,
       categoryId: form.value.categoryId,
-      accountId: "1e5c3b6a-..."
+      accountId: null
     };
 
     let response;

@@ -8,17 +8,12 @@ const paramsSchema = z.object({
 })
 
 const updateTransactionSchema = z.object({
-    amount: z.number().positive({ message: "Le montant doit être positif" }).optional(),
+    amount: z.number().optional(),
     description: z.string().min(1).optional(),
     date: z.coerce.date().optional(),
-
     typeTransaction: z.enum(["depense", "revenu", "non_categorise"]).optional(),
-
-    devise: z.string().length(3).optional(),
-    recurrence: z.string().optional(),
-
     categoryId: z.string().uuid().nullable().optional(),
-    accountId: z.string().uuid().optional(),
+    accountId: z.string().uuid().nullable().optional()
 })
 
 export default defineEventHandler(async (event) => {
@@ -31,10 +26,7 @@ export default defineEventHandler(async (event) => {
 
     const body = await readValidatedBody(event, (b) => updateTransactionSchema.safeParse(b))
     if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: body.error.issues[0].message
-        })
+        throw createError({ statusCode: 400, message: body.error.issues[0].message })
     }
 
     if (Object.keys(body.data).length === 0) {
@@ -45,7 +37,7 @@ export default defineEventHandler(async (event) => {
 
     const dataToUpdate = {
         ...transactionFields,
-        amount: transactionFields.amount ? String(transactionFields.amount) : undefined,
+        amount: transactionFields.amount === undefined ? undefined : String(transactionFields.amount),
         updatedAt: new Date()
     }
 

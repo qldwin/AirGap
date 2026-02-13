@@ -5,8 +5,8 @@ import { requireAuth } from '~/server/utils/auth'
 
 // Validation de l'ID URL
 const paramsSchema = z.object({
-    id: z.coerce.number().int().positive()
-})
+    id: z.string().uuid({ message: "Identifiant de budget invalide" })
+});
 
 export default defineEventHandler(async (event) => {
     // 1. Sécurité : On attend l'utilisateur
