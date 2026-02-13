@@ -203,7 +203,7 @@ export const importTransactionsBulk = async (userId: string, rawTransactions: Re
 
             transactionsToInsert.push({
                 userId,
-                accountId: t.accountId,
+                accountId: null,
                 description: encryptText(cleanDesc),
                 amount: String(amount),
                 date: dateObj,
