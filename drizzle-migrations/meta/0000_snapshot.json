@@ -1,6 +1,6 @@
 {
-  "id": "52f2043f-f364-437d-9033-d46809550af3",
-  "prevId": "d5658292-60fc-4685-82ab-820fbb1e713c",
+  "id": "7a725be5-85dd-4152-8c71-7c0e6a489e05",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -283,7 +283,7 @@
           "name": "accountId",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "name": {
           "name": "name",
@@ -394,8 +394,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "typeTransaction": {
-          "name": "typeTransaction",
+        "type_transaction": {
+          "name": "type_transaction",
           "type": "typeTransactionEnum",
           "typeSchema": "public",
           "primaryKey": false,
@@ -405,7 +405,7 @@
           "name": "user_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "createdAt": {
           "name": "createdAt",
@@ -610,7 +610,7 @@
           "name": "accountId",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "senderRecipientId": {
           "name": "senderRecipientId",
