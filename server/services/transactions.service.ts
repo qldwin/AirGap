@@ -7,22 +7,30 @@ import { or, isNull, and, desc, eq } from 'drizzle-orm'
 import { encryptText, decryptText } from '~/server/utils/crypto'
 
 /**
- * Fonctions utilitaires privées
+ * Types et utilitaires
  */
+type TransactionInsert = typeof transactions.$inferInsert;
+type AssociationInsert = typeof assoTransactionsCategories.$inferInsert;
 
 const getTransactionSignature = (date: Date, amount: number, description: string) => {
     const dateStr = new Date(date).toISOString().split('T')[0];
     return `${dateStr}_${amount}_${description.trim()}`;
 };
 
-const findCategoryByRules = (description: string, rules: any[]) => {
+const findCategoryByRules = (description: string, rules: any[]): string | null => {
     const lowDesc = description.toLowerCase();
     const rule = rules.find(r => lowDesc.includes(r.keyword.toLowerCase()));
     return rule ? rule.categoryId : null;
 };
 
-const resolveCategory = async (tx: any, t: any, typeId: number, rules: any[], categoryMap: Map<string, number>) => {
-    if (t.selectedCategoryId) return Number(t.selectedCategoryId);
+const resolveCategory = async (
+    tx: any,
+    t: any,
+    typeValue: "depense" | "revenu" | "non_categorise",
+    rules: any[],
+    categoryMap: Map<string, string>
+): Promise<string | null> => {
+    if (t.selectedCategoryId) return String(t.selectedCategoryId);
 
     if (t.categoryName?.trim()) {
         const key = t.categoryName.toLowerCase().trim();
@@ -30,7 +38,6 @@ const resolveCategory = async (tx: any, t: any, typeId: number, rules: any[], ca
 
         const [newCat] = await tx.insert(categories).values({
             name: t.categoryName.trim(),
-            typeId,
             isDefault: false
         }).returning({ id: categories.id });
 
@@ -45,13 +52,13 @@ const resolveCategory = async (tx: any, t: any, typeId: number, rules: any[], ca
  * Fonctions de Service Exportées
  */
 
-export const getTransactionById = async (transactionId: number, userId: number) => {
+export const getTransactionById = async (transactionId: string, userId: string) => {
     const rows = await db.select({
         id: transactions.id,
         amount: transactions.amount,
         description: transactions.description,
         date: transactions.date,
-        typeTransactionsId: transactions.typeTransactionsId,
+        typeTransaction: transactions.typeTransaction,
         accountId: transactions.accountId,
         devise: transactions.devise,
         categoryName: categories.name,
@@ -73,7 +80,7 @@ export const getTransactionById = async (transactionId: number, userId: number) 
     };
 }
 
-export const deleteTransaction = async (transactionId: number, userId: number) => {
+export const deleteTransaction = async (transactionId: string, userId: string) => {
     return await db.transaction(async (tx) => {
         await tx.delete(assoTransactionsCategories).where(eq(assoTransactionsCategories.transactionId, transactionId));
         const [deleted] = await tx.delete(transactions)
@@ -84,12 +91,13 @@ export const deleteTransaction = async (transactionId: number, userId: number) =
 }
 
 export const updateTransaction = async (
-    transactionId: number,
-    userId: number,
-    updateData: Partial<typeof transactions.$inferInsert>,
-    newCategoryId?: number | null
+    transactionId: string,
+    userId: string,
+    updateData: Partial<TransactionInsert>,
+    newCategoryId?: string | null
 ) => {
     const finalUpdateData = { ...updateData };
+
     if (finalUpdateData.description) {
         finalUpdateData.description = encryptText(finalUpdateData.description);
     }
@@ -97,26 +105,35 @@ export const updateTransaction = async (
     return await db.transaction(async (tx) => {
         const [updated] = await tx.update(transactions)
             .set({ ...finalUpdateData, updatedAt: new Date() })
-            .where(and(eq(transactions.id, transactionId), eq(transactions.userId, userId)))
+            .where(and(
+                eq(transactions.id, transactionId),
+                eq(transactions.userId, userId)
+            ))
             .returning();
 
         if (newCategoryId !== undefined) {
-            await tx.delete(assoTransactionsCategories).where(eq(assoTransactionsCategories.transactionId, transactionId));
+            await tx.delete(assoTransactionsCategories)
+                .where(eq(assoTransactionsCategories.transactionId, transactionId));
+
             if (newCategoryId) {
-                await tx.insert(assoTransactionsCategories).values({ transactionId, categoryId: newCategoryId });
+                await tx.insert(assoTransactionsCategories)
+                    .values({
+                        transactionId,
+                        categoryId: newCategoryId
+                    });
             }
         }
         return updated;
     });
 }
 
-export const getUserTransactions = async (userId: number) => {
+export const getUserTransactions = async (userId: string) => {
     const rows = await db.select({
         id: transactions.id,
         amount: transactions.amount,
         description: transactions.description,
         date: transactions.date,
-        typeTransactionsId: transactions.typeTransactionsId,
+        typeTransaction: transactions.typeTransaction,
         categoryName: categories.name,
         categoryId: categories.id
     })
@@ -133,30 +150,33 @@ export const getUserTransactions = async (userId: number) => {
     }));
 }
 
-export const createTransaction = async (data: typeof transactions.$inferInsert, categoryId?: number) => {
+export const createTransaction = async (data: TransactionInsert, categoryId?: string | null) => {
     const encryptedData = {
         ...data,
         description: data.description ? encryptText(data.description) : ''
     };
-
     return await db.transaction(async (tx) => {
         const [newTx] = await tx.insert(transactions).values(encryptedData).returning();
         if (categoryId) {
-            await tx.insert(assoTransactionsCategories).values({ transactionId: newTx.id, categoryId });
+            await tx.insert(assoTransactionsCategories).values({
+                transactionId: newTx.id,
+                categoryId
+            });
         }
         return newTx;
     });
 }
 
-type TransactionInsert = typeof transactions.$inferInsert;
-type AssociationInsert = typeof assoTransactionsCategories.$inferInsert;
-
-export const importTransactionsBulk = async (userId: number, rawTransactions: any[]) => {
+export const importTransactionsBulk = async (userId: string, rawTransactions: Record<string, any>[]) => {
     return await db.transaction(async (tx) => {
         const now = new Date();
-        const rules = (await tx.select().from(importRules).where(or(eq(importRules.userId, userId), isNull(importRules.userId))))
+        const rules = (await tx.select().from(importRules)
+            .where(or(eq(importRules.userId, userId), isNull(importRules.userId))))
             .sort((a, b) => b.keyword.length - a.keyword.length);
-        const categoryMap = new Map((await tx.select().from(categories)).map(c => [c.name.toLowerCase().trim(), c.id]));
+
+        const categoryMap = new Map<string, string>((await tx.select().from(categories))
+            .map(c => [c.name.toLowerCase().trim(), c.id]));
+
         const existing = await tx.select().from(transactions).where(eq(transactions.userId, userId));
         const signatures = new Set(existing.map(t =>
             getTransactionSignature(new Date(t.date), Number(t.amount), decryptText(t.description || '').toLowerCase().trim())
@@ -166,7 +186,7 @@ export const importTransactionsBulk = async (userId: number, rawTransactions: an
         let skippedCount = 0;
 
         const transactionsToInsert: TransactionInsert[] = [];
-        const associatedCategories: (number | undefined)[] = [];
+        const associatedCategories: (string | null)[] = [];
 
         for (const t of rawTransactions) {
             const amount = Math.abs(Number(t.amount));
@@ -178,43 +198,35 @@ export const importTransactionsBulk = async (userId: number, rawTransactions: an
                 continue;
             }
 
-            const typeId = t.typeTransactionsId || (Number(t.amount) >= 0 ? 1 : 2);
-            let matchedId = await resolveCategory(tx, t, typeId, rules, categoryMap);
-
-            if (!matchedId) {
-                matchedId = categoryMap.get('non catégorisé');
-            }
+            const typeValue = t.typeTransaction || (Number(t.amount) >= 0 ? 'revenu' : 'depense');
+            const matchedId = await resolveCategory(tx, t, typeValue, rules, categoryMap);
 
             transactionsToInsert.push({
                 userId,
-                accountId: t.accountId || 1,
+                accountId: t.accountId,
                 description: encryptText(cleanDesc),
                 amount: String(amount),
                 date: dateObj,
-                typeTransactionsId: typeId,
+                typeTransaction: typeValue as "depense" | "revenu" | "non_categorise",
                 devise: 'EUR',
                 recurrence: 'Aucune',
                 startRecurrence: dateObj,
                 updatedAt: now
             });
-
-            associatedCategories.push(matchedId);
+            associatedCategories.push(matchedId || categoryMap.get('non catégorisé') || null);
             importedCount++;
         }
 
         const BATCH_SIZE = 100;
-
         for (let i = 0; i < transactionsToInsert.length; i += BATCH_SIZE) {
             const txBatch = transactionsToInsert.slice(i, i + BATCH_SIZE);
             const catBatch = associatedCategories.slice(i, i + BATCH_SIZE);
-
             if (txBatch.length > 0) {
                 const insertedRows = await tx.insert(transactions)
                     .values(txBatch)
                     .returning({ id: transactions.id });
 
                 const associationRows: AssociationInsert[] = [];
-
                 insertedRows.forEach((row, index) => {
                     const catId = catBatch[index];
                     if (catId) {
@@ -224,14 +236,12 @@ export const importTransactionsBulk = async (userId: number, rawTransactions: an
                         });
                     }
                 });
-
                 if (associationRows.length > 0) {
                     await tx.insert(assoTransactionsCategories).values(associationRows);
                 }
             }
         }
-
-        console.log(`📊 Bilan : ${importedCount} importés, ${skippedCount} sautés (doublons)`);
+        console.log(`📊 Import terminé : ${importedCount} ajoutés, ${skippedCount} doublons ignorés.`);
         return importedCount;
     });
 };

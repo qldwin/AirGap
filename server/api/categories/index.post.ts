@@ -6,7 +6,9 @@ const createCategorySchema = z.object({
     name: z.string({ required_error: "Le nom est requis" })
         .min(1, "Le nom ne peut pas être vide"),
 
-    typeId: z.number({ required_error: "Le type est requis" }).int(),
+    typeTransaction: z.enum(["depense", "revenu", "non_categorise"], {
+        required_error: "Le type de transaction est requis"
+    }),
 
     isDefault: z.boolean().optional().default(false)
 });

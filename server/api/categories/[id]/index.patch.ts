@@ -3,20 +3,19 @@ import { updateCategory } from '~/server/services/categories.service';
 import { requireAuth } from '~/server/utils/auth';
 
 const paramsSchema = z.object({
-    id: z.coerce.number().int().positive()
+    id: z.string().uuid({ message: "ID de catégorie invalide" })
 });
 
 const updateCategorySchema = z.object({
     name: z.string().min(1).optional(),
-    typeId: z.number().int().optional(),
+    type: z.enum(["depense", "revenu", "non_categorise"]).optional(),
     isDefault: z.boolean().optional()
 });
 
 export default defineEventHandler(async (event) => {
     await requireAuth(event);
-
     const params = await getValidatedRouterParams(event, (p) => paramsSchema.safeParse(p));
-    if (!params.success) throw createError({ statusCode: 400, message: 'ID invalide' });
+    if (!params.success) throw createError({ statusCode: 400, message: params.error.issues[0].message });
 
     const body = await readValidatedBody(event, (b) => updateCategorySchema.safeParse(b));
     if (!body.success) throw createError({ statusCode: 400, message: body.error.issues[0].message });
@@ -31,7 +30,6 @@ export default defineEventHandler(async (event) => {
         if (!updatedCategory) {
             throw createError({ statusCode: 404, message: 'Catégorie introuvable' });
         }
-
         return { success: true, category: updatedCategory };
     } catch (error: any) {
         if (error.code === '23505') {

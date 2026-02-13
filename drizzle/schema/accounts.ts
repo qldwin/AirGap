@@ -8,8 +8,8 @@ import {senderRecipient} from "./senderRecipient";
 
 // Table Account
 export const accounts = pgTable('accounts', {
-    id: uuid('id').primaryKey(),
-    userId: uuid('userId').notNull().references(() => users.id),
+    id: uuid('id').primaryKey().defaultRandom().notNull(),
+    userId: uuid('userId').references(() => users.id).notNull(),
     accountName: varchar('accountName', {length: 255}).notNull(),
     accountType: varchar('accountType', {length: 255}).notNull(),
     balance: decimal('balance', {precision: 15, scale: 3}).notNull(),

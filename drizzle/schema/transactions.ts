@@ -2,17 +2,17 @@ import {pgTable, uuid, timestamp, numeric, varchar, text} from 'drizzle-orm/pg-c
 import {accounts} from './accounts';
 import {relations} from "drizzle-orm";
 import {senderRecipient} from "./senderRecipient";
-import {typeTransactions} from "./typeTransactions";
+import {typeTransactionEnum} from "./typeTransactions";
 import {assoTransactionsCategories} from "./assoTransactionsCategories";
 import {users} from "./users";
 
 // Table Transactions
 export const transactions = pgTable('transactions', {
-    id: uuid('id').primaryKey().defaultRandom(),
-    userId: uuid('userId').notNull().references(() => users.id),
-    accountId: uuid('accountId').notNull().references(() => accounts.id),
+    id: uuid('id').primaryKey().defaultRandom().notNull(),
+    userId: uuid('userId').notNull().references(() => users.id).notNull(),
+    accountId: uuid('accountId').references(() => accounts.id),
     senderRecipientId: uuid('senderRecipientId').references(() => senderRecipient.id),
-    typeTransactionsId: uuid('typeTransactionsId').notNull().references(() => typeTransactions.id),
+    typeTransaction: typeTransactionEnum().notNull(),
     description: text('description').notNull(),
     devise: varchar('devise', { length: 3 }).notNull(),
     amount: numeric('amount').notNull(),
@@ -38,11 +38,6 @@ export const transactionRelations = relations(transactions, ({ one, many }) => (
     senderRecipient: one(senderRecipient, {
         fields: [transactions.senderRecipientId],
         references: [senderRecipient.id]
-    }),
-
-    typeTransactions: one(typeTransactions, {
-        fields: [transactions.typeTransactionsId],
-        references: [typeTransactions.id]
     }),
 
     categories: many(assoTransactionsCategories),

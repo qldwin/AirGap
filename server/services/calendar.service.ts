@@ -3,19 +3,17 @@ import { db } from '~/server/db'
 import { transactions } from '~/drizzle/schema/transactions'
 //import { accounts } from '~/drizzle/schema/accounts'
 import { categories } from '~/drizzle/schema/categories'
-import { typeTransactions } from '~/drizzle/schema/typeTransactions'
 import { assoTransactionsCategories } from "~/drizzle/schema/assoTransactionsCategories";
 import { and, eq, desc, sql } from 'drizzle-orm'
 
-export const getUserTransactionsByYear = async (userId: number, year: number, month?: number, quarter?: number) => {
+export const getUserTransactionsByYear = async (userId: string | number, year: number, month?: number, quarter?: number) => {
     let startDate = new Date(year, 0, 1);
     let endDate = new Date(year + 1, 0, 1);
 
     if (month) {
         startDate = new Date(year, month - 1, 1);
         endDate = new Date(year, month, 1);
-    }
-    else if (quarter) {
+    } else if (quarter) {
         const startMonth = (quarter - 1) * 3;
         startDate = new Date(year, startMonth, 1);
         endDate = new Date(year, startMonth + 3, 1);
@@ -23,13 +21,14 @@ export const getUserTransactionsByYear = async (userId: number, year: number, mo
 
     const pastTransactions = await db.select({
         amount: transactions.amount,
-        typeEnum: typeTransactions.type
+        typeEnum: transactions.typeTransaction
     })
         .from(transactions)
-        .leftJoin(typeTransactions, eq(transactions.typeTransactionsId, typeTransactions.id))
         .where(and(
             eq(transactions.userId, userId),
-            sql`${transactions.date}::timestamp < ${startDate}`
+            sql`${transactions.date}
+            ::timestamp <
+            ${startDate}`
         ));
 
     const initialBalance = pastTransactions.reduce((acc, t) => {
@@ -42,19 +41,21 @@ export const getUserTransactionsByYear = async (userId: number, year: number, mo
         amount: transactions.amount,
         date: transactions.date,
         description: transactions.description,
-        typeEnum: typeTransactions.type,
-        typeTransactionsId: transactions.typeTransactionsId,
+        typeEnum: transactions.typeTransaction,
         categoryName: categories.name,
         categoryId: categories.id,
     })
         .from(transactions)
         .leftJoin(assoTransactionsCategories, eq(transactions.id, assoTransactionsCategories.transactionId))
         .leftJoin(categories, eq(categories.id, assoTransactionsCategories.categoryId))
-        .leftJoin(typeTransactions, eq(transactions.typeTransactionsId, typeTransactions.id))
         .where(and(
             eq(transactions.userId, userId),
-            sql`${transactions.date}::timestamp >= ${startDate}`,
-            sql`${transactions.date}::timestamp < ${endDate}`
+            sql`${transactions.date}
+            ::timestamp >=
+            ${startDate}`,
+            sql`${transactions.date}
+            ::timestamp <
+            ${endDate}`
         ))
         .orderBy(transactions.date)
 
@@ -66,8 +67,7 @@ export const getUserTransactionsByYear = async (userId: number, year: number, mo
             date: row.date,
             description: row.description,
             typeStr: row.typeEnum === 'revenu' ? 'income' : 'expense',
-            typeTransactionsId: row.typeTransactionsId,
-            category: row.categoryId ? { id: row.categoryId, name: row.categoryName } : null,
+            category: row.categoryId ? {id: row.categoryId, name: row.categoryName} : null,
         }))
     };
 }

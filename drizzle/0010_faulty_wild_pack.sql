@@ -1,0 +1,1 @@
+ALTER TABLE "budgets" ALTER COLUMN "accountId" DROP NOT NULL;

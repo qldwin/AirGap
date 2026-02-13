@@ -7,9 +7,10 @@ const importSchema = z.object({
         date: z.coerce.date(),
         description: z.string(),
         amount: z.number(),
-        accountId: z.number().int().default(1),
-        selectedCategoryId: z.number().int().nullable().optional(),
-        categoryName: z.string().nullable().optional()
+        accountId: z.string().uuid().nullable().optional(),
+        selectedCategoryId: z.string().uuid().nullable().optional(),
+        categoryName: z.string().nullable().optional(),
+        typeTransaction: z.enum(["depense", "revenu", "non_categorise"]).optional()
     }))
 });
 

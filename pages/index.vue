@@ -69,8 +69,7 @@ const transactions = computed(() => {
   const formatted = list.map(t => ({
     ...t,
     amount: Math.abs(Number(t.amount)),
-    typeTransactionsId: Number(t.typeTransactionsId),
-    typeStr: Number(t.typeTransactionsId) === 1 ? 'income' : 'expense',
+    typeStr: t.typeTransaction === 'revenu' ? 'income' : 'expense',
     dateObj: new Date(t.date),
     categoryName: t.category?.name || 'Aucune'
   }));
@@ -80,7 +79,7 @@ const transactions = computed(() => {
   let currentRunningBalance = 0;
 
   const withCumulative = chronological.map(t => {
-    const change = t.typeTransactionsId === 1 ? t.amount : -t.amount;
+    const change = t.typeTransaction === 'revenu' ? t.amount : -t.amount;
     currentRunningBalance += change;
 
     return {
@@ -88,7 +87,6 @@ const transactions = computed(() => {
       cumulativeBalance: currentRunningBalance
     };
   });
-
   return [...withCumulative].sort((a, b) => b.dateObj.getTime() - a.dateObj.getTime());
 });
 

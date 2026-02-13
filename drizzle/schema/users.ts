@@ -6,7 +6,7 @@ import { transactions } from "./transactions";
 import { categories } from "./categories";
 
 export const users = pgTable('users', {
-    id: uuid('id').primaryKey().defaultRandom(),
+    id: uuid('id').primaryKey().defaultRandom().notNull(),
     email: varchar('email', {length: 255}).notNull().unique(),
     name: varchar('name', {length: 255}),
     password: varchar('password', {length: 255}).notNull(),

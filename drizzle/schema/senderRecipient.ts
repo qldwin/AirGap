@@ -4,7 +4,7 @@ import { relations } from 'drizzle-orm';
 import { transactions } from './transactions';
 
 export const senderRecipient = pgTable('senderRecipient', {
-    id: uuid('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     accountId: uuid('accountId').references(() => accounts.id),
     name: varchar('name', { length: 50 }).notNull(),
     description: varchar('description', { length: 255 }),

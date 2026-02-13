@@ -4,7 +4,7 @@ import { categories } from './categories';
 import { relations } from 'drizzle-orm';
 
 export const importRules = pgTable('import_rules', {
-    id: uuid('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     userId: uuid('user_id').references(() => users.id),
     keyword: varchar('keyword', { length: 255 }).notNull(),
     categoryId: uuid('category_id').references(() => categories.id).notNull(),

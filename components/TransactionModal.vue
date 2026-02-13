@@ -118,9 +118,7 @@
 </template>
 
 <script setup>
-// --- CONSTANTES ---
-const TYPE_INCOME = 1;
-const TYPE_EXPENSE = 2;
+import { ref, onMounted, computed, watch } from 'vue';
 
 // --- PROPS & EMITS ---
 const props = defineProps({
@@ -130,26 +128,22 @@ const props = defineProps({
     default: null
   }
 });
-
 const emits = defineEmits(['update:modelValue', 'transaction-added', 'transaction-updated']);
 
 // --- STATE ---
 const isLoading = ref(false);
 const isLoadingCategories = ref(true);
 const allCategories = ref([]);
-
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emits('update:modelValue', value)
 });
-
 const isEditing = computed(() => !!props.transaction);
 const today = new Date().toISOString().split('T')[0];
-
 const form = ref({
   description: '',
   amount: '',
-  type: 'expense',
+  type: 'depense',
   categoryId: null,
   date: today
 });
@@ -169,9 +163,10 @@ onMounted(async () => {
 
 // --- COMPUTED : FILTRAGE ---
 const filteredCategories = computed(() => {
-  const currentTypeId = form.value.type === 'income' ? TYPE_INCOME : TYPE_EXPENSE;
-
-  return allCategories.value.filter(c => c.typeId === currentTypeId);
+  const currentEnum = form.value.type === 'income' ? 'revenu' : 'depense';
+  return allCategories.value.filter(c => {
+    return c.typeTransaction === currentEnum;
+  });
 });
 
 // --- WATCHERS ---
@@ -180,7 +175,7 @@ watch(() => form.value.type, (newType, oldType) => {
   if (oldType && !props.transaction) {
     form.value.categoryId = null;
   } else if (oldType && props.transaction) {
-    const initialType = props.transaction.typeTransactionsId === TYPE_INCOME ? 'income' : 'expense';
+    const initialType = props.transaction.typeTransaction === 'revenu' ? 'income' : 'expense';
     if (newType !== initialType) {
       form.value.categoryId = null;
     }
@@ -191,13 +186,11 @@ watch(
     () => props.transaction,
     (newTransaction) => {
       if (newTransaction) {
-        const formType = newTransaction.typeTransactionsId === TYPE_INCOME ? 'income' : 'expense';
-
+        const formType = newTransaction.typeTransaction === 'revenu' ? 'income' : 'expense';
         let formattedDate = today;
         if (newTransaction.date) {
           formattedDate = new Date(newTransaction.date).toISOString().split('T')[0];
         }
-
         form.value = {
           description: newTransaction.description,
           amount: newTransaction.amount,
@@ -210,38 +203,19 @@ watch(
     { immediate: true }
 );
 
-watch(() => isOpen.value, (open) => {
-  if (open && !props.transaction) {
-    form.value = {
-      description: '',
-      amount: '',
-      type: 'expense',
-      categoryId: null,
-      date: today
-    };
-  }
-});
-
-const closeModal = () => {
-  isOpen.value = false;
-};
-
 // --- SUBMIT ---
 const submitForm = async () => {
   try {
     isLoading.value = true;
 
-    const typeId = form.value.type === 'income' ? TYPE_INCOME : TYPE_EXPENSE;
-
+    const typeValue = form.value.type === 'income' ? 'revenu' : 'depense';
     const payload = {
       description: form.value.description,
       amount: Number(form.value.amount),
       date: form.value.date ? new Date(form.value.date).toISOString() : new Date().toISOString(),
-
-      typeTransactionsId: typeId,
+      typeTransaction: typeValue,
       categoryId: form.value.categoryId,
-
-      accountId: 1
+      accountId: "1e5c3b6a-..."
     };
 
     let response;
@@ -252,7 +226,6 @@ const submitForm = async () => {
         body: payload
       });
       emits('transaction-updated', response.transaction || response);
-
     } else {
       response = await $fetch('/api/transactions', {
         method: 'POST',
@@ -260,15 +233,18 @@ const submitForm = async () => {
       });
       emits('transaction-added', response.transaction || response);
     }
-
     closeModal();
-
   } catch (error) {
     console.error('Erreur:', error);
-    const message = error.response?._data?.statusMessage || error.message || "Erreur lors de l'enregistrement";
+    const message = error.response?._data?.statusMessage || error.message || "Erreur d'enregistrement";
     alert("Erreur : " + message);
   } finally {
     isLoading.value = false;
   }
 };
+
+// --- ACTIONS ---
+const closeModal = () => {
+  isOpen.value = false;
+}
 </script>

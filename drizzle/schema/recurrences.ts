@@ -4,9 +4,9 @@ import { transactions } from './transactions';
 import { relations } from 'drizzle-orm';
 
 export const recurrences = pgTable('recurrences', {
-    id: uuid('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom().notNull(),
     parentType: varchar('parentType', { length: 20 }).notNull(),
-    parentId: uuid('parentId').notNull(),
+    parentId: uuid('parentId').defaultRandom(),
     frequency: varchar('frequency', { length: 50 }).notNull(),
     startDate: timestamp('startDate').notNull(),
     endDate: timestamp('endDate'),

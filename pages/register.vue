@@ -89,15 +89,27 @@ const form = reactive({
 });
 
 async function handleRegister() {
-  $fetch('/api/auth/register', {
+  // Petite sécurité avant l'envoi
+  if (form.password !== form.confirmPassword) {
+    alert("Les mots de passe ne correspondent pas");
+    return;
+  }
+
+  await $fetch('/api/auth/register', {
     method: 'POST',
-    body: form,
+    body: {
+      name: form.name,
+      email: form.email,
+      password: form.password
+    },
   })
       .then(() => {
         navigateTo('/login');
       })
       .catch((error) => {
-        error.value = error.response.data.message || 'Une erreur est survenue';
+        const errorMessage = error.data?.message || "Une erreur est survenue lors de l'inscription";
+        console.error("Détails de l'erreur:", error.data);
+        alert(errorMessage);
       });
 }
 </script> 

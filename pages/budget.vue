@@ -201,10 +201,9 @@ const budgetForm = ref({
 
 const expenseCategories = computed(() => {
   if (!categories.value || categories.value.length === 0) return [];
-
   return categories.value.filter(c => {
-    const type = c.typeId ?? c.type_id;
-    return type == 2;
+    const type = c.type || c.typeTransaction;
+    return type === 'depense';
   });
 });
 
@@ -225,7 +224,6 @@ const loadInitialData = async () => {
 
     const [budgetsResult, transResult, catsResult] = results;
 
-    // 1. Gestion des Budgets
     if (budgetsResult.status === 'fulfilled') {
       budgets.value = budgetsResult.value.budgets || [];
     } else {
@@ -233,14 +231,12 @@ const loadInitialData = async () => {
       budgets.value = [];
     }
 
-    // 2. Gestion des Transactions
     if (transResult.status === 'fulfilled') {
       transactions.value = transResult.value.transactions || [];
     } else {
       transactions.value = [];
     }
 
-    // 3. Gestion des Catégories (CELLE QUI VOUS INTÉRESSE)
     if (catsResult.status === 'fulfilled') {
       const data = catsResult.value;
       if (Array.isArray(data)) {
@@ -267,18 +263,13 @@ const getBudgetSpent = (budget) => {
   if (!budget.categories || budget.categories.length === 0) return 0;
 
   const budgetCatIds = new Set(budget.categories.map(c => c.id));
-
   const start = new Date(budget.startDate);
   const end = new Date(budget.endDate);
-
   const relevantTransactions = transactions.value.filter(t => {
-    const isExpense = t.typeTransactionsId === 2;
-
+    const isExpense = t.typeTransaction === 'depense';
     const isCorrectCategory = budgetCatIds.has(t.categoryId);
-
     const tDate = new Date(t.date);
     const isInDateRange = tDate >= start && tDate <= end;
-
     return isExpense && isCorrectCategory && isInDateRange;
   });
 

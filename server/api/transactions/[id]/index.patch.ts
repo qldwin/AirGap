@@ -4,7 +4,7 @@ import { updateTransaction } from '~/server/services/transactions.service'
 import { requireAuth } from '~/server/utils/auth'
 
 const paramsSchema = z.object({
-    id: z.coerce.number().int().positive()
+    id: z.string().uuid({ message: "ID de transaction invalide" })
 })
 
 const updateTransactionSchema = z.object({
@@ -12,12 +12,13 @@ const updateTransactionSchema = z.object({
     description: z.string().min(1).optional(),
     date: z.coerce.date().optional(),
 
-    typeTransactionsId: z.number().int().optional(),
+    typeTransaction: z.enum(["depense", "revenu", "non_categorise"]).optional(),
+
     devise: z.string().length(3).optional(),
     recurrence: z.string().optional(),
 
-    categoryId: z.number().int().nullable().optional(),
-    accountId: z.number().int().optional(),
+    categoryId: z.string().uuid().nullable().optional(),
+    accountId: z.string().uuid().optional(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -25,7 +26,7 @@ export default defineEventHandler(async (event) => {
 
     const params = await getValidatedRouterParams(event, (p) => paramsSchema.safeParse(p))
     if (!params.success) {
-        throw createError({ statusCode: 400, message: 'ID invalide' })
+        throw createError({ statusCode: 400, message: params.error.issues[0].message })
     }
 
     const body = await readValidatedBody(event, (b) => updateTransactionSchema.safeParse(b))
@@ -53,7 +54,7 @@ export default defineEventHandler(async (event) => {
             params.data.id,
             user.id,
             dataToUpdate,
-            categoryId === null ? 0 : categoryId
+            categoryId
         )
 
         if (!updatedTransaction) {
@@ -62,7 +63,6 @@ export default defineEventHandler(async (event) => {
                 message: 'Transaction introuvable'
             })
         }
-
         return {
             success: true,
             transaction: updatedTransaction

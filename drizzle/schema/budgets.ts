@@ -6,8 +6,8 @@ import {assoBudgetCategories} from "./assoBudgetCategories";
 
 // Table Budget
 export const budgets = pgTable('budgets', {
-    id: uuid('id').primaryKey(),
-    userId: uuid('userId').notNull().references(() => users.id),
+    id: uuid('id').primaryKey().defaultRandom().notNull(),
+    userId: uuid('userId').references(() => users.id).notNull(),
     accountId: uuid('accountId').references(() => accounts.id),
     name: varchar('name', {length: 255}).notNull(),
     amount: decimal('amount', {precision: 15, scale: 3}).notNull(),

@@ -152,7 +152,6 @@ definePageMeta({
   middleware: ['authenticated']
 });
 
-const TYPE_INCOME = 1;
 
 // --- ÉTAT ---
 const isImporting = ref(false);
@@ -168,7 +167,7 @@ const showTransactionModal = ref(false);
 const selectedTransaction = ref(null);
 
 // --- HELPER FUNCTIONS ---
-const isIncome = (t) => t.typeTransactionsId === TYPE_INCOME;
+const isIncome = (t) => t.typeTransaction === 'revenu';
 const getTransactionClass = (t) => isIncome(t) ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
 const getTransactionSign = (t) => isIncome(t) ? '+' : '-';
 
@@ -188,7 +187,7 @@ const loadTransactions = async () => {
       ...t,
       category: t.category?.name || '',
       amount: Number(t.amount),
-      typeTransactionsId: Number(t.typeTransactionsId)
+      typeTransaction: t.typeTransaction
     }));
   } catch (error) {
     console.error('Erreur chargement transactions:', error);
@@ -250,7 +249,7 @@ const transformCSVRow = (row) => {
     date: cleanDate,
     description: descKey ? (row[descKey] || 'Import CSV') : 'Import CSV',
     amount: cleanAmount,
-    accountId: 1,
+    accountId: null,
     selectedCategoryId: null,
     status: 'missing_category'
   };
