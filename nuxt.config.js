@@ -1,7 +1,13 @@
 export default defineNuxtConfig({
     devtools: { enabled: true },
     css: ["~/assets/css/styles.css"],
-    modules: ["@nuxt/ui", "nuxt-auth-utils", "@nuxt/eslint"],
+    modules: ["@nuxt/ui", "nuxt-auth-utils", "@nuxt/eslint", "shadcn-nuxt"],
+
+    shadcn: {
+            prefix: '',
+            componentDir: './components/ui'
+    },
+
     runtimeConfig: {
          databaseUrl: '',
     },

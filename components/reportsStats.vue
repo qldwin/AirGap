@@ -1,28 +1,25 @@
 <template>
   <div class="pt-4 pb-8 px-4">
     <div class="max-w-7xl mx-auto">
-      <div class="flex justify-center mb-10">
-        <div class="bg-gray-50 dark:bg-neutral-800/50 p-1.5 rounded-lg inline-flex items-center gap-2 border border-gray-200 dark:border-neutral-700 backdrop-blur-sm z-20">
+      <div class="flex justify-center mb-10 w-full">
+        <div class="bg-gray-50 dark:bg-neutral-800/50 p-1.5 rounded-lg flex flex-wrap justify-center items-center gap-2 border border-gray-200 dark:border-neutral-700 backdrop-blur-sm z-20 w-full sm:w-auto">
           <button
               v-for="p in ['month', 'quarter', 'year']"
               :key="p"
-              class="px-6 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ease-out"
+              class="flex-1 sm:flex-none px-2 sm:px-6 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ease-out whitespace-nowrap"
               :class="period === p
-        ? 'bg-white dark:bg-neutral-700 text-primary-600 dark:text-primary-400 shadow-md transform scale-105'
-        : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'"
+  ? 'bg-white dark:bg-neutral-700 text-primary-600 dark:text-primary-400 shadow-md transform scale-105'
+  : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'"
               @click="changePeriod(p)"
           >
             {{ p === 'month' ? 'Mois' : p === 'quarter' ? 'Trimestre' : 'Année' }}
           </button>
 
-<!--       START CALENDAR FOR YEAR SELECTION-->
+          <div v-if="period === 'year'" class="hidden sm:block h-4 w-px bg-gray-300 dark:bg-neutral-600 mx-1"/>
 
-          <div v-if="period === 'year'" class="h-4 w-px bg-gray-300 dark:bg-neutral-600 mx-1"/>
-
-          <div v-if="period === 'year'" class="relative">
-
+          <div v-if="period === 'year'" class="relative w-full sm:w-auto mt-2 sm:mt-0">
             <button
-                class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-primary-600 dark:bg-neutral-700 rounded-lg shadow-md transition-all"
+                class="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-2 px-4 py-2 text-sm font-bold text-primary-600 dark:bg-neutral-700 rounded-lg shadow-md transition-all"
                 @click="isYearMenuOpen = !isYearMenuOpen"
             >
               {{ selectedYear }}
@@ -33,7 +30,7 @@
 
             <div
                 v-if="isYearMenuOpen"
-                class="absolute top-full mt-2 right-0 w-32 bg-white dark:bg-neutral-700 rounded-lg shadow-xl border border-gray-100 dark:border-neutral-700 overflow-hidden z-50"
+                class="absolute top-full mt-2 right-0 w-full sm:w-32 bg-white dark:bg-neutral-700 rounded-lg shadow-xl border border-gray-100 dark:border-neutral-700 overflow-hidden z-50"
             >
               <button
                   v-for="annee in anneesData?.years"
@@ -46,14 +43,11 @@
               </button>
             </div>
           </div>
-<!--        END CALENDAR YEAR SELECTION-->
-<!--        START CALENDAR MONTH SELECTION-->
-          <div v-if="period === 'month'" class="h-4 w-px bg-gray-300 dark:bg-neutral-600 mx-1"/>
+          <div v-if="period === 'month'" class="hidden sm:block h-4 w-px bg-gray-300 dark:bg-neutral-600 mx-1"/>
 
-          <div v-if="period === 'month'" class="relative">
-
+          <div v-if="period === 'month'" class="relative w-full sm:w-auto mt-2 sm:mt-0">
             <button
-                class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-primary-600 dark:bg-neutral-700 rounded-lg shadow-md transition-all"
+                class="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-2 px-4 py-2 text-sm font-bold text-primary-600 dark:bg-neutral-700 rounded-lg shadow-md transition-all"
                 @click="isMonthMenuOpen = !isMonthMenuOpen"
             >
               {{ monthNames[selectedMonth - 1] }}
@@ -64,7 +58,7 @@
 
             <div
                 v-if="isMonthMenuOpen"
-                class="absolute top-full mt-2 right-0 w-32 bg-white dark:bg-neutral-700 rounded-lg shadow-xl border border-gray-100 dark:border-neutral-700 overflow-hidden z-50"
+                class="absolute top-full mt-2 right-0 w-full sm:w-32 bg-white dark:bg-neutral-700 rounded-lg shadow-xl border border-gray-100 dark:border-neutral-700 overflow-hidden z-50"
             >
               <button
                   v-for="mois in moisData?.months"
@@ -77,14 +71,11 @@
               </button>
             </div>
           </div>
-<!--         END CALENDAR MONTH SELECTION-->
-<!--         START CALENDAR QUARTER SELECTION-->
-          <div v-if="period === 'quarter'" class="h-4 w-px bg-gray-300 dark:bg-neutral-600 mx-1"/>
+          <div v-if="period === 'quarter'" class="hidden sm:block h-4 w-px bg-gray-300 dark:bg-neutral-600 mx-1"/>
 
-          <div v-if="period === 'quarter'" class="relative">
-
+          <div v-if="period === 'quarter'" class="relative w-full sm:w-auto mt-2 sm:mt-0">
             <button
-                class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-primary-600 dark:bg-neutral-700 rounded-lg shadow-md transition-all"
+                class="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-2 px-4 py-2 text-sm font-bold text-primary-600 dark:bg-neutral-700 rounded-lg shadow-md transition-all"
                 @click="isQuarterMenuOpen = !isQuarterMenuOpen"
             >
               {{ quarterLabels[selectedQuarter] }}
@@ -95,7 +86,7 @@
 
             <div
                 v-if="isQuarterMenuOpen"
-                class="absolute top-full mt-2 right-0 w-32 bg-white dark:bg-neutral-700 rounded-lg shadow-xl border border-gray-100 dark:border-neutral-700 overflow-hidden z-50"
+                class="absolute top-full mt-2 right-0 w-full sm:w-32 bg-white dark:bg-neutral-700 rounded-lg shadow-xl border border-gray-100 dark:border-neutral-700 overflow-hidden z-50"
             >
               <button
                   v-for="trimestre in trimestresData?.quarters"
@@ -108,7 +99,6 @@
               </button>
             </div>
           </div>
-<!--         END CALENDAR QUARTER SELECTION-->
         </div>
       </div>
 

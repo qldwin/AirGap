@@ -40,26 +40,26 @@
 
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            <div class="flex gap-3 mt-1">
-              <label class="flex items-center cursor-pointer">
-                <input
-                    v-model="form.type"
-                    type="radio"
-                    value="income"
-                    class="mr-2"
-                >
-                <span class="text-green-600 dark:text-green-400 font-medium">Revenu</span>
-              </label>
-              <label class="flex items-center cursor-pointer">
-                <input
-                    v-model="form.type"
-                    type="radio"
-                    value="expense"
-                    class="mr-2"
-                >
-                <span class="text-red-600 dark:text-red-400 font-medium">Dépense</span>
-              </label>
-            </div>
+              <div class="flex gap-3 mt-1">
+                <label class="flex items-center cursor-pointer">
+                  <input
+                      v-model="form.type"
+                      type="radio"
+                      value="income"
+                      class="mr-2"
+                  >
+                  <span class="text-green-600 dark:text-green-400 font-medium">Revenu</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                  <input
+                      v-model="form.type"
+                      type="radio"
+                      value="expense"
+                      class="mr-2"
+                  >
+                  <span class="text-red-600 dark:text-red-400 font-medium">Dépense</span>
+                </label>
+              </div>
             </label>
           </div>
 
