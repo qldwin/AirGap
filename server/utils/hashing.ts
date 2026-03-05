@@ -1,4 +1,4 @@
-import { hash, compare } from 'bcrypt'
+import {compare, hash} from 'bcrypt'
 
 const SALT_ROUNDS = 10
 

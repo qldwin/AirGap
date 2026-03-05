@@ -1,6 +1,4 @@
-// server/api/categories/index.get.ts
-import { getAllCategories } from '~/server/services/categories.service';
-import { requireAuth } from '~/server/utils/auth';
+import {getAllCategories} from "#server/services/categories.service";
 
 export default defineEventHandler(async (event) => {
     const user = await requireAuth(event);
@@ -17,6 +15,6 @@ export default defineEventHandler(async (event) => {
         };
     } catch (error) {
         console.error("Erreur récupération catégories:", error);
-        throw createError({ statusCode: 500, message: "Erreur serveur" });
+        throw createError({statusCode: 500, message: "Erreur serveur"});
     }
 });

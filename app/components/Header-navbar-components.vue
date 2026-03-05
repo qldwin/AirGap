@@ -171,6 +171,8 @@ watch(() => globalThis.location?.href, () => {
 </script>
 
 <style scoped>
+@reference "@/assets/css/styles.css";
+
 .nav-link {
   @apply px-3 py-2 text-sm rounded-md text-neutral-700 dark:text-neutral-300 hover:text-emerald-600 dark:hover:bg-neutral-800 transition-colors;
 }

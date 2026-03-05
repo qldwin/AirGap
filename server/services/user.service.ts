@@ -1,7 +1,6 @@
-// server/services/user.service.ts
-import { db } from '~/server/db'
-import { users } from '~/drizzle/schema/users'
-import { eq } from 'drizzle-orm'
+import {eq} from 'drizzle-orm'
+import {db} from "#server/db";
+import {users} from "~~/drizzle/schema";
 
 export const getUserByEmail = async (email: string) => {
     return await db.query.users.findFirst({
@@ -9,7 +8,7 @@ export const getUserByEmail = async (email: string) => {
     });
 }
 
-export const getUserById = async (userId: number) => {
+export const getUserById = async (userId: string) => {
     return await db.query.users.findFirst({
         where: eq(users.id, userId),
         columns: {
@@ -28,7 +27,7 @@ export const createUser = async (userInsertData: typeof users.$inferInsert) => {
     return newUser[0];
 }
 
-export const softDeleteUser = async (userId: number) => {
+export const softDeleteUser = async (userId: string) => {
     return db.update(users)
         .set({
             deletedAt: new Date(),
@@ -38,7 +37,7 @@ export const softDeleteUser = async (userId: number) => {
         .where(eq(users.id, userId));
 }
 
-export const updateUserPassword = async (userId: number, newHashedPassword: string) => {
+export const updateUserPassword = async (userId: string, newHashedPassword: string) => {
     return db.update(users)
         .set({
             password: newHashedPassword,

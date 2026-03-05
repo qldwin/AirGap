@@ -1,10 +1,9 @@
-// server/api/calendar/index.get.ts
-import {getUserTransactionsByYear} from "~/server/services/calendar.service";
+import {getUserTransactionsByYear} from "#server/services/calendar.service";
 
 export default defineEventHandler(async (event) => {
     const user = await requireAuth(event)
 
-    const { year , month, quarter } = getQuery(event)
+    const {year, month, quarter} = getQuery(event)
 
     if (!year || Number.isNaN(Number(year))) {
         throw createError({

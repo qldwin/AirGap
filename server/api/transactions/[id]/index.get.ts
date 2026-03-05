@@ -1,10 +1,8 @@
-// server/api/transactions/[id]/index.get.ts
-import { z } from 'zod'
-import { getTransactionById } from '~/server/services/transactions.service'
-import { requireAuth } from '~/server/utils/auth'
+import {z} from 'zod'
+import {getTransactionById} from "#server/services/transactions.service";
 
 const paramsSchema = z.object({
-    id: z.coerce.number().int().positive()
+    id: z.string().uuid({message: "Identifiant de transaction invalide"})
 })
 
 export default defineEventHandler(async (event) => {
@@ -28,6 +26,6 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    return { success: true, transaction }
+    return {success: true, transaction}
 })
 

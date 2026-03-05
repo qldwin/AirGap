@@ -5,6 +5,7 @@ const ENCODING = 'hex';
 const IV_LENGTH = 12;
 const KEY = process.env.ENCRYPTION_KEY || '';
 
+// Longueur de clé fixe definie par aes-256-gcm
 if (process.env.ENCRYPTION_KEY?.length !== 32) {
     throw new Error("🚨 Erreur Critique : ENCRYPTION_KEY doit faire 32 caractères.");
 }
@@ -37,10 +38,11 @@ export const decryptText = (text: string): string => {
 
         if (parts.length !== 3) return "Donnée corrompue";
 
-        const [ivPart, tagPart, encryptedPart] = parts;
+        const [ivPart, tagPart, encryptedText] = parts;
+
+        if (!ivPart || !tagPart || !encryptedText) return "Donnée corrompue";
         const iv = Buffer.from(ivPart, ENCODING);
         const tag = Buffer.from(tagPart, ENCODING);
-        const encryptedText = encryptedPart;
 
         const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(KEY), iv);
 

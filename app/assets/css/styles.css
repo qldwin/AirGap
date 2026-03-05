@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+
+    --color-primary-50: #fdfffd;
+    --color-primary-100: #d1fae5;
+    --color-primary-200: #a7f3d0;
+    --color-primary-300: #6ee7b7;
+    --color-primary-400: #34d399;
+    --color-primary-500: #10b981;
+    --color-primary-600: #059669;
+    --color-primary-700: #059669;
+    --color-primary-800: #059669;
+    --color-primary-900: #064e3b;
+    --color-primary-950: #022c22;
+
+    --color-neutral-50: #f9fafb;
+    --color-neutral-100: #f2f4f7;
+    --color-neutral-200: #e5e8ed;
+    --color-neutral-300: #d1d7df;
+    --color-neutral-400: #b2bac8;
+    --color-neutral-500: #909cb1;
+    --color-neutral-600: #768297;
+    --color-neutral-700: #314158;
+    --color-neutral-800: #10182b;
+    --color-neutral-900: #0f172b;
+    --color-neutral-950: #020618;
+
+    --font-sans: "Sora", "Inter";
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+    body {
+        @apply bg-primary-50 text-neutral-900 transition-colors duration-300;
+        font-family: 'Sora', sans-serif;
+    }
+
+    .dark body {
+        @apply bg-neutral-950 text-neutral-100;
+    }
+}
+
+@layer components {
+    .app {
+        @apply min-h-screen pt-20 pb-8 px-4 transition-colors duration-300;
+    }
+
+    .card {
+        @apply bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800 p-6 transition-all;
+    }
+
+    .btn {
+        @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+    }
+
+    .btn-primary {
+        @apply bg-primary-500 text-white hover:bg-primary-600 focus:ring-2 focus:ring-primary-300 dark:focus:ring-primary-700;
+    }
+
+    .btn-outline {
+        @apply border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800;
+    }
+}

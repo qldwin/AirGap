@@ -1,10 +1,7 @@
-import { db } from '~/server/db'
-import { transactions } from '~/drizzle/schema/transactions'
-import { categories } from '~/drizzle/schema/categories'
-import { assoTransactionsCategories } from '~/drizzle/schema/assoTransactionsCategories'
-import { importRules } from '~/drizzle/schema/importRules'
-import { or, isNull, and, desc, eq } from 'drizzle-orm'
-import { encryptText, decryptText } from '~/server/utils/crypto'
+import {and, desc, eq, isNull, or} from 'drizzle-orm'
+import {assoTransactionsCategories, categories, transactions} from "~~/drizzle/schema";
+import {db} from "#server/db";
+import {importRules} from "~~/drizzle/schema/importRules";
 
 /**
  * Types et utilitaires
@@ -39,7 +36,7 @@ const resolveCategory = async (
         const [newCat] = await tx.insert(categories).values({
             name: t.categoryName.trim(),
             isDefault: false
-        }).returning({ id: categories.id });
+        }).returning({id: categories.id});
 
         categoryMap.set(key, newCat.id);
         return newCat.id;
@@ -76,7 +73,7 @@ export const getTransactionById = async (transactionId: string, userId: string) 
     return {
         ...row,
         description: decryptText(row.description || ''),
-        category: row.categoryName ? { id: row.categoryId, name: row.categoryName } : null
+        category: row.categoryName ? {id: row.categoryId, name: row.categoryName} : null
     };
 }
 
@@ -96,7 +93,7 @@ export const updateTransaction = async (
     updateData: Partial<TransactionInsert>,
     newCategoryId?: string | null
 ) => {
-    const finalUpdateData = { ...updateData };
+    const finalUpdateData = {...updateData};
 
     if (finalUpdateData.description) {
         finalUpdateData.description = encryptText(finalUpdateData.description);
@@ -104,7 +101,7 @@ export const updateTransaction = async (
 
     return await db.transaction(async (tx) => {
         const [updated] = await tx.update(transactions)
-            .set({ ...finalUpdateData, updatedAt: new Date() })
+            .set({...finalUpdateData, updatedAt: new Date()})
             .where(and(
                 eq(transactions.id, transactionId),
                 eq(transactions.userId, userId)
@@ -146,7 +143,7 @@ export const getUserTransactions = async (userId: string) => {
     return rows.map(row => ({
         ...row,
         description: decryptText(row.description || ''),
-        category: row.categoryName ? { id: row.categoryId, name: row.categoryName } : null
+        category: row.categoryName ? {id: row.categoryId, name: row.categoryName} : null
     }));
 }
 
@@ -159,7 +156,7 @@ export const createTransaction = async (data: TransactionInsert, categoryId?: st
         const [newTx] = await tx.insert(transactions).values(encryptedData).returning();
         if (categoryId) {
             await tx.insert(assoTransactionsCategories).values({
-                transactionId: newTx.id,
+                transactionId: newTx!.id,
                 categoryId
             });
         }
@@ -224,7 +221,7 @@ export const importTransactionsBulk = async (userId: string, rawTransactions: Re
             if (txBatch.length > 0) {
                 const insertedRows = await tx.insert(transactions)
                     .values(txBatch)
-                    .returning({ id: transactions.id });
+                    .returning({id: transactions.id});
 
                 const associationRows: AssociationInsert[] = [];
                 insertedRows.forEach((row, index) => {

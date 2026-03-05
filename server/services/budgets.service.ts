@@ -1,9 +1,6 @@
-// server/services/budgets.service.ts
-import { db } from '~/server/db'
-import { budgets } from '~/drizzle/schema/budgets'
-import { categories } from '~/drizzle/schema/categories'
-import { assoBudgetCategories } from '~/drizzle/schema/assoBudgetCategories'
-import { and, desc, eq } from 'drizzle-orm'
+import {and, desc, eq} from 'drizzle-orm'
+import {db} from "#server/db";
+import {assoBudgetCategories, budgets, categories} from "~~/drizzle/schema";
 
 export const getUserBudgets = async (userId: string) => {
     const rows = await db.select({
@@ -60,10 +57,12 @@ export const createBudget = async (
         const [newBudget] = await tx.insert(budgets)
             .values(data)
             .returning();
-
+        if (!newBudget) {
+            throw createError("Budget cannot be created");
+        }
         if (categoryIds && categoryIds.length > 0) {
             const linksToCreate = categoryIds.map(catId => ({
-                budgetId: newBudget.id,
+                budgetId: newBudget?.id,
                 categoryId: catId
             }));
 
@@ -78,7 +77,7 @@ export const createBudget = async (
             .innerJoin(assoBudgetCategories, eq(categories.id, assoBudgetCategories.categoryId))
             .where(eq(assoBudgetCategories.budgetId, newBudget.id));
 
-        return { ...newBudget, categories: linkedCategories };
+        return {...newBudget, categories: linkedCategories};
     });
 }
 

@@ -1,5 +1,4 @@
-// server/utils/auth.ts
-import type { H3Event } from 'h3'
+import type {H3Event} from 'h3'
 
 declare module '#auth-utils' {
     interface User {

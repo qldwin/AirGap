@@ -1,14 +1,12 @@
-// server/api/budgets/[id]/index.get.ts
-import { z } from 'zod'
-import { getBudgetById } from '~/server/services/budgets.service'
-import { requireAuth } from '~/server/utils/auth'
+import {z} from 'zod'
+import {getBudgetById} from "#server/services/budgets.service";
 
 const paramsSchema = z.object({
-    id: z.coerce.number().int().positive()
+    id: z.string().uuid({message: "Identifiant de budget invalide"})
 })
 
 export default defineEventHandler(async (event) => {
-    // 1. Sécurité : On attend bien l'utilisateur (avec await !)
+    // 1. Sécurité : On vérifier l'auth
     const user = await requireAuth(event)
 
     // 2. Validation des paramètres (l'ID du budget)

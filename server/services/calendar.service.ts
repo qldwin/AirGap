@@ -1,12 +1,8 @@
-// server/services/calendar.service.ts
-import { db } from '~/server/db'
-import { transactions } from '~/drizzle/schema/transactions'
-//import { accounts } from '~/drizzle/schema/accounts'
-import { categories } from '~/drizzle/schema/categories'
-import { assoTransactionsCategories } from "~/drizzle/schema/assoTransactionsCategories";
-import { and, eq, desc, sql } from 'drizzle-orm'
+import {and, desc, eq, sql} from 'drizzle-orm'
+import {assoTransactionsCategories, categories, transactions} from "~~/drizzle/schema";
+import {db} from "#server/db";
 
-export const getUserTransactionsByYear = async (userId: string | number, year: number, month?: number, quarter?: number) => {
+export const getUserTransactionsByYear = async (userId: string, year: number, month?: number, quarter?: number) => {
     let startDate = new Date(year, 0, 1);
     let endDate = new Date(year + 1, 0, 1);
 
@@ -72,8 +68,13 @@ export const getUserTransactionsByYear = async (userId: string | number, year: n
     };
 }
 
-export const getAvailableYears = async (userId: number) => {
-    const yearSql = sql<number>`EXTRACT(YEAR FROM ${transactions.date}::timestamp)`
+export const getAvailableYears = async (userId: string) => {
+    const yearSql = sql<number>`EXTRACT(YEAR FROM
+    ${transactions.date}
+    :
+    :
+    timestamp
+    )`
 
     const rows = await db.select({
         year: yearSql
@@ -86,8 +87,13 @@ export const getAvailableYears = async (userId: number) => {
     return rows.map(row => row.year)
 }
 
-export const getAvailableMonths = async (userId: number) => {
-    const monthSql = sql<number>`EXTRACT(MONTH FROM ${transactions.date}::timestamp)`
+export const getAvailableMonths = async (userId: string) => {
+    const monthSql = sql<number>`EXTRACT(MONTH FROM
+    ${transactions.date}
+    :
+    :
+    timestamp
+    )`
 
     const rows = await db.select({
         month: monthSql
@@ -100,8 +106,13 @@ export const getAvailableMonths = async (userId: number) => {
     return rows.map(row => row.month)
 }
 
-export const getAvailableQuarters = async (userId: number) => {
-    const quarterSql = sql<number>`EXTRACT(QUARTER FROM ${transactions.date}::timestamp)`
+export const getAvailableQuarters = async (userId: string) => {
+    const quarterSql = sql<number>`EXTRACT(QUARTER FROM
+    ${transactions.date}
+    :
+    :
+    timestamp
+    )`
 
     const rows = await db.select({
         quarter: quarterSql

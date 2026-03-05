@@ -1,6 +1,6 @@
-import { db } from '~/server/db'
-import { categories } from '~/drizzle/schema/categories'
-import { or, eq, isNull, and } from 'drizzle-orm';
+import {and, eq, isNull, or} from 'drizzle-orm';
+import {categories} from "~~/drizzle/schema";
+import {db} from "#server/db";
 
 export const getAllCategories = async (userId: string, typeEnum?: string) => {
     const conditions = [

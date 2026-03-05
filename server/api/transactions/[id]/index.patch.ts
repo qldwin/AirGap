@@ -1,10 +1,8 @@
-// server/api/transactions/[id]/index.patch.ts
-import { z } from 'zod'
-import { updateTransaction } from '~/server/services/transactions.service'
-import { requireAuth } from '~/server/utils/auth'
+import {z} from 'zod'
+import {updateTransaction} from "#server/services/transactions.service";
 
 const paramsSchema = z.object({
-    id: z.string().uuid({ message: "ID de transaction invalide" })
+    id: z.string().uuid({message: "ID de transaction invalide"})
 })
 
 const updateTransactionSchema = z.object({
@@ -21,19 +19,19 @@ export default defineEventHandler(async (event) => {
 
     const params = await getValidatedRouterParams(event, (p) => paramsSchema.safeParse(p))
     if (!params.success) {
-        throw createError({ statusCode: 400, message: params.error.issues[0].message })
+        throw createError({statusCode: 400, message: params.error.issues[0]?.message})
     }
 
     const body = await readValidatedBody(event, (b) => updateTransactionSchema.safeParse(b))
     if (!body.success) {
-        throw createError({ statusCode: 400, message: body.error.issues[0].message })
+        throw createError({statusCode: 400, message: body.error.issues[0]?.message})
     }
 
     if (Object.keys(body.data).length === 0) {
-        return { success: true, message: "Aucune modification demandée" }
+        return {success: true, message: "Aucune modification demandée"}
     }
 
-    const { categoryId, ...transactionFields } = body.data
+    const {categoryId, ...transactionFields} = body.data
 
     const dataToUpdate = {
         ...transactionFields,

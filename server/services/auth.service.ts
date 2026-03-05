@@ -1,6 +1,5 @@
-import { createUser, getUserByEmail } from './user.service'
-import { hashUserPassword, verifyUserPassword } from '~/server/utils/hashing'
-import type { users } from '~/drizzle/schema/users'
+import {createUser, getUserByEmail} from "#server/services/user.service";
+import {users} from "~~/drizzle/schema";
 
 /**
  * Gère l'inscription complète d'un utilisateur

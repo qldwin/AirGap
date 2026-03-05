@@ -6,7 +6,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="card bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 border-primary-200 dark:border-primary-800 p-4 rounded-lg shadow-sm border">
+        <div class="card bg-linear-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 border-primary-200 dark:border-primary-800 p-4 rounded-lg shadow-sm border">
           <h3 class="text-lg font-medium text-primary-700 dark:text-primary-300 mb-1">Solde total</h3>
           <div v-if="loading" class="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"/>
           <p v-else class="text-3xl font-bold text-primary-800 dark:text-primary-200">{{ formatCurrency(balance) }}</p>

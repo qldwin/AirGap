@@ -1,10 +1,8 @@
-// server/api/transactions/[id]/index.delete.ts
-import { z } from 'zod'
-import { deleteTransaction } from '~/server/services/transactions.service'
-import { requireAuth } from '~/server/utils/auth'
+import {z} from 'zod'
+import {deleteTransaction} from "#server/services/transactions.service";
 
 const paramsSchema = z.object({
-    id: z.string().uuid({ message: "Identifiant de transaction invalide" })
+    id: z.string().uuid({message: "Identifiant de transaction invalide"})
 })
 
 export default defineEventHandler(async (event) => {
@@ -14,7 +12,7 @@ export default defineEventHandler(async (event) => {
     if (!params.success) {
         throw createError({
             statusCode: 400,
-            statusMessage: params.error.issues[0].message
+            statusMessage: params.error.issues[0]?.message
         })
     }
     const deletedTransaction = await deleteTransaction(params.data.id, user.id)

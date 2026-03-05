@@ -1,9 +1,9 @@
-import { z } from 'zod';
-import { createCategory } from '~/server/services/categories.service';
-import { requireAuth } from '~/server/utils/auth';
+import {z} from 'zod';
+import {createCategory} from "#server/services/categories.service";
+
 
 const createCategorySchema = z.object({
-    name: z.string({ required_error: "Le nom est requis" })
+    name: z.string({required_error: "Le nom est requis"})
         .min(1, "Le nom ne peut pas être vide"),
 
     typeTransaction: z.enum(["depense", "revenu", "non_categorise"], {
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, (b) => createCategorySchema.safeParse(b));
 
     if (!body.success) {
-        throw createError({ statusCode: 400, message: body.error.issues[0].message });
+        throw createError({statusCode: 400, message: body.error.issues[0]?.message});
     }
 
     try {
@@ -35,13 +35,13 @@ export default defineEventHandler(async (event) => {
 
     } catch (error: any) {
         if (error.code === '23505') {
-            throw createError({ statusCode: 409, message: `La catégorie "${body.data.name}" existe déjà.` });
+            throw createError({statusCode: 409, message: `La catégorie "${body.data.name}" existe déjà.`});
         }
         if (error.code === '23503') {
-            throw createError({ statusCode: 400, message: "Type de catégorie invalide." });
+            throw createError({statusCode: 400, message: "Type de catégorie invalide."});
         }
 
         console.error('Erreur création catégorie:', error);
-        throw createError({ statusCode: 500, message: 'Erreur serveur lors de la création' });
+        throw createError({statusCode: 500, message: 'Erreur serveur lors de la création'});
     }
 });

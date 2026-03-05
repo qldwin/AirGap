@@ -1,6 +1,4 @@
-// server/api/transactions/index.get.ts
-import { getUserTransactions } from '~/server/services/transactions.service'
-import { requireAuth } from '~/server/utils/auth'
+import {getUserTransactions} from "#server/services/transactions.service";
 
 export default defineEventHandler(async (event) => {
     const user = await requireAuth(event)

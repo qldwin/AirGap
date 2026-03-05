@@ -1,7 +1,8 @@
-import { z } from 'zod'
-import { registerUser } from '~/server/services/auth.service'
-import {db} from "~/server/db";
-import {accounts} from "~/drizzle/schema";
+import {z} from 'zod'
+import {registerUser} from "#server/services/auth.service";
+import {db} from "#server/db";
+import {accounts} from "~~/drizzle/schema";
+
 
 const registerSchema = z.object({
     email: z.string().email(),
@@ -13,7 +14,7 @@ export default defineEventHandler(async (event) => {
     const result = await readValidatedBody(event, body => registerSchema.safeParse(body))
 
     if (!result.success) {
-        throw createError({ statusCode: 400, message: result.error.issues[0].message })
+        throw createError({statusCode: 400, message: result.error.issues[0]?.message})
     }
 
     const newUser = await registerUser({
@@ -21,6 +22,10 @@ export default defineEventHandler(async (event) => {
         password: result.data.password,
         name: result.data.name
     })
+
+    if (!newUser) {
+        throw createError({statusCode: 400, message: "Cannot register user"})
+    }
 
     try {
         await db.insert(accounts).values({
@@ -38,10 +43,10 @@ export default defineEventHandler(async (event) => {
         user: {
             id: newUser.id,
             email: newUser.email,
-            name: newUser.name
         },
+        userName: newUser.name,
         loggedInAt: new Date()
     })
 
-    return { success: true, user: newUser }
+    return {success: true, user: newUser}
 })

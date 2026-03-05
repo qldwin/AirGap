@@ -1,10 +1,10 @@
-import { defineEventHandler, readBody } from 'h3';
-import { db } from '~/server/db';
-import { importRules } from '~/drizzle/schema/importRules'
+import {defineEventHandler, readBody} from 'h3';
+import {db} from "#server/db";
+import {importRules} from "~~/drizzle/schema/importRules";
 
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
-    const { transactions } = body;
+    const {transactions} = body;
 
     const rules = await db.select().from(importRules);
 
@@ -31,5 +31,5 @@ export default defineEventHandler(async (event) => {
             status: 'ready'
         };
     });
-    return { transactions: enrichedTransactions };
+    return {transactions: enrichedTransactions};
 });

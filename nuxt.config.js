@@ -1,15 +1,16 @@
 export default defineNuxtConfig({
-    devtools: { enabled: true },
+    compatibilityDate: "2026-03-05",
+    devtools: {enabled: true},
     css: ["~/assets/css/styles.css"],
     modules: ["@nuxt/ui", "nuxt-auth-utils", "@nuxt/eslint", "shadcn-nuxt"],
 
     shadcn: {
-            prefix: '',
-            componentDir: './components/ui'
+        prefix: '',
+        componentDir: './app/components/ui'
     },
 
     runtimeConfig: {
-         databaseUrl: '',
+        databaseUrl: '',
     },
     vite: {
         resolve: {
@@ -24,6 +25,11 @@ export default defineNuxtConfig({
             bodyAttrs: {
                 class: "font-sans",
             }
+        }
+    },
+    nitro: {
+        replace: {
+            'typeof window': '`undefined`',
         }
     }
 });

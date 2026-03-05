@@ -1,11 +1,9 @@
-// server/api/budgets/[id]/index.delete.ts
-import { z } from 'zod'
-import { deleteBudget } from '~/server/services/budgets.service'
-import { requireAuth } from '~/server/utils/auth'
+import {z} from 'zod'
+import {deleteBudget} from "#server/services/budgets.service";
 
 // Validation de l'ID URL
 const paramsSchema = z.object({
-    id: z.string().uuid({ message: "Identifiant de budget invalide" })
+    id: z.string().uuid({message: "Identifiant de budget invalide"})
 });
 
 export default defineEventHandler(async (event) => {

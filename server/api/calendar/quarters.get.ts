@@ -1,5 +1,4 @@
-// server/api/calendar/quarters.get.ts
-import { getAvailableQuarters} from '~/server/services/calendar.service'
+import {getAvailableQuarters} from "#server/services/calendar.service";
 
 export default defineEventHandler(async (event) => {
     const user = await requireAuth(event)

@@ -1,7 +1,5 @@
-// server/api/user/password.patch.ts
-import { z } from 'zod'
-import { getUserByEmail, updateUserPassword } from '~/server/services/user.service'
-import { verifyUserPassword, hashUserPassword } from '~/server/utils/hashing'
+import {z} from 'zod'
+import {getUserByEmail, updateUserPassword} from "#server/services/user.service";
 
 const passwordChangeSchema = z.object({
     currentPassword: z.string().min(1, "Le mot de passe actuel est requis"),
@@ -15,23 +13,23 @@ const passwordChangeSchema = z.object({
 export default defineEventHandler(async (event) => {
     const session = await getUserSession(event)
     if (!session.user) {
-        throw createError({ statusCode: 401, message: "Non authentifié" })
+        throw createError({statusCode: 401, message: "Non authentifié"})
     }
 
     const result = await readValidatedBody(event, body => passwordChangeSchema.safeParse(body))
     if (!result.success) {
         throw createError({
             statusCode: 400,
-            message: result.error.issues[0].message
+            message: result.error.issues[0]?.message
         })
     }
 
-    const { currentPassword, newPassword } = result.data
+    const {currentPassword, newPassword} = result.data
 
     const userInDb = await getUserByEmail(session.user.email)
 
     if (!userInDb) {
-        throw createError({ statusCode: 404, message: "Utilisateur introuvable" })
+        throw createError({statusCode: 404, message: "Utilisateur introuvable"})
     }
 
     const isPasswordValid = await verifyUserPassword(userInDb.password, currentPassword)

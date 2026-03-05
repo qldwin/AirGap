@@ -1,6 +1,4 @@
-// server/api/user/index.get.ts
-import { getUserById } from '~/server/services/user.service'
-import {requireAuth} from "~/server/utils/auth";
+import {getUserById} from "#server/services/user.service";
 
 export default defineEventHandler(async (event) => {
 

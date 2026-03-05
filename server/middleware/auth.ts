@@ -1,6 +1,6 @@
-import { db } from '../db';
-import { users } from '~/drizzle/schema/users';
-import { eq } from 'drizzle-orm';
+import {users} from "~~/drizzle/schema";
+import {db} from "#server/db";
+import {eq} from "drizzle-orm";
 
 export default defineEventHandler(async (event) => {
     if (event.path.startsWith('/api/auth')) return;
@@ -10,10 +10,9 @@ export default defineEventHandler(async (event) => {
 
     if (userIdCookie) {
         try {
-            const userId = Number.parseInt(userIdCookie);
             const user = await db.query.users.findFirst({
-                where: eq(users.id, userId),
-                columns: { id: true, email: true, name: true }
+                where: eq(users.id, userIdCookie),
+                columns: {id: true, email: true, name: true}
             });
 
             if (user) {

@@ -1,6 +1,4 @@
-// server/api/budgets/index.get.ts
-import { getUserBudgets } from '~/server/services/budgets.service'
-import { requireAuth } from '~/server/utils/auth'
+import {getUserBudgets} from "#server/services/budgets.service";
 
 export default defineEventHandler(async (event) => {
     const user = await requireAuth(event)

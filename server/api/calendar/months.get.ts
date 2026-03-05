@@ -1,5 +1,4 @@
-// server/api/calendar/years.get.ts
-import { getAvailableMonths } from '~/server/services/calendar.service'
+import {getAvailableMonths} from "#server/services/calendar.service";
 
 export default defineEventHandler(async (event) => {
     const user = await requireAuth(event)

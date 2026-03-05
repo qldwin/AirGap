@@ -1,6 +1,5 @@
-import { z } from 'zod';
-import { requireAuth } from '~/server/utils/auth';
-import { importTransactionsBulk } from '~/server/services/transactions.service';
+import {z} from 'zod';
+import {importTransactionsBulk} from "#server/services/transactions.service";
 
 const importSchema = z.object({
     transactions: z.array(z.object({
@@ -22,13 +21,13 @@ export default defineEventHandler(async (event) => {
         console.error("Erreur Validation Zod:", body.error.issues);
         throw createError({
             statusCode: 400,
-            message: "Données invalides : " + body.error.issues[0].message
+            message: "Données invalides : " + body.error.issues[0]?.message
         });
     }
 
     try {
         const count = await importTransactionsBulk(user.id, body.data.transactions);
-        return { success: true, count };
+        return {success: true, count};
     } catch (error: any) {
         console.error("Erreur SQL Import:", error);
         throw createError({

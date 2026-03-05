@@ -1,15 +1,13 @@
-// server/api/transactions/index.post.ts
-import { z } from 'zod'
-import { createTransaction } from '~/server/services/transactions.service'
-import { requireAuth } from '~/server/utils/auth'
+import {z} from 'zod'
+import {createTransaction} from "#server/services/transactions.service";
 
 const createTransactionSchema = z.object({
-    amount: z.number({ required_error: "Le montant est requis" })
+    amount: z.number({required_error: "Le montant est requis"})
         .positive("Le montant doit être positif"),
-    description: z.string({ required_error: "La description est requise" })
+    description: z.string({required_error: "La description est requise"})
         .min(1, "La description ne peut pas être vide"),
-    date: z.coerce.date({ required_error: "La date est requise" }),
-    accountId: z.string({ required_error: "Le compte est requis" }).uuid(),
+    date: z.coerce.date({required_error: "La date est requise"}),
+    accountId: z.string({required_error: "Le compte est requis"}).uuid(),
     typeTransaction: z.enum(["depense", "revenu", "non_categorise"], {
         required_error: "Le type est requis"
     }),
@@ -23,11 +21,11 @@ export default defineEventHandler(async (event) => {
     if (!body.success) {
         throw createError({
             statusCode: 400,
-            message: body.error.issues[0].message
+            message: body.error.issues[0]?.message
         })
     }
 
-    const { categoryId, ...restBody } = body.data
+    const {categoryId, ...restBody} = body.data
     const transactionData = {
         ...restBody,
         userId: user.id,
