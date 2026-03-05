@@ -1,15 +1,16 @@
 export default defineNuxtConfig({
-    devtools: { enabled: true },
+    compatibilityDate: "2026-03-05",
+    devtools: {enabled: true},
     css: ["~/assets/css/styles.css"],
-    modules: ["@nuxt/ui", "nuxt-auth-utils", "@nuxt/eslint", "shadcn-nuxt", "@vite-pwa/nuxt"],
+    modules: ["@nuxt/ui", "nuxt-auth-utils", "@nuxt/eslint", "shadcn-nuxt"],
 
     shadcn: {
-            prefix: '',
-            componentDir: './components/ui'
+        prefix: '',
+        componentDir: './app/components/ui'
     },
 
     runtimeConfig: {
-         databaseUrl: '',
+        databaseUrl: '',
     },
     vite: {
         resolve: {
@@ -24,21 +25,21 @@ export default defineNuxtConfig({
             bodyAttrs: {
                 class: "font-sans",
             },
-            link: [
-                { rel: "manifest", href: "/manifest.webmanifest" },
-                { rel: "icon", type: "image/png", sizes: "192x192", href: "/icons/icon-192x192.png" },
-                { rel: "icon", type: "image/png", sizes: "512x512", href: "/icons/icon-512x512.png" },
-            ]
+             link: [
+                 { rel: "manifest", href: "/manifest.webmanifest" },
+                 { rel: "icon", type: "image/png", sizes: "192x192", href: "/icons/icon-192x192.png" },
+                 { rel: "icon", type: "image/png", sizes: "512x512", href: "/icons/icon-512x512.png" },
+             ]
         }
     },
 
     pwa: {
         injectRegister: 'auto',
         registerType: 'autoUpdate',
-        client: {
+         client: {
             installPrompt: true,
-        },
-        manifest: {
+         },
+         manifest: {
             "name": "AirGap",
             "short_name": "AirGap",
             "description": "AirGap was born from a simple desire: to enable sound and tamper-proof money management. Thanks to a local and encrypted architecture, you alone retain total control over your finances.",
@@ -57,15 +58,21 @@ export default defineNuxtConfig({
                 "type": "image/png"
                 }
             ],
-            "background_color": "#0f172b",
-            "theme_color": "#16a34a"
-        },
-        workbox: {
+                "background_color": "#0f172b",
+                "theme_color": "#16a34a"
+         },
+         workbox: {
             navigateFallback: '/',
-        },
-        devOptions: {
+         },
+         devOptions: {
             enabled: true,
-            type: 'module',
+                type: 'module',
+            }
+         },
+
+    nitro: {
+        replace: {
+            'typeof window': '`undefined`',
         }
     }
 });
