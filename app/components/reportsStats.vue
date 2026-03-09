@@ -141,10 +141,7 @@
             <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Évolution du solde réel</p>
           </div>
           <ClientOnly>
-            <div v-if="filteredTransactions.length === 0" class="flex items-center justify-center">
-              <p>Aucune données.</p>
-            </div>
-            <div v-else class="h-[350px] relative">
+            <div class="h-[350px] relative">
               <canvas ref="balanceChart" class="max-h-full"/>
             </div>
           </ClientOnly>
