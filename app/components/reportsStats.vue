@@ -110,8 +110,11 @@
           </div>
         </div>
         <ClientOnly>
-          <div style="height: 450px; position: relative;">
-            <canvas ref="sankeyChart" style="max-height: 100%; width: 100%;"/>
+          <div v-if="filteredTransactions.length ===0" class="flex items-center justify-center">
+            <p>Aucune données.</p>
+          </div>
+          <div v-else class="h-[450px] relative">
+            <canvas ref="sankeyChart" class="max-h-full w-full"/>
           </div>
         </ClientOnly>
       </div>
@@ -123,8 +126,11 @@
             <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Comparatif des volumes</p>
           </div>
           <ClientOnly>
-            <div style="height: 350px; position: relative;">
-              <canvas ref="incomeExpenseChart" style="max-height: 100%;"/>
+            <div v-if="filteredTransactions.length === 0" class="flex items-center justify-center">
+              <p>Aucune données.</p>
+            </div>
+            <div v-else class="h-[350px] relative">
+              <canvas ref="incomeExpenseChart" class="max-h-full"/>
             </div>
           </ClientOnly>
         </div>
@@ -135,8 +141,11 @@
             <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Évolution du solde réel</p>
           </div>
           <ClientOnly>
-            <div style="height: 350px; position: relative;">
-              <canvas ref="balanceChart" style="max-height: 100%;"/>
+            <div v-if="filteredTransactions.length === 0" class="flex items-center justify-center">
+              <p>Aucune données.</p>
+            </div>
+            <div v-else class="h-[350px] relative">
+              <canvas ref="balanceChart" class="max-h-full"/>
             </div>
           </ClientOnly>
         </div>
