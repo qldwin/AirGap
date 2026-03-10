@@ -3,11 +3,11 @@
     <Card class="card w-full max-w-md">
       <CardHeader class="flex justify-between">
         <div>
-          <CardTitle class="text-neutral-900 dark:text-neutral-50">Se connecter</CardTitle>
-          <CardDescription class="text-neutral-600 dark:text-neutral-400">Accédez à votre tableau de bord</CardDescription>
+          <CardTitle>Se connecter</CardTitle>
+          <CardDescription>Accédez à votre tableau de bord</CardDescription>
         </div>
         <div>
-          <Button as-child variant="link" class="text-primary-600 dark:text-primary-400 hover:underline">
+          <Button as-child variant="link" class="hover:underline">
             <NuxtLink to="/register">
               S'enregistrer
             </NuxtLink>
@@ -18,20 +18,20 @@
       <form @submit.prevent="handleLogin">
         <CardContent class="space-y-6">
         <div>
-          <Label for="email" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Email</Label>
+          <Label for="email" class="block mb-1">Email</Label>
           <Input
               id="email"
               v-model="credentials.email"
               type="email"
               required
-              class="w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              class="w-full px-3 py-2 dark:border-button-1 focus:outline-none focus:ring-2 focus:ring-button-3 transition-colors"
               placeholder="votre@email.com"
           />
         </div>
 
         <div>
           <div class="flex items-center justify-between mb-1">
-            <Label for="password" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Mot de
+            <Label for="password" class="block">Mot de
               passe</Label>
           </div>
           <Input
@@ -39,7 +39,7 @@
               v-model="credentials.password"
               type="password"
               required
-              class="w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              class="w-full px-3 py-2 dark:border-button-1 focus:outline-none focus:ring-2 focus:ring-button-3 transition-colors"
               placeholder="••••••••"
           />
         </div>
@@ -48,7 +48,7 @@
         <CardFooter>
           <Button
               type="submit"
-              class="w-full btn btn-primary flex justify-center cursor-pointer "
+              class="w-full btn btn-primary flex justify-center cursor-pointer dark:hover:bg-button-2 bg-button-3 hover:bg-button-4 text-white dark:bg-white dark:text-black"
           >
             Se connecter
           </Button>
@@ -60,9 +60,9 @@
 
 <script setup lang="ts">
 import {CardDescription, Card, CardContent, CardHeader, CardTitle, CardFooter} from "~/components/ui/card";
-import { Button } from '~/components/ui/button'
-import { Label } from '~/components/ui/label'
-import { Input } from '~/components/ui/input'
+import { Button } from '~/components/ui/button';
+import { Label } from '~/components/ui/label';
+import { Input } from '~/components/ui/input';
 
 const {fetch: refreshSession} = useUserSession()
 const credentials = ref({
