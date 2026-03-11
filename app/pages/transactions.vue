@@ -7,8 +7,9 @@
         </div>
 
         <div class="flex items-center gap-4">
-          <div class="flex items-center bg-white dark:bg-neutral-800 rounded-xl px-4 py-1.5 border border-neutral-200 dark:border-neutral-700 shadow-sm focus-within:border-primary-500/50 transition-all duration-300">
-            <MagnifyingGlassIcon class="h-4 w-4 text-neutral-400 mr-2 flex-shrink-0" />
+          <div
+              class="flex items-center bg-white dark:bg-neutral-800 rounded-xl px-4 py-1.5 border border-neutral-200 dark:border-neutral-700 shadow-sm focus-within:border-primary-500/50 transition-all duration-300">
+            <MagnifyingGlassIcon class="h-4 w-4 text-neutral-400 mr-2 flex-shrink-0"/>
             <Input
                 v-model="searchQuery"
                 type="text"
@@ -33,19 +34,21 @@
                 title="Importer CSV"
                 @click="$refs.fileInput.click()"
             >
-              <ArrowUpTrayIcon v-if="!isParsing" class="h-5 w-5 stroke-[2]" />
-              <svg v-else class="animate-spin h-5 w-5 text-primary-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <ArrowUpTrayIcon v-if="!isParsing" class="h-5 w-5 stroke-[2]"/>
+              <svg v-else class="animate-spin h-5 w-5 text-primary-500" xmlns="http://www.w3.org/2000/svg"
+                   viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                <path class="opacity-75" fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
               </svg>
             </Button>
           </div>
 
           <Button
-              class="w-full btn btn-primary flex justify-center cursor-pointer dark:hover:bg-button-2 bg-button-3 hover:bg-button-4 text-white dark:bg-white dark:text-black"
+              class="w-full btn btn-primary flex justify-center cursor-pointer text-primary-50 bg-primary-500 hover:bg-primary-600 focus:ring-primary-300 transition-colors"
               @click="openTransactionModal"
           >
-            <PlusIcon class="h-4 w-4 stroke-[3]" />
+            <PlusIcon class="h-4 w-4 stroke-[3]"/>
             <span class="hidden sm:inline">Ajouter</span>
           </Button>
         </div>
@@ -63,49 +66,71 @@
         <div v-else class="overflow-x-auto">
           <Table class="w-full">
             <TableHeader>
-            <TableRow class="border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <TableHead class="text-left py-3 px-4 text-neutral-700 dark:text-neutral-300 text-xs uppercase tracking-wider font-semibold">Date</TableHead>
-              <TableHead class="text-left py-3 px-4 text-neutral-700 dark:text-neutral-300 text-xs uppercase tracking-wider font-semibold">Description</TableHead>
-              <TableHead class="text-right py-3 px-4 text-neutral-700 dark:text-neutral-300 text-xs uppercase tracking-wider font-semibold">Montant</TableHead>
-              <TableHead class="text-right py-3 px-4 text-neutral-700 dark:text-neutral-300 text-xs uppercase tracking-wider font-semibold">Actions</TableHead>
-            </TableRow>
+              <TableRow
+                  class="border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+                <TableHead
+                    class="text-left py-3 px-4 text-neutral-700 dark:text-neutral-300 text-xs uppercase tracking-wider font-semibold">
+                  Date
+                </TableHead>
+                <TableHead
+                    class="text-left py-3 px-4 text-neutral-700 dark:text-neutral-300 text-xs uppercase tracking-wider font-semibold">
+                  Description
+                </TableHead>
+                <TableHead
+                    class="text-right py-3 px-4 text-neutral-700 dark:text-neutral-300 text-xs uppercase tracking-wider font-semibold">
+                  Montant
+                </TableHead>
+                <TableHead
+                    class="text-right py-3 px-4 text-neutral-700 dark:text-neutral-300 text-xs uppercase tracking-wider font-semibold">
+                  Actions
+                </TableHead>
+              </TableRow>
             </TableHeader>
             <TableBody class="divide-y divide-neutral-200 dark:divide-neutral-800">
-            <TableRow v-for="transaction in filteredTransactions" :key="transaction.id" class="hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors">
-              <TableCell class="py-3 px-4 text-sm text-neutral-600 dark:text-neutral-400 whitespace-nowrap">
-                {{ formatDate(transaction.date) }}
-              </TableCell>
+              <TableRow v-for="transaction in filteredTransactions" :key="transaction.id"
+                        class="hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors">
+                <TableCell class="py-3 px-4 text-sm text-neutral-600 dark:text-neutral-400 whitespace-nowrap">
+                  {{ formatDate(transaction.date) }}
+                </TableCell>
 
-              <TableCell class="py-3 px-4 text-sm text-neutral-800 dark:text-neutral-200">
-                <div class="flex items-center">
-                  <span>{{ transaction.description }}</span>
-                  <span v-if="transaction.category" class="ml-2 text-xs px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600">
+                <TableCell class="py-3 px-4 text-sm text-neutral-800 dark:text-neutral-200">
+                  <div class="flex items-center">
+                    <span>{{ transaction.description }}</span>
+                    <span v-if="transaction.category"
+                          class="ml-2 text-xs px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600">
                       {{ transaction.category }}
                   </span>
-                </div>
-              </TableCell>
+                  </div>
+                </TableCell>
 
-              <TableCell class="py-3 px-4 text-sm text-right font-medium whitespace-nowrap" :class="getTransactionClass(transaction)">
-                {{ getTransactionSign(transaction) }} {{ formatCurrency(transaction.amount) }}
-              </TableCell>
+                <TableCell class="py-3 px-4 text-sm text-right font-medium whitespace-nowrap"
+                           :class="getTransactionClass(transaction)">
+                  {{ getTransactionSign(transaction) }} {{ formatCurrency(transaction.amount) }}
+                </TableCell>
 
-              <TableCell class="py-3 px-4 text-right whitespace-nowrap">
-                <div class="flex justify-end space-x-2">
-                  <Button class="p-1 text-neutral-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors rounded" @click="editTransaction(transaction)">
-                    <span class="sr-only">Modifier</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                  </Button>
-                  <Button class="p-1 text-neutral-500 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded" @click="confirmDeleteTransaction(transaction)">
-                    <span class="sr-only">Supprimer</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
+                <TableCell class="py-3 px-4 text-right whitespace-nowrap">
+                  <div class="flex justify-end space-x-2">
+                    <Button
+                        class="p-1 text-neutral-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors rounded"
+                        @click="editTransaction(transaction)">
+                      <span class="sr-only">Modifier</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      </svg>
+                    </Button>
+                    <Button
+                        class="p-1 text-neutral-500 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded"
+                        @click="confirmDeleteTransaction(transaction)">
+                      <span class="sr-only">Supprimer</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </div>
@@ -123,15 +148,15 @@
 
 <script setup>
 import Papa from 'papaparse';
-import { ref, onMounted, computed } from 'vue';
+import {ref, onMounted, computed} from 'vue';
 import {
   MagnifyingGlassIcon,
   ArrowUpTrayIcon,
   PlusIcon
 } from '@heroicons/vue/24/outline';
-import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
-import { Table, TableBody, TableHead, TableRow, TableCell, TableHeader } from "~/components/ui/table/index.js";
+import {Button} from '~/components/ui/button';
+import {Input} from '~/components/ui/input';
+import {Table, TableBody, TableHead, TableRow, TableCell, TableHeader} from "~/components/ui/table/index.js";
 
 const searchQuery = ref('');
 
@@ -172,11 +197,11 @@ const isIncome = (t) => t.typeTransaction === 'revenu';
 const getTransactionClass = (t) => isIncome(t) ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
 const getTransactionSign = (t) => isIncome(t) ? '+' : '-';
 
-const formatCurrency = (amount) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
+const formatCurrency = (amount) => new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'EUR'}).format(amount);
 const formatDate = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+  return new Intl.DateTimeFormat('fr-FR', {day: '2-digit', month: '2-digit', year: 'numeric'}).format(date);
 };
 
 // --- CHARGEMENT DONNÉES ---
@@ -298,7 +323,7 @@ const handleFileUpload = async (event) => {
 
     const response = await $fetch('/api/transactions/classify', {
       method: 'POST',
-      body: { transactions: formattedTransactions }
+      body: {transactions: formattedTransactions}
     });
 
     await saveTransactions(response.transactions);
@@ -329,7 +354,7 @@ const saveTransactions = async (data) => {
     isImporting.value = true;
     const response = await $fetch('/api/transactions/import', {
       method: 'POST',
-      body: { transactions: data }
+      body: {transactions: data}
     });
 
     alert(`${response.count} transactions importées avec succès !`);
@@ -351,7 +376,7 @@ const openTransactionModal = () => {
 };
 
 const editTransaction = (transaction) => {
-  selectedTransaction.value = { ...transaction };
+  selectedTransaction.value = {...transaction};
   showTransactionModal.value = true;
 };
 
@@ -363,7 +388,7 @@ const onTransactionSaved = () => {
 const confirmDeleteTransaction = async (transaction) => {
   if (confirm(`Supprimer "${transaction.description}" ?`)) {
     try {
-      await $fetch(`/api/transactions/${transaction.id}`, { method: 'DELETE' });
+      await $fetch(`/api/transactions/${transaction.id}`, {method: 'DELETE'});
       transactions.value = transactions.value.filter(t => t.id !== transaction.id);
     } catch (error) {
       alert("Erreur suppression.");
@@ -376,13 +401,16 @@ const confirmDeleteTransaction = async (transaction) => {
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #e5e7eb;
   border-radius: 10px;
 }
+
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #262626;
 }

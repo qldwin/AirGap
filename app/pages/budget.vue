@@ -11,7 +11,8 @@
               class="btn btn-primary text-sm px-4 py-2 flex items-center bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors"
               @click="openAddBudgetModal()"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
             Nouveau budget
@@ -19,7 +20,8 @@
         </div>
       </div>
 
-      <div class="card p-6 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
+      <div
+          class="card p-6 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-xl font-medium text-neutral-900 dark:text-neutral-50">Mes Budgets</h2>
         </div>
@@ -29,23 +31,31 @@
         </div>
 
         <div v-else-if="budgets.length === 0" class="text-center py-8">
-          <p class="text-neutral-600 dark:text-neutral-400">Aucun budget défini. Cliquez sur "Nouveau budget" pour commencer.</p>
+          <p class="text-neutral-600 dark:text-neutral-400">Aucun budget défini. Cliquez sur "Nouveau budget" pour
+            commencer.</p>
         </div>
 
         <div v-else class="space-y-6">
-          <div v-for="budget in sortedBudgets" :key="budget.id" class="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg border border-neutral-200 dark:border-neutral-700">
+          <div v-for="budget in sortedBudgets" :key="budget.id"
+               class="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg border border-neutral-200 dark:border-neutral-700">
             <div class="flex items-center justify-between mb-2">
               <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50">{{ budget.name }}</h3>
 
               <div class="flex items-center space-x-2">
-                <button class="text-neutral-500 hover:text-primary-600 dark:hover:text-primary-400" @click="editBudget(budget)">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                <button class="text-neutral-500 hover:text-primary-600 dark:hover:text-primary-400"
+                        @click="editBudget(budget)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                       stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                   </svg>
                 </button>
-                <button class="text-neutral-500 hover:text-red-600 dark:hover:text-red-400" @click="confirmDeleteBudget(budget)">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                <button class="text-neutral-500 hover:text-red-600 dark:hover:text-red-400"
+                        @click="confirmDeleteBudget(budget)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                       stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                   </svg>
                 </button>
               </div>
@@ -59,14 +69,17 @@
                 <span v-else class="font-medium italic">Aucune</span>
               </span>
               <span class="mx-2 hidden sm:inline">•</span>
-              <span>Période: <span class="font-medium">{{ formatDateRange(budget.startDate, budget.endDate) }}</span></span>
+              <span>Période: <span class="font-medium">{{
+                  formatDateRange(budget.startDate, budget.endDate)
+                }}</span></span>
             </div>
 
             <div class="mb-2 flex justify-between text-sm">
               <span class="text-neutral-700 dark:text-neutral-300">
                 {{ formatCurrency(getBudgetSpent(budget)) }} dépensés sur {{ formatCurrency(budget.amount) }}
               </span>
-              <span class="font-medium" :class="getBudgetSpent(budget) > Number(budget.amount) ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">
+              <span class="font-medium"
+                    :class="getBudgetSpent(budget) > Number(budget.amount) ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">
                 {{ getBudgetSpent(budget) > Number(budget.amount) ? 'Dépassé de' : 'Reste' }}:
                 {{ formatCurrency(Math.abs(Number(budget.amount) - getBudgetSpent(budget))) }}
               </span>
@@ -94,7 +107,8 @@
 
           <form class="space-y-4" @submit.prevent="saveBudget">
             <div>
-              <label for="name" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Nom</label>
+              <label for="name"
+                     class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Nom</label>
               <input
                   id="name"
                   v-model="budgetForm.name"
@@ -106,7 +120,8 @@
             </div>
 
             <div>
-              <label for="amount" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Montant cible</label>
+              <label for="amount" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Montant
+                cible</label>
               <div class="relative">
                 <input
                     id="amount"
@@ -123,7 +138,8 @@
             </div>
 
             <div>
-              <label for="category" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Catégorie à suivre</label>
+              <label for="category" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Catégorie
+                à suivre</label>
               <select
                   id="category"
                   v-model="budgetForm.categoryId"
@@ -137,7 +153,8 @@
             </div>
 
             <div>
-              <label for="period" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Période</label>
+              <label for="period"
+                     class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Période</label>
               <select
                   id="period"
                   v-model="budgetForm.periodType"
@@ -174,7 +191,7 @@
 </template>
 
 <script setup>
-import { startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
+import {startOfMonth, endOfMonth, startOfYear, endOfYear} from 'date-fns';
 
 definePageMeta({
   middleware: ['authenticated']
@@ -375,7 +392,7 @@ const confirmDeleteBudget = async (budget) => {
   if (!confirm(`Supprimer le budget "${budget.name}" ?`)) return;
 
   try {
-    await $fetch(`/api/budgets/${budget.id}`, { method: 'DELETE' });
+    await $fetch(`/api/budgets/${budget.id}`, {method: 'DELETE'});
     budgets.value = budgets.value.filter(b => b.id !== budget.id);
   } catch (err) {
     console.error('Erreur suppression:', err);
@@ -386,7 +403,7 @@ const confirmDeleteBudget = async (budget) => {
 // --- Formattage ---
 
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
+  return new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'EUR'}).format(amount);
 };
 
 const formatDateRange = (startStr, endStr) => {

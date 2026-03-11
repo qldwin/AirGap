@@ -6,20 +6,25 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="card bg-linear-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 border-primary-200 dark:border-primary-800 p-4 rounded-lg shadow-sm border">
+        <div
+            class="card bg-linear-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 border-primary-200 dark:border-primary-800 p-4 rounded-lg shadow-sm border">
           <h3 class="text-lg font-medium text-primary-700 dark:text-primary-300 mb-1">Solde total</h3>
           <div v-if="loading" class="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"/>
           <p v-else class="text-3xl font-bold text-primary-800 dark:text-primary-200">{{ formatCurrency(balance) }}</p>
 
-          <div v-if="!loading && balanceChange !== null" class="mt-2 text-sm" :class="balanceChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+          <div v-if="!loading && balanceChange !== null" class="mt-2 text-sm"
+               :class="balanceChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
             <span>{{ formatPercent(balanceChange) }}</span> vs mois dernier
           </div>
         </div>
 
-        <div class="card p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
+        <div
+            class="card p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
           <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-1">Revenus (ce mois)</h3>
           <div v-if="loading" class="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"/>
-          <p v-else class="text-3xl font-bold text-green-600 dark:text-green-400">{{ formatCurrency(monthlyIncome) }}</p>
+          <p v-else class="text-3xl font-bold text-green-600 dark:text-green-400">{{
+              formatCurrency(monthlyIncome)
+            }}</p>
 
           <div v-if="!loading && incomeChange !== null" class="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
             <span :class="incomeChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
@@ -28,7 +33,8 @@
           </div>
         </div>
 
-        <div class="card p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
+        <div
+            class="card p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
           <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-1">Dépenses (ce mois)</h3>
           <div v-if="loading" class="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"/>
           <p v-else class="text-3xl font-bold text-red-600 dark:text-red-400">{{ formatCurrency(monthlyExpense) }}</p>
@@ -45,20 +51,20 @@
         <div class="animate-spin rounded-lg h-12 w-12 border-t-2 border-b-2 border-primary-600"/>
       </div>
 
-      <reportsStats v-else :transactions="transactions" />
+      <reportsStats v-else :transactions="transactions"/>
 
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import {computed} from 'vue';
 
 definePageMeta({
   middleware: ['authenticated']
 });
 
-const { data: apiResult, pending: loading } = await useFetch('/api/transactions', {
+const {data: apiResult, pending: loading} = await useFetch('/api/transactions', {
   key: 'dashboard-data',
   lazy: false
 });
@@ -94,8 +100,8 @@ const now = new Date();
 const currentMonth = now.getMonth();
 const currentYear = now.getFullYear();
 
-const getPreviousMonth = (year, month) => month === 0 ? { year: year - 1, month: 11 } : { year, month: month - 1 };
-const { year: prevYear, month: prevMonth } = getPreviousMonth(currentYear, currentMonth);
+const getPreviousMonth = (year, month) => month === 0 ? {year: year - 1, month: 11} : {year, month: month - 1};
+const {year: prevYear, month: prevMonth} = getPreviousMonth(currentYear, currentMonth);
 
 const balance = computed(() => transactions.value.reduce((total, t) => total + (t.typeStr === 'income' ? t.amount : -t.amount), 0));
 const monthlyIncome = computed(() => transactions.value.filter(t => t.typeStr === 'income' && t.dateObj.getMonth() === currentMonth && t.dateObj.getFullYear() === currentYear).reduce((sum, t) => sum + t.amount, 0));
@@ -112,7 +118,7 @@ const balanceChange = computed(() => {
   return prevBal === 0 ? null : ((curBal - prevBal) / Math.abs(prevBal)) * 100;
 });
 
-const formatCurrency = (val) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(val);
+const formatCurrency = (val) => new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'EUR'}).format(val);
 const formatPercent = (val) => {
   if (val === null) return '-';
   const sign = val > 0 ? '+' : '';

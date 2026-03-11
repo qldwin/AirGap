@@ -114,10 +114,12 @@
     </div>
 
     <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl max-w-md w-full p-6 border border-neutral-200 dark:border-neutral-700">
+      <div
+          class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl max-w-md w-full p-6 border border-neutral-200 dark:border-neutral-700">
         <h3 class="text-xl font-bold text-neutral-900 dark:text-white mb-2">Confirmation requise</h3>
         <p class="text-neutral-600 dark:text-neutral-400 text-sm mb-4">
-          Pour des raisons de sécurité, veuillez saisir votre mot de passe actuel pour confirmer la suppression définitive de votre compte.
+          Pour des raisons de sécurité, veuillez saisir votre mot de passe actuel pour confirmer la suppression
+          définitive de votre compte.
         </p>
 
         <div class="mb-4">
@@ -157,7 +159,7 @@ definePageMeta({
   middleware: ['authenticated'],
 })
 
-const { user, clear } = useUserSession()
+const {user, clear} = useUserSession()
 
 const isLoading = ref(false)
 const error = ref('')
@@ -180,7 +182,7 @@ watchEffect(() => {
 })
 
 const isFormValid = computed(() => {
-  const { currentPassword, newPassword, confirmPassword } = form.value
+  const {currentPassword, newPassword, confirmPassword} = form.value
   if (currentPassword || newPassword || confirmPassword) {
     return (
         !!currentPassword &&
