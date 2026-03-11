@@ -68,7 +68,8 @@
               class="w-full btn btn-primary flex justify-center cursor-pointer text-primary-50 bg-primary-500 hover:bg-primary-600 focus:ring-primary-300">
             Créer un compte
           </Button>
-          <div>
+          <Separator class="mt-5 mb-4 dark:bg-primary-50 bg-neutral-900" />
+          <div class="flex items-center">
             <p>Vous avez déjà un compte ?</p>
             <Button class="hover:underline text-primary-500">
               <NuxtLink to="/login">Se
@@ -87,6 +88,7 @@ import {Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription} f
 import {Button} from '~/components/ui/button';
 import {Label} from '~/components/ui/label';
 import {Input} from '~/components/ui/input';
+import {Separator} from "~/components/ui/separator";
 
 const form = reactive({
   name: '',

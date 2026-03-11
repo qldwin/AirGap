@@ -44,7 +44,8 @@
           >
             Se connecter
           </Button>
-          <div class="flex items-center mt-4">
+          <Separator class="mt-5 mb-4 dark:bg-primary-50 bg-neutral-900" />
+          <div class="flex items-center">
             <p>Pas encore de compte ?</p>
             <Button class="text-primary-500 hover:underline">
               <NuxtLink to="/register">
@@ -63,6 +64,7 @@ import {CardDescription, Card, CardContent, CardHeader, CardTitle, CardFooter} f
 import {Button} from '~/components/ui/button';
 import {Label} from '~/components/ui/label';
 import {Input} from '~/components/ui/input';
+import {Separator} from "~/components/ui/separator";
 
 const {fetch: refreshSession} = useUserSession()
 const credentials = ref({
