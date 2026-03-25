@@ -6,7 +6,7 @@
           <button
               v-for="p in ['month', 'quarter', 'year']"
               :key="p"
-              class="flex-1 sm:flex-none px-2 sm:px-6 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ease-out whitespace-nowrap"
+              class="cursor-pointer flex-1 sm:flex-none px-2 sm:px-6 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ease-out whitespace-nowrap"
               :class="period === p
   ? 'bg-white dark:bg-neutral-700 text-primary-600 dark:text-primary-400 shadow-md transform scale-105'
   : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'"
@@ -19,7 +19,7 @@
 
           <div v-if="period === 'year'" class="relative w-full sm:w-auto mt-2 sm:mt-0">
             <button
-                class="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-2 px-4 py-2 text-sm font-bold text-primary-600 dark:bg-neutral-700 rounded-lg shadow-md transition-all"
+                class="cursor-pointer flex items-center justify-between sm:justify-start w-full sm:w-auto gap-2 px-4 py-2 text-sm font-bold text-primary-600 dark:bg-neutral-700 rounded-lg shadow-md transition-all"
                 @click="isYearMenuOpen = !isYearMenuOpen"
             >
               {{ selectedYear }}
@@ -35,7 +35,7 @@
               <button
                   v-for="annee in anneesData?.years"
                   :key="annee"
-                  class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                  class="cursor-pointer w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
                   :class="selectedYear === annee ? 'text-primary-600 font-bold bg-indigo-50 dark:bg-neutral-700/50' : 'text-neutral-600 dark:text-neutral-300'"
                   @click="selectYear(annee)"
               >
@@ -47,7 +47,7 @@
 
           <div v-if="period === 'month'" class="relative w-full sm:w-auto mt-2 sm:mt-0">
             <button
-                class="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-2 px-4 py-2 text-sm font-bold text-primary-600 dark:bg-neutral-700 rounded-lg shadow-md transition-all"
+                class="cursor-pointer flex items-center justify-between sm:justify-start w-full sm:w-auto gap-2 px-4 py-2 text-sm font-bold text-primary-600 dark:bg-neutral-700 rounded-lg shadow-md transition-all"
                 @click="isMonthMenuOpen = !isMonthMenuOpen"
             >
               {{ monthNames[selectedMonth - 1] }}
@@ -63,7 +63,7 @@
               <button
                   v-for="mois in moisData?.months"
                   :key="mois"
-                  class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                  class="cursor-pointer w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
                   :class="selectedMonth === mois ? 'text-primary-600 font-bold bg-indigo-50 dark:bg-neutral-700/50' : 'text-neutral-600 dark:text-neutral-300'"
                   @click="selectMonth(mois)"
               >
@@ -91,7 +91,7 @@
               <button
                   v-for="trimestre in trimestresData?.quarters"
                   :key="trimestre"
-                  class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                  class="cursor-pointer w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
                   :class="selectedQuarter === trimestre ? 'text-primary-600 font-bold bg-indigo-50 dark:bg-neutral-700/50' : 'text-neutral-600 dark:text-neutral-300'"
                   @click="selectQuarter(trimestre)"
               >

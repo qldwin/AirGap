@@ -1,6 +1,6 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center">
-    <div class="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeModal"/>
+    <div class="fixed inset-0 dark:bg-neutral-900/60 backdrop-blur-sm" @click="closeModal"/>
 
     <Card class="w-full max-w-md mx-auto relative">
       <CardHeader>
@@ -105,7 +105,7 @@
               <PopoverContent class="w-auto p-0" align="start">
                 <Calendar
                     v-model="form.date"
-                    class="bg-neutral-700 cursor-pointer"
+                    class= "bg-neutral-700 cursor-pointer"
                 />
               </PopoverContent>
             </Popover>
