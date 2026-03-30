@@ -1,7 +1,6 @@
 <template>
   <div>
-    <header
-        class="fixed inset-x-0 top-0 mx-auto w-full max-w-6xl z-50 bg-white dark:bg-neutral-900 border border-t-0 border-neutral-200 dark:border-neutral-800 rounded-b-lg transition-colors duration-300">
+    <header class="fixed inset-x-0 top-0 mx-auto w-full max-w-6xl z-50 bg-white dark:bg-neutral-900 border border-t-0 border-neutral-200 dark:border-neutral-800 rounded-b-lg transition-colors duration-300">
       <div class="px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
 
@@ -41,7 +40,7 @@
                   <Button
                       class="cursor-pointer flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                       @click="toggleDropdown">
-                    <span class="text-sm text-neutral-700 dark:text-neutral-300">{{
+                    <span class="text-sm text-neutral-700 dark:text-neutral-300 hover:text-primary-500">{{
                         user?.name || 'Utilisateur'
                       }}</span>
                     <svg
@@ -55,20 +54,20 @@
                   <div
                       v-if="isDropdownOpen"
                       class="absolute right-0 mt-2 w-full bg-white dark:bg-neutral-900 rounded-md overflow-hidden shadow-lg border border-neutral-200 dark:border-neutral-800">
-                    <Button class="w-full block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                    <Button class="w-full px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:text-primary-500 dark:hover:bg-neutral-800 transition-colors">
                     <NuxtLink
                         to="/profile"
                         @click="isDropdownOpen = false">Mon profil
                     </NuxtLink>
                     </Button>
-                    <Button class="w-full block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                    <Button class="w-full px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:text-primary-500 dark:hover:bg-neutral-800 transition-colors">
                     <NuxtLink
                         to="/settings"
                         @click="isDropdownOpen = false">Paramètres
                     </NuxtLink>
                     </Button>
                     <Button
-                        class="cursor-pointer w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                        class="cursor-pointer w-full px-4 py-2 text-sm text-primary-550 hover:text-primary-500 dark:hover:bg-neutral-800 transition-colors"
                         @click="logout">Déconnexion
                     </Button>
                   </div>

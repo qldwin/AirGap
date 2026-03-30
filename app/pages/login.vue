@@ -60,12 +60,6 @@
 </template>
 
 <script setup lang="ts">
-import {CardDescription, Card, CardContent, CardHeader, CardTitle, CardFooter} from "~/components/ui/card";
-import {Button} from '~/components/ui/button';
-import {Label} from '~/components/ui/label';
-import {Input} from '~/components/ui/input';
-import {Separator} from "~/components/ui/separator";
-
 const {fetch: refreshSession} = useUserSession()
 const credentials = ref({
   email: '',
