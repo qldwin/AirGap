@@ -13,12 +13,15 @@ const props = defineProps({
 </script>
 
 <template>
-  <div
-    role="group"
-    data-slot="field"
-    :data-orientation="orientation"
-    :class="cn(fieldVariants({ orientation }), props.class)"
+  <fieldset
+      data-slot="field"
+      :data-orientation="orientation"
+      :class="cn(
+      fieldVariants({ orientation }),
+      'border-0 p-0 m-0 min-w-0',
+      props.class
+    )"
   >
     <slot />
-  </div>
+  </fieldset>
 </template>

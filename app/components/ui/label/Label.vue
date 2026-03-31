@@ -12,6 +12,7 @@ const props = defineProps({
     required: false,
     skipCheck: true,
   },
+  label: { type: String, required: false }
 });
 
 const delegatedProps = reactiveOmit(props, "class");
@@ -19,14 +20,11 @@ const delegatedProps = reactiveOmit(props, "class");
 
 <template>
   <Label
-    v-bind="delegatedProps"
-    :class="
-      cn(
-        'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-        props.class,
-      )
-    "
+      v-bind="delegatedProps"
+      :for="props.for"
+      :class="cn('...', props.class)"
   >
-    <slot />
+    <span v-if="props.label">{{ props.label }}</span>
+    <span v-else><slot /></span>
   </Label>
 </template>

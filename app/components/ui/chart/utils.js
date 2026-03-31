@@ -5,9 +5,12 @@ import { h, render } from "vue";
 // Simple cache using a Map to store serialized object keys
 const cache = new Map();
 
-// Convert object to a consistent string key
 function serializeKey(key) {
-  return JSON.stringify(key, Object.keys(key).sort());
+  const sortedKeys = Object.keys(key).sort((a, b) => {
+    return String(a).localeCompare(String(b));
+  });
+
+  return JSON.stringify(key, sortedKeys);
 }
 
 export function componentToString(config, component, props) {

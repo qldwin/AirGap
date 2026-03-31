@@ -3,26 +3,22 @@ import { cn } from "~/lib/utils";
 import { Label } from '@/components/ui/label';
 
 const props = defineProps({
-  class: {
-    type: [Boolean, null, String, Object, Array],
-    required: false,
-    skipCheck: true,
-  },
+  class: { type: [Boolean, null, String, Object, Array] },
+  required: false,
+  skipCheck: true,
+  for: { type: String },
+  text: { type: String }
 });
+
 </script>
 
 <template>
   <Label
-    data-slot="field-label"
-    :class="
-      cn(
-        'group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50',
-        'has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border [&_>[data-slot=field]]:p-4',
-        'has-[[data-state=checked]]:bg-primary/5 has-[[data-state=checked]]:border-primary dark:has-[[data-state=checked]]:bg-primary/10',
-        props.class,
-      )
-    "
+      :for="props.for"
+      data-slot="field-label"
+      :class="cn('text-sm font-medium leading-none', props.class)"
   >
-    <slot />
+    <template v-if="props.text">{{ props.text }}</template>
+    <slot v-else />
   </Label>
 </template>
