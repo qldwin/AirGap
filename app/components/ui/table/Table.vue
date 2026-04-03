@@ -13,8 +13,7 @@ const props = defineProps({
 <template>
   <div class="relative w-full overflow-auto">
     <table :class="cn('w-full caption-bottom text-sm', props.class)">
-      <caption class="sr-only">Tableau de données</caption>
-      <slot />
+      <slot name="header" /> <slot />
     </table>
   </div>
 </template>

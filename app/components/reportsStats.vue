@@ -3,7 +3,8 @@
     <div class="max-w-7xl mx-auto">
 
       <div class="flex justify-center mb-10 w-full">
-        <div class="bg-gray-50 dark:bg-neutral-800/50 p-1.5 rounded-lg flex flex-wrap justify-center items-center gap-2 border border-gray-200 dark:border-neutral-700 backdrop-blur-sm z-20 w-full sm:w-auto">
+        <div
+            class="bg-gray-50 dark:bg-neutral-800/50 p-1.5 rounded-lg flex flex-wrap justify-center items-center gap-2 border border-gray-200 dark:border-neutral-700 backdrop-blur-sm z-20 w-full sm:w-auto">
           <Button
               v-for="p in ['month', 'quarter', 'year']"
               :key="p"
@@ -15,7 +16,6 @@
           >
             {{ p === 'month' ? 'Mois' : p === 'quarter' ? 'Trimestre' : 'Année' }}
           </Button>
-
           <template v-for="type in activePeriodSelectors" :key="type.key">
             <div class="hidden sm:block h-4 w-px bg-gray-300 dark:bg-neutral-600 mx-1"/>
             <div class="relative w-full sm:w-auto mt-2 sm:mt-0">
@@ -24,11 +24,15 @@
                   @click="type.toggleMenu()"
               >
                 {{ type.label }}
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform" :class="type.isOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform"
+                     :class="type.isOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                        clip-rule="evenodd"/>
                 </svg>
               </Button>
-              <div v-if="type.isOpen" class="absolute top-full mt-2 right-0 w-full sm:w-32 bg-white dark:bg-neutral-700 rounded-lg shadow-xl border border-gray-100 dark:border-neutral-700 overflow-hidden z-50">
+              <div v-if="type.isOpen"
+                   class="absolute top-full mt-2 right-0 w-full sm:w-32 bg-white dark:bg-neutral-700 rounded-lg shadow-xl border border-gray-100 dark:border-neutral-700 overflow-hidden z-50">
                 <Button
                     v-for="option in type.options"
                     :key="option.value"
@@ -44,10 +48,13 @@
         </div>
       </div>
 
-      <Card class="card mb-8 p-8 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
+      <Card
+          class="card mb-8 p-8 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
         <CardHeader class="flex justify-between items-end mb-8">
           <CardTitle class="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Cashflow</CardTitle>
-          <CardDescription class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Visualisation des mouvements financiers</CardDescription>
+          <CardDescription class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Visualisation des mouvements
+            financiers
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <ClientOnly>
@@ -55,7 +62,8 @@
               <p>Aucune donnée.</p>
             </div>
             <div v-else class="flex flex-col h-full w-full dark:unovis-dark-mode">
-              <p class="text-xs text-neutral-400 mb-2 italic text-center">💡 Cliquez sur un nœud pour déployer le détail des transactions.</p>
+              <p class="text-xs text-neutral-400 mb-2 italic text-center">💡 Cliquez sur un nœud pour déployer le détail
+                des transactions.</p>
               <ChartContainer :config="chartConfig">
                 <VisSingleContainer :data="cashFlow" class="h-full w-full sankeyGraph">
                   <VisSankey
@@ -79,43 +87,52 @@
       </Card>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <Card class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
+        <Card
+            class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
           <CardHeader>
             <CardTitle class="text-neutral-900 dark:text-white tracking-tight">Revenus vs Dépenses</CardTitle>
             <CardDescription class="text-neutral-500 dark:text-neutral-400">Comparatif des volumes</CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer class="h-[350px]" :config="chartConfig">
-              <VisXYContainer :data="incomeVsExpensesData">
-                <VisGroupedBar
-                    :key="period"
-                    :x="(d, i) => i"
-                    :y="[(d) => d.income >= 0.01 ? d.income : null, (d) => d.expense >= 0.01 ? d.expense : null]"
-                    :color="(d, i) => [THEME.colors.income, THEME.colors.expense][i]"
-                    :groupPadding="0.2"
-                    :barPadding="0.05"
-                    :barMaxWidth="40"
-                />
-                <VisAxis
-                    type="x"
-                    :tick-values="incomeVsExpensesData.map((_, i) => i).filter(i => period !== 'month' || i % 5 === 0 || i === incomeVsExpensesData.length - 1)"
-                    :tick-format="(i) => incomeVsExpensesData[i]?.dateLabel"
-                    :tick-line="false"
-                    :domain-line="false"
-                    :grid-line="false"
-                />
-                <VisAxis type="y" :num-ticks="3" :tick-line="false" :domain-line="false" :tick-format="formatEuro"/>
-                <ChartTooltip/>
-                <ChartCrosshair
-                    :template="componentToString(chartConfig, ChartTooltipContent, { labelKey: 'dateLabel' })"
-                    :color="(d, i) => [THEME.colors.income, THEME.colors.expense][i]"
-                />
-              </VisXYContainer>
-            </ChartContainer>
+            <ClientOnly>
+              <div v-if="incomeVsExpensesData.length === 0" class="flex items-center justify-center">
+                <p>Aucune donnée pour cette période.</p>
+              </div>
+              <div v-else class="flex flex-col h-full w-full dark:unovis-dark-mode">
+                <ChartContainer class="h-[350px]" :config="chartConfig">
+                  <VisXYContainer :data="incomeVsExpensesData">
+                    <VisGroupedBar
+                        :key="period"
+                        :x="(d, i) => i"
+                        :y="[(d) => d.income >= 0.01 ? d.income : null, (d) => d.expense >= 0.01 ? d.expense : null]"
+                        :color="(d, i) => [THEME.colors.income, THEME.colors.expense][i]"
+                        :groupPadding="0.2"
+                        :barPadding="0.05"
+                        :barMaxWidth="40"
+                    />
+                    <VisAxis
+                        type="x"
+                        :tick-values="incomeVsExpensesData.map((_, i) => i).filter(i => period !== 'month' || i % 5 === 0 || i === incomeVsExpensesData.length - 1)"
+                        :tick-format="(i) => incomeVsExpensesData[i]?.dateLabel"
+                        :tick-line="false"
+                        :domain-line="false"
+                        :grid-line="false"
+                    />
+                    <VisAxis type="y" :num-ticks="3" :tick-line="false" :domain-line="false" :tick-format="formatEuro"/>
+                    <ChartTooltip/>
+                    <ChartCrosshair
+                        :template="componentToString(chartConfig, ChartTooltipContent, { labelKey: 'dateLabel' })"
+                        :color="(d, i) => [THEME.colors.income, THEME.colors.expense][i]"
+                    />
+                  </VisXYContainer>
+                </ChartContainer>
+              </div>
+            </ClientOnly>
           </CardContent>
         </Card>
 
-        <Card class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
+        <Card
+            class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
           <CardHeader>
             <CardTitle class="text-neutral-900 dark:text-white tracking-tight">Solde du compte</CardTitle>
             <CardDescription class="text-neutral-500 dark:text-neutral-400">Évolution du solde réel</CardDescription>
@@ -123,9 +140,12 @@
           <CardContent>
             <ChartContainer class="h-[350px]" :config="chartConfig">
               <VisXYContainer :data="currentYearBalanceData">
-                <VisArea :x="(d, i) => i" :y="[(d) => d.balance]" :color="() => chartConfig.balance.color" :opacity="0.3"/>
-                <VisLine :x="(d, i) => i" :y="[(d) => d.balance]" :color="() => chartConfig.balance.color" :line-width="2.5"/>
-                <VisAxis type="x" :tick-line="false" :domain-line="false" :grid-line="false" :num-ticks="6" :tick-format="(d, i) => currentYearBalanceData[i]?.dateLabel"/>
+                <VisArea :x="(d, i) => i" :y="[(d) => d.balance]" :color="() => chartConfig.balance.color"
+                         :opacity="0.3"/>
+                <VisLine :x="(d, i) => i" :y="[(d) => d.balance]" :color="() => chartConfig.balance.color"
+                         :line-width="2.5"/>
+                <VisAxis type="x" :tick-line="false" :domain-line="false" :grid-line="false" :num-ticks="6"
+                         :tick-format="(d, i) => currentYearBalanceData[i]?.dateLabel"/>
                 <VisAxis type="y" :num-ticks="5" :tick-line="false" :domain-line="false" :tick-format="formatEuro"/>
                 <ChartTooltip/>
                 <ChartCrosshair
@@ -137,84 +157,96 @@
           </CardContent>
         </Card>
       </div>
-
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { VisArea, VisAxis, VisLine, VisXYContainer, VisSankey, VisSingleContainer, VisGroupedBar } from "@unovis/vue";
-import { Sankey } from "@unovis/ts";
-import { ChartContainer, ChartCrosshair, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { componentToString } from "@/components/ui/chart/utils";
+import {ref, computed} from 'vue';
+import {VisArea, VisAxis, VisLine, VisXYContainer, VisSankey, VisSingleContainer, VisGroupedBar} from "@unovis/vue";
+import {Sankey} from "@unovis/ts";
+import {ChartContainer, ChartCrosshair, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart";
+import {componentToString} from "@/components/ui/chart/utils";
 
-const formatEuro = (value) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(value);
+const formatEuro = (value) => new Intl.NumberFormat('fr-FR', {
+  style: 'currency',
+  currency: 'EUR',
+  minimumFractionDigits: 2
+}).format(value);
 
-const THEME = { colors: { balance: '#7bf1a8', income: '#7bf1a8', expense: '#00a63e' } };
+const THEME = {colors: {balance: '#7bf1a8', income: '#7bf1a8', expense: '#00a63e'}};
 
 const chartConfig = {
-  balance: { label: "Solde", color: THEME.colors.balance, valueFormatter: formatEuro },
-  income:  { label: "Revenus", color: THEME.colors.income, valueFormatter: formatEuro },
-  expense: { label: "Dépenses", color: THEME.colors.expense, valueFormatter: formatEuro },
+  balance: {label: "Solde", color: THEME.colors.balance, valueFormatter: formatEuro},
+  income: {label: "Revenus", color: THEME.colors.income, valueFormatter: formatEuro},
+  expense: {label: "Dépenses", color: THEME.colors.expense, valueFormatter: formatEuro},
 };
 
-const CURRENT_YEAR  = new Date().getFullYear();
+const CURRENT_YEAR = new Date().getFullYear();
 const CURRENT_MONTH = new Date().getMonth() + 1;
 const CURRENT_QUARTER = Math.floor(new Date().getMonth() / 3) + 1;
 
-const monthNames    = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
-const quarterLabels = { 1: "Jan. - Mars", 2: "Avr. - Juin", 3: "Juil. - Sept.", 4: "Oct. - Déc." };
+const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+const quarterLabels = {1: "Jan. - Mars", 2: "Avr. - Juin", 3: "Juil. - Sept.", 4: "Oct. - Déc."};
 
-const period          = ref('month');
-const selectedYear    = ref(CURRENT_YEAR);
-const selectedMonth   = ref(CURRENT_MONTH);
+const period = ref('month');
+const selectedYear = ref(CURRENT_YEAR);
+const selectedMonth = ref(CURRENT_MONTH);
 const selectedQuarter = ref(CURRENT_QUARTER);
 
-const isYearMenuOpen    = ref(false);
-const isMonthMenuOpen   = ref(false);
+const isYearMenuOpen = ref(false);
+const isMonthMenuOpen = ref(false);
 const isQuarterMenuOpen = ref(false);
-const activeCategory    = ref(null);
+const activeCategory = ref(null);
 
-const { data: anneesData }    = await useFetch('/api/calendar/years');
-const { data: trimestresData } = await useFetch('/api/calendar/quarters');
-const { data: moisData }      = await useFetch('/api/calendar/months');
+const {data: anneesData} = await useFetch('/api/calendar/years');
+const {data: trimestresData} = await useFetch('/api/calendar/quarters');
+const {data: moisData} = await useFetch('/api/calendar/months');
 
-const { data: transactionsData } = await useFetch('/api/calendar/', {
+const {data: transactionsData} = await useFetch('/api/calendar/', {
   key: 'dynamic-transactions',
   query: {
-    year:    selectedYear,
-    month:   computed(() => period.value === 'month'   ? selectedMonth.value   : undefined),
+    year: selectedYear,
+    month: computed(() => period.value === 'month' ? selectedMonth.value : undefined),
     quarter: computed(() => period.value === 'quarter' ? selectedQuarter.value : undefined),
   }
 });
 
-const { data: transactionsFixed2026Data } = await useFetch('/api/calendar/', {
+const {data: transactionsFixed2026Data} = await useFetch('/api/calendar/', {
   key: 'fixed-balance',
-  query: { year: CURRENT_YEAR },
+  query: {year: CURRENT_YEAR},
 });
 
 const activePeriodSelectors = computed(() => {
   if (period.value === 'year') return [{
     key: 'year', label: selectedYear.value, isOpen: isYearMenuOpen.value,
     toggleMenu: () => isYearMenuOpen.value = !isYearMenuOpen.value,
-    options: (anneesData.value?.years || []).map(y => ({ value: y, label: y })),
+    options: (anneesData.value?.years || []).map(y => ({value: y, label: y})),
     isSelected: (v) => selectedYear.value === v,
-    select: (v) => { selectedYear.value = v; isYearMenuOpen.value = false; },
+    select: (v) => {
+      selectedYear.value = v;
+      isYearMenuOpen.value = false;
+    },
   }];
   if (period.value === 'month') return [{
     key: 'month', label: monthNames[selectedMonth.value - 1], isOpen: isMonthMenuOpen.value,
     toggleMenu: () => isMonthMenuOpen.value = !isMonthMenuOpen.value,
-    options: (moisData.value?.months || []).map(m => ({ value: m, label: monthNames[m - 1] })),
+    options: (moisData.value?.months || []).map(m => ({value: m, label: monthNames[m - 1]})),
     isSelected: (v) => selectedMonth.value === v,
-    select: (v) => { selectedMonth.value = v; isMonthMenuOpen.value = false; },
+    select: (v) => {
+      selectedMonth.value = v;
+      isMonthMenuOpen.value = false;
+    },
   }];
   if (period.value === 'quarter') return [{
     key: 'quarter', label: quarterLabels[selectedQuarter.value], isOpen: isQuarterMenuOpen.value,
     toggleMenu: () => isQuarterMenuOpen.value = !isQuarterMenuOpen.value,
-    options: (trimestresData.value?.quarters || []).map(q => ({ value: q, label: quarterLabels[q] })),
+    options: (trimestresData.value?.quarters || []).map(q => ({value: q, label: quarterLabels[q]})),
     isSelected: (v) => selectedQuarter.value === v,
-    select: (v) => { selectedQuarter.value = v; isQuarterMenuOpen.value = false; },
+    select: (v) => {
+      selectedQuarter.value = v;
+      isQuarterMenuOpen.value = false;
+    },
   }];
   return [];
 });
@@ -223,8 +255,8 @@ const changePeriod = (p) => {
   if (period.value === p) return;
   period.value = p;
   activeCategory.value = null;
-  selectedYear.value    = CURRENT_YEAR;
-  selectedMonth.value   = CURRENT_MONTH;
+  selectedYear.value = CURRENT_YEAR;
+  selectedMonth.value = CURRENT_MONTH;
   selectedQuarter.value = CURRENT_QUARTER;
 };
 
@@ -245,21 +277,30 @@ const incomeVsExpensesData = computed(() => {
 
   if (period.value === 'year') {
     for (let i = 0; i < 12; i++)
-      grouped.set(new Date(selectedYear.value, i, 1).toLocaleString('fr-FR', { month: 'short' }), { income: 0, expense: 0 });
+      grouped.set(new Date(selectedYear.value, i, 1).toLocaleString('fr-FR', {month: 'short'}), {
+        income: 0,
+        expense: 0
+      });
   } else if (period.value === 'quarter') {
     const start = (selectedQuarter.value - 1) * 3;
     for (let i = 0; i < 3; i++)
-      grouped.set(new Date(selectedYear.value, start + i, 1).toLocaleString('fr-FR', { month: 'short' }), { income: 0, expense: 0 });
+      grouped.set(new Date(selectedYear.value, start + i, 1).toLocaleString('fr-FR', {month: 'short'}), {
+        income: 0,
+        expense: 0
+      });
   } else {
     const days = new Date(selectedYear.value, selectedMonth.value, 0).getDate();
     for (let i = 1; i <= days; i++)
-      grouped.set(new Date(selectedYear.value, selectedMonth.value - 1, i).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }), { income: 0, expense: 0 });
+      grouped.set(new Date(selectedYear.value, selectedMonth.value - 1, i).toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit'
+      }), {income: 0, expense: 0});
   }
 
   cleanTransactions.value.forEach(t => {
     const key = period.value === 'month'
-        ? t.dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
-        : t.dateObj.toLocaleString('fr-FR', { month: 'short' });
+        ? t.dateObj.toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit'})
+        : t.dateObj.toLocaleString('fr-FR', {month: 'short'});
 
     if (grouped.has(key)) {
       const entry = grouped.get(key);
@@ -268,14 +309,14 @@ const incomeVsExpensesData = computed(() => {
     }
   });
 
-  return Array.from(grouped, ([dateLabel, values]) => ({ dateLabel, ...values }))
+  return Array.from(grouped, ([dateLabel, values]) => ({dateLabel, ...values}))
       .filter(d => d.income > 0 || d.expense > 0);
 });
 
 const cashFlow = computed(() => {
-  if (import.meta.server || !cleanTransactions.value.length) return { nodes: [], links: [] };
+  if (import.meta.server || !cleanTransactions.value.length) return {nodes: [], links: []};
 
-  const nodes = [{ id: 'center_budget', label: 'Mon Budget', type: 'budget' }];
+  const nodes = [{id: 'center_budget', label: 'Mon Budget', type: 'budget'}];
   const links = [];
   const expenseCats = {};
   let incIdx = 0;
@@ -283,8 +324,8 @@ const cashFlow = computed(() => {
   cleanTransactions.value.forEach(t => {
     if (t.typeStr === 'income' || t.typeTransactionsId === 1) {
       const id = `inc_${incIdx++}`;
-      nodes.push({ id, label: `${t.name || 'Revenu'} (${formatEuro(t.amount)})`, type: 'income' });
-      links.push({ source: id, target: 'center_budget', value: t.amount });
+      nodes.push({id, label: `${t.name || 'Revenu'} (${formatEuro(t.amount)})`, type: 'income'});
+      links.push({source: id, target: 'center_budget', value: t.amount});
     } else {
       const cat = t.categoryName === 'Budget' ? 'Budget (Cat)' : t.categoryName;
       expenseCats[cat] = (expenseCats[cat] || 0) + t.amount;
@@ -293,21 +334,21 @@ const cashFlow = computed(() => {
 
   Object.entries(expenseCats).forEach(([name, value]) => {
     const id = `${name}_out`;
-    nodes.push({ id, label: name, type: 'expense' });
-    links.push({ source: 'center_budget', target: id, value });
+    nodes.push({id, label: name, type: 'expense'});
+    links.push({source: 'center_budget', target: id, value});
 
     if (activeCategory.value === id) {
       cleanTransactions.value
           .filter(t => (t.categoryName || 'Autre') === name && t.typeStr !== 'income')
           .forEach((t, i) => {
             const subId = `${id}_s_${i}`;
-            nodes.push({ id: subId, label: `${t.name} (${formatEuro(t.amount)})`, type: 'sub' });
-            links.push({ source: id, target: subId, value: t.amount });
+            nodes.push({id: subId, label: `${t.name} (${formatEuro(t.amount)})`, type: 'sub'});
+            links.push({source: id, target: subId, value: t.amount});
           });
     }
   });
 
-  return { nodes, links };
+  return {nodes, links};
 });
 
 const sankeyEvents = {
@@ -320,31 +361,51 @@ const sankeyEvents = {
 };
 
 const currentYearBalanceData = computed(() => {
-  const source  = transactionsFixed2026Data.value?.transactions || [];
+  const source = transactionsFixed2026Data.value?.transactions || [];
   const initial = transactionsFixed2026Data.value?.initialBalance || 0;
   if (!source.length && initial === 0) return [];
 
   let running = initial;
   const map = new Map();
-  map.set(new Date(selectedYear.value, 0, 1).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }), initial);
+  map.set(new Date(selectedYear.value, 0, 1).toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit'}), initial);
 
   source.forEach(t => {
     running += Number(t.amount);
     if (new Date(t.date).getFullYear() === selectedYear.value)
-      map.set(new Date(t.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }), running);
+      map.set(new Date(t.date).toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit'}), running);
   });
 
-  return Array.from(map, ([dateLabel, balance]) => ({ dateLabel, balance }));
+  return Array.from(map, ([dateLabel, balance]) => ({dateLabel, balance}));
 });
 </script>
 
 <style>
-.sankeyGraph g rect { cursor: pointer; transition: opacity 0.2s ease; }
-.sankeyGraph path { opacity: 0.5; transition: opacity 0.3s ease; }
-html.dark .sankeyGraph path { opacity: 0.15 !important; }
-html.dark .sankeyGraph text { fill: #ffffff !important; }
+.sankeyGraph g rect {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.sankeyGraph path {
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+html.dark .sankeyGraph path {
+  opacity: 0.15 !important;
+}
+
+html.dark .sankeyGraph text {
+  fill: #ffffff !important;
+}
+
 .unovis-grouped-bar-container rect[height="0"],
 .unovis-grouped-bar-container rect[height^="0."],
-.unovis-grouped-bar-container rect:not([height]) { display: none !important; }
-.unovis-grouped-bar-container rect { stroke-width: 0 !important; rx: 4px; }
+.unovis-grouped-bar-container rect:not([height]) {
+  display: none !important;
+}
+
+.unovis-grouped-bar-container rect {
+  stroke-width: 0 !important;
+  rx: 4px;
+}
 </style>
