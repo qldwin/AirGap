@@ -143,7 +143,7 @@ import {
   TrashIcon,
   SquarePen,
 } from 'lucide-vue-next';
-
+import Papa from 'papaparse';
 
 const searchQuery = ref('');
 
