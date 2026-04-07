@@ -160,7 +160,6 @@
 <script setup>
 import {ref, computed} from 'vue';
 import {VisArea, VisAxis, VisLine, VisXYContainer, VisSankey, VisSingleContainer, VisGroupedBar} from "@unovis/vue";
-import {Sankey} from "@unovis/ts";
 import {ChartContainer, ChartCrosshair, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart";
 import {componentToString} from "@/components/ui/chart/utils";
 
