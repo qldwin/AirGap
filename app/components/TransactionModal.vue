@@ -61,7 +61,7 @@
               </div>
             </RadioGroup>
           </Field>
-          <Field>
+          <Field class="mb-3">
             <FieldLabel for="category"
                         class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Catégorie
             </FieldLabel>
@@ -76,8 +76,8 @@
               >
                 <SelectValue placeholder="Sélectionnez une catégorie"/>
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="cat in filteredCategories" :key="cat.id" :value="cat.id.toString">
+              <SelectContent class="dark:bg-neutral-700 bg-white">
+                <SelectItem class="hover:dark:bg-neutral-800 hover:bg-neutral-400 cursor-pointer" v-for="cat in filteredCategories" :key="cat.id" :value="cat.id.toString()">
                   {{ cat.name }}
                 </SelectItem>
               </SelectContent>
@@ -99,13 +99,13 @@
         )"
                 >
                   <CalendarIcon class="mr-2 h-4 w-4"/>
-                  {{ form.date ? form.date : "Selectionnez une date" }}
+                  {{ form.date ? form.date.toString() : "Sélectionnez une date" }}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent class="w-auto p-0" align="start">
+              <PopoverContent class="w-auto p-0 dark:bg-neutral-700 bg-white" align="start">
                 <Calendar
                     v-model="form.date"
-                    class= "dark:bg-neutral-700 bg-white cursor-pointer"
+                    class= "cursor-pointer"
                 />
               </PopoverContent>
             </Popover>
@@ -231,7 +231,7 @@ const submitForm = async () => {
     const payload = {
       description: form.value.description,
       amount: Number(form.value.amount),
-      date: form.value.date,
+      date: form.value.date ? form.value.date.toString() : undefined,
       typeTransaction: typeValue,
       categoryId: form.value.categoryId,
       accountId: null

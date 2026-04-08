@@ -41,21 +41,17 @@
               <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50">{{ budget.name }}</h3>
 
               <div class="flex items-center space-x-2">
-                <Button class="text-neutral-500 hover:text-primary-600 dark:hover:text-primary-400"
-                        @click="editBudget(budget)">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                       stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
+                <Button
+                    class="cursor-pointer p-1 text-neutral-500 hover:text-primary-600 transition-colors rounded"
+                    @click="editBudget(budget)">
+                  <span class="sr-only">Modifier</span>
+                  <SquarePen/>
                 </Button>
-                <Button class="text-neutral-500 hover:text-red-600 dark:hover:text-red-400"
-                        @click="confirmDeleteBudget(budget)">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                       stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
+                <Button
+                    class="cursor-pointer p-1 text-neutral-500 hover:text-primary-550 transition-colors rounded"
+                    @click="confirmDeleteBudget(budget)">
+                  <span class="sr-only">Supprimer</span>
+                  <TrashIcon/>
                 </Button>
               </div>
             </div>
@@ -86,9 +82,11 @@
 
             <div class="w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-2">
               <div
-                  class="h-2 rounded-full transition-all duration-500"
+                  class="h-2 rounded-full transition-all duration-1000 ease-out"
                   :class="getBudgetSpent(budget) > Number(budget.amount) ? 'bg-red-500' : 'bg-primary-600'"
-                  :style="{ width: `${Math.min((getBudgetSpent(budget) / Number(budget.amount)) * 100, 100)}%` }"
+                  :style="{
+    width: animateBars ? `${Math.min((getBudgetSpent(budget) / Number(budget.amount)) * 100, 100)}%` : '0%'
+  }"
               />
             </div>
           </div>
@@ -96,154 +94,33 @@
       </div>
     </div>
 
-    <div v-if="showBudgetModal" class="fixed inset-0 z-50 flex items-center justify-center">
-      <div class="fixed inset-0 dark:bg-neutral-900/60 backdrop-blur-sm" @click="closeBudgetModal"/>
+    <BudgetModal
+        v-model="showBudgetModal"
+        :budget="editingBudget"
+        @budget-added="onBudgetSaved"
+        @budget-updated="onBudgetSaved"
+    />
 
-      <Card class="w-full max-w-md mx-auto relative bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-500 dark:border-neutral-700 hover:shadow-md transition-shadow duration-300">
-        <CardHeader>
-          <CardTitle class="text-neutral-900 dark:text-neutral-50">
-            {{ editingBudget ? 'Modifier le budget' : 'Nouveau budget' }}
-          </CardTitle>
-        </CardHeader>
-
-        <form class="space-y-4" @submit.prevent="saveBudget">
-          <CardContent>
-            <Field>
-              <FieldLabel for="name"
-                          class="text-neutral-700 dark:text-neutral-300">
-                Nom
-              </FieldLabel>
-              <Input
-                  id="name"
-                  v-model="budgetForm.name"
-                  type="text"
-                  class="w-full px-3 py-2 dark:border-button-1 focus:outline-none transition-colors"
-                  placeholder="Ex: Courses mensuelles"
-                  required
-              />
-            </Field>
-
-            <Field>
-              <FieldLabel for="amount"
-                          class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mt-2">Montant
-              </FieldLabel>
-              <div class="relative">
-                <Input
-                    id="amount"
-                    v-model.number="budgetForm.amount"
-                    type="number"
-                    class="w-full mb-2 px-3 py-2 dark:border-button-1 focus:outline-none transition-colors"
-                    step="0.01"
-                    min="0.01"
-                    placeholder="0.00"
-                    required
-                />
-                <span class="absolute right-10 top-1/2 transform -translate-y-1/2 text-neutral-500">€</span>
-              </div>
-            </Field>
-
-            <Field>
-              <FieldLabel for="category" class="text-neutral-700 dark:text-neutral-300">
-                Catégorie à suivre
-              </FieldLabel>
-              <Select>
-                <SelectTrigger
-                    id="category"
-                    v-model="budgetForm.categoryId"
-                    class="w-full mb-2"
-                    required>
-                  <SelectValue placeholder="Sélectionnez une catégorie"/>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem class="cursor-pointer" v-for="cat in expenseCategories" :key="cat.id" :value="cat.id">
-                    {{ cat.name }}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-
-            <Field>
-              <FieldLabel for="period"
-                          class="text-neutral-700 dark:text-neutral-300">Période
-              </FieldLabel>
-              <Select>
-                <SelectTrigger
-                    id="period"
-                    v-model="budgetForm.periodType"
-                    class="w-full mb-2"
-                    required
-                >
-                  <SelectValue placeholder="Sélectionnez la période"/>
-                </SelectTrigger>
-                <SelectContent class="bg-white dark:bg-neutral-900 dark:text-neutral-300 cursor-pointer">
-                  <SelectItem
-                      class="hover:dark:bg-neutral-600 hover:bg-neutral-400 bg-white dark:bg-neutral-900 dark:text-neutral-300 cursor-pointer"
-                      value="monthly">Ce mois-ci
-                  </SelectItem>
-                  <SelectItem
-                      class="hover:dark:bg-neutral-600 hover:bg-neutral-400 bg-white dark:bg-neutral-900 dark:text-neutral-300 cursor-pointer"
-                      value="yearly">Cette année
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-
-          </CardContent>
-          <CardFooter class="gap-3">
-            <Button
-                type="button"
-                class="w-full cursor-pointer border-primary-50 text-neutral-700 dark:text-neutral-300 bg-neutral-500 dark:bg-neutral-700 hover:dark:bg-neutral-600 hover:bg-neutral-400 transition-colors"
-                @click="closeBudgetModal"
-            >
-              Annuler
-            </Button>
-            <Button
-                type="submit"
-                class="w-full cursor-pointer text-primary-50 bg-primary-500 hover:bg-primary-600 transition-colors"
-                :disabled="isSubmitting"
-            >
-              <span v-if="isSubmitting">En cours...</span>
-              <span v-else>{{ editingBudget ? 'Enregistrer' : 'Ajouter' }}</span>
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
   </div>
 </template>
 
 <script setup>
+import {ref, computed, onMounted} from 'vue';
+import {SquarePen, TrashIcon} from "lucide-vue-next";
+
 definePageMeta({
   middleware: ['authenticated']
 });
 
 const loading = ref(true);
-const isSubmitting = ref(false);
-
 const budgets = ref([]);
 const transactions = ref([]);
 const categories = ref([]);
-
 const showBudgetModal = ref(false);
 const editingBudget = ref(null);
-const budgetForm = ref({
-  name: '',
-  amount: '',
-  categoryId: '',
-  accountId: null,
-  periodType: 'monthly',
-});
+const animateBars = ref(false);
 
 // --- Computed ---
-
-const expenseCategories = computed(() => {
-  if (!categories.value || categories.value.length === 0) return [];
-  return categories.value.filter(c => {
-    const type = c.type || c.typeTransaction;
-    return type === 'depense';
-  });
-});
-
 const sortedBudgets = computed(() => {
   return [...budgets.value].sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
 });
@@ -252,6 +129,8 @@ const sortedBudgets = computed(() => {
 
 const loadInitialData = async () => {
   loading.value = true;
+  animateBars.value = false;
+
   try {
     const results = await Promise.allSettled([
       $fetch('/api/budgets'),
@@ -292,6 +171,10 @@ const loadInitialData = async () => {
     console.error('Erreur critique chargement:', err);
   } finally {
     loading.value = false;
+
+    setTimeout(() => {
+      animateBars.value = true;
+    }, 50);
   }
 };
 // --- Logique Métier ---
@@ -317,93 +200,16 @@ const getBudgetSpent = (budget) => {
 
 const openAddBudgetModal = () => {
   editingBudget.value = null;
-  budgetForm.value = {
-    name: '',
-    amount: '',
-    categoryId: '',
-    accountId: null,
-    periodType: 'monthly',
-  };
   showBudgetModal.value = true;
 };
 
 const editBudget = (budget) => {
   editingBudget.value = budget;
-
-  const start = new Date(budget.startDate);
-  const end = new Date(budget.endDate);
-  const diffTime = Math.abs(end - start);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  const detectedPeriod = diffDays > 32 ? 'yearly' : 'monthly';
-
-  budgetForm.value = {
-    name: budget.name,
-    amount: Number(budget.amount),
-    categoryId: budget.categories && budget.categories.length > 0 ? budget.categories[0].id : '',
-    accountId: budget.accountId,
-    periodType: detectedPeriod
-  };
   showBudgetModal.value = true;
 };
 
-const closeBudgetModal = () => {
-  showBudgetModal.value = false;
-};
-
-// --- Sauvegarde ---
-
-const saveBudget = async () => {
-  isSubmitting.value = true;
-  try {
-    // 1. Calcul des dates selon la sélection "Mensuel/Annuel"
-    const now = new Date();
-    let startDate, endDate;
-
-    if (budgetForm.value.periodType === 'monthly') {
-      startDate = startOfMonth(now);
-      endDate = endOfMonth(now);
-    } else {
-      startDate = startOfYear(now);
-      endDate = endOfYear(now);
-    }
-
-    const payload = {
-      name: budgetForm.value.name,
-      amount: Number(budgetForm.value.amount),
-      accountId: undefined,
-
-      categoryIds: budgetForm.value.categoryId ? [budgetForm.value.categoryId] : [],
-      startDate: startDate,
-      endDate: endDate
-    };
-
-    let response;
-
-    if (editingBudget.value) {
-      response = await $fetch(`/api/budgets/${editingBudget.value.id}`, {
-        method: 'PATCH',
-        body: payload
-      });
-
-      const index = budgets.value.findIndex(b => b.id === editingBudget.value.id);
-      if (index !== -1) {
-        budgets.value[index] = response.budget;
-      }
-    } else {
-      response = await $fetch('/api/budgets', {
-        method: 'POST',
-        body: payload
-      });
-      budgets.value.push(response.budget);
-    }
-
-    closeBudgetModal();
-  } catch (err) {
-    console.error('Erreur sauvegarde:', err);
-    alert("Erreur lors de l'enregistrement : " + (err.data?.message || err.message));
-  } finally {
-    isSubmitting.value = false;
-  }
+const onBudgetSaved = () => {
+  loadInitialData();
 };
 
 // --- Suppression ---

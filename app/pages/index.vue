@@ -12,9 +12,10 @@
           <div v-if="loading" class="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"/>
           <p v-else class="text-3xl font-bold text-primary-600">{{ formatCurrency(balance) }}</p>
 
-          <div v-if="!loading && balanceChange !== null" class="mt-2 text-sm"
-               :class="balanceChange >= 0 ? 'text-primary-600 dark:text-primary-600' : 'text-primary-550 dark:text-primary-550'">
-            <span>{{ formatPercent(balanceChange) }}</span> vs mois dernier
+          <div v-if="!loading && balanceChange !== null" class="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+            <span :class="balanceChange >= 0 ? 'text-primary-600 dark:text-primary-600' : 'text-primary-550 dark:text-primary-550'">
+              {{ formatPercent(balanceChange) }}
+            </span> vs mois dernier
           </div>
         </div>
 
@@ -58,15 +59,19 @@
 </template>
 
 <script setup>
-import {computed} from 'vue';
+import {computed, onMounted} from 'vue';
 
 definePageMeta({
   middleware: ['authenticated']
 });
 
-const {data: apiResult, pending: loading} = await useFetch('/api/transactions', {
+const {data: apiResult, pending: loading, refresh} = await useFetch('/api/transactions', {
   key: 'dashboard-data',
   lazy: false
+});
+
+onMounted(() => {
+  refresh();
 });
 
 const transactions = computed(() => {
@@ -124,4 +129,5 @@ const formatPercent = (val) => {
   const sign = val > 0 ? '+' : '';
   return `${sign}${val.toFixed(1)}%`;
 };
+
 </script>
