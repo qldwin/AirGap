@@ -7,7 +7,7 @@ const createTransactionSchema = z.object({
     description: z.string({message: "La description est requise"})
         .min(1, "La description ne peut pas être vide"),
     date: z.coerce.date({message: "La date est requise"}),
-    accountId: z.string({message: "Le compte est requis"}).uuid(),
+    accountId: z.string({message: "Le compte est requis"}).uuid().nullable(),
     typeTransaction: z.enum(["depense", "revenu", "non_categorise"], {
         message: "Le type est requis"
     }),
