@@ -39,7 +39,7 @@
           </div>
 
           <Button
-              class="w-full btn btn-primary flex justify-center cursor-pointer text-primary-50 bg-primary-500 hover:bg-primary-600 focus:ring-primary-300 transition-colors"
+              class="cursor-pointer text-white border-neutral-200 dark:border-neutral-750 bg-primary-700 hover:bg-primary-500"
               @click="openTransactionModal"
           >
             <PlusIcon class="h-4 w-4 stroke-[3]"/>

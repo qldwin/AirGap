@@ -70,14 +70,14 @@
             >
               <SelectTrigger
                   id="category"
-                  class="w-full"
+                  class="w-full "
                   :disabled="isLoadingCategories"
                   required
               >
                 <SelectValue placeholder="Sélectionnez une catégorie"/>
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="cat in filteredCategories" :key="cat.id" :value="cat.id.toString">
+              <SelectContent class="dark:bg-neutral-700 bg-white cursor-pointer">
+                <SelectItem class="hover:dark:bg-neutral-600 hover:bg-neutral-400 cursor-pointer" v-for="cat in filteredCategories" :key="cat.id" :value="cat.id.toString()">
                   {{ cat.name }}
                 </SelectItem>
               </SelectContent>
@@ -88,7 +88,7 @@
             </p>
           </Field>
 
-          <Field>
+          <Field class="mt-3">
             <Popover>
               <PopoverTrigger as-child>
                 <Button
