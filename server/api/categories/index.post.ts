@@ -1,7 +1,6 @@
 import {z} from 'zod';
 import {createCategory} from "#server/services/categories.service";
 
-
 const createCategorySchema = z.object({
     name: z.string({message: "Le nom est requis"})
         .min(1, "Le nom ne peut pas être vide"),

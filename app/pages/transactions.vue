@@ -8,7 +8,7 @@
 
         <div class="flex items-center gap-4">
           <div
-              class="flex items-center bg-white dark:bg-neutral-800 rounded-xl px-4 py-1.5 border border-neutral-200 dark:border-neutral-700 shadow-sm focus-within:border-primary-500/50 transition-all duration-300">
+              class="flex items-center bg-white dark:bg-neutral-800 rounded-xl px-4 py-1.5 border border-neutral-200 dark:border-neutral-750 shadow-xl focus-within:border-primary-500/50 transition-all duration-300">
             <Search class="h-4 w-4 text-neutral-400 mr-2 flex-shrink-0"/>
             <Input
                 v-model="searchQuery"
@@ -39,7 +39,7 @@
           </div>
 
           <Button
-              class="w-full btn btn-primary flex justify-center cursor-pointer text-primary-50 bg-primary-500 hover:bg-primary-600 focus:ring-primary-300 transition-colors"
+              class="cursor-pointer text-white border-neutral-200 dark:border-neutral-750 bg-primary-700 hover:bg-primary-500"
               @click="openTransactionModal"
           >
             <PlusIcon class="h-4 w-4 stroke-[3]"/>
@@ -61,7 +61,7 @@
           <Table class="w-full" aria-hidden="true">
             <TableHeader>
               <TableRow
-                  class="border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+                  class="border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-750">
                 <TableHead
                     class="text-left py-3 px-4 text-neutral-700 dark:text-neutral-300 text-xs uppercase tracking-wider font-semibold">
                   Date

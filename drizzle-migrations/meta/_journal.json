@@ -8,6 +8,13 @@
       "when": 1770994388459,
       "tag": "0000_narrow_secret_warriors",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1775827431174,
+      "tag": "0001_early_tyrannus",
+      "breakpoints": true
     }
   ]
 }

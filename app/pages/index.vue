@@ -7,7 +7,7 @@
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div
-            class="card p-4 rounded-lg shadow-sm border">
+            class="card p-4 rounded-lg shadow-xl border border-neutral-200 dark:border-neutral-750">
           <h3 class="text-lg font-medium mb-1">Solde total</h3>
           <div v-if="loading" class="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"/>
           <p v-else class="text-3xl font-bold text-primary-600">{{ formatCurrency(balance) }}</p>
@@ -20,7 +20,7 @@
         </div>
 
         <div
-            class="card p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
+            class="card p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-xl border border-neutral-200 dark:border-neutral-750">
           <h3 class="text-lg font-medium dark:text-neutral-300 mb-1">Revenus (ce mois)</h3>
           <div v-if="loading" class="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"/>
           <p v-else class="text-3xl font-bold text-primary-600 dark:text-primary-600">{{
@@ -35,7 +35,7 @@
         </div>
 
         <div
-            class="card p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800">
+            class="card p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-xl border border-neutral-200 dark:border-neutral-750">
           <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-1">Dépenses (ce mois)</h3>
           <div v-if="loading" class="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"/>
           <p v-else class="text-3xl font-bold text-primary-550 dark:text-primary-550">{{ formatCurrency(monthlyExpense) }}</p>
@@ -65,10 +65,14 @@ definePageMeta({
   middleware: ['authenticated']
 });
 
-const {data: apiResult, pending: loading, refresh} = await useFetch('/api/transactions', {
-  key: 'dashboard-data',
-  lazy: false
-});
+const { data: apiResult, pending: loading, refresh } = await useAsyncData(
+    'dashboard-transactions',
+    () => $fetch('/api/transactions'),
+    {
+      lazy: true,
+      server: true,
+    }
+);
 
 onMounted(() => {
   refresh();
@@ -130,4 +134,7 @@ const formatPercent = (val) => {
   return `${sign}${val.toFixed(1)}%`;
 };
 
+onMounted(() => {
+  refresh();
+})
 </script>

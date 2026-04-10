@@ -42,6 +42,19 @@ export const updateCategory = async (
     categoryId: string,
     updateData: Partial<typeof categories.$inferInsert>
 ) => {
+    const categoryTarget = await getCategoryById(categoryId);
+
+    if (!categoryTarget) {
+        throw createError({ statusCode: 404, message: 'Catégorie introuvable' });
+    }
+
+    if (categoryTarget.isDefault === true) {
+        throw createError({
+            statusCode: 403,
+            message: 'Impossible de modifier une catégorie par défaut'
+        });
+    }
+
     const [updatedCategory] = await db.update(categories)
         .set(updateData)
         .where(eq(categories.id, categoryId))
@@ -50,6 +63,19 @@ export const updateCategory = async (
 }
 
 export const deleteCategory = async (categoryId: string) => {
+    const categoryTarget = await getCategoryById(categoryId);
+
+    if (!categoryTarget) {
+        throw createError({ statusCode: 404, message: 'Catégorie introuvable' });
+    }
+
+    if (categoryTarget.isDefault === true) {
+        throw createError({
+            statusCode: 403,
+            message: 'Impossible de supprimer une catégorie par défaut'
+        });
+    }
+
     const [deletedCategory] = await db.delete(categories)
         .where(eq(categories.id, categoryId))
         .returning();

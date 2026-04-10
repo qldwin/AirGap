@@ -8,7 +8,7 @@
 
         <div class="flex items-center space-x-3">
           <Button
-              class="w-full btn btn-primary flex justify-center cursor-pointer text-primary-50 bg-primary-500 hover:bg-primary-600 focus:ring-primary-300 transition-colors"
+              class="cursor-pointer text-white border-neutral-200 dark:border-neutral-750 bg-primary-700 hover:bg-primary-500"
               @click="openAddBudgetModal()"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
@@ -20,7 +20,7 @@
         </div>
       </div>
 
-      <div class="card p-6 bg-white dark:bg-neutral-900 shadow-sm border-neutral-200 dark:border-neutral-800">
+      <div class="card p-6 bg-white dark:bg-neutral-900 shadow-xl border-neutral-200 dark:border-neutral-750">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-xl font-medium text-neutral-900 dark:text-neutral-50">Mes Budgets</h2>
         </div>
@@ -36,9 +36,9 @@
 
         <div v-else class="space-y-6">
           <div v-for="budget in sortedBudgets" :key="budget.id"
-               class="bg-neutral-50 dark:bg-neutral-800 p-4 border-neutral-200 dark:border-neutral-700">
+               class="bg-neutral-50 dark:bg-neutral-800 p-4 border rounded-lg border-neutral-200 dark:border-neutral-750">
             <div class="flex items-center justify-between mb-2">
-              <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50">{{ budget.name }}</h3>
+              <h3 class="text-lg font-medium text-neutral-800 dark:text-neutral-50">{{ budget.name }}</h3>
 
               <div class="flex items-center space-x-2">
                 <Button

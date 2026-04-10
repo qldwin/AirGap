@@ -70,7 +70,7 @@
             >
               <SelectTrigger
                   id="category"
-                  class="w-full"
+                  class="w-full "
                   :disabled="isLoadingCategories"
                   required
               >
@@ -88,7 +88,7 @@
             </p>
           </Field>
 
-          <Field>
+          <Field class="mt-3">
             <Popover>
               <PopoverTrigger as-child>
                 <Button
@@ -164,7 +164,7 @@ const form = ref({
   amount: '',
   type: 'depense',
   categoryId: null,
-  date: undefined
+  date: undefined,
 });
 
 // --- API : CHARGEMENT CATÉGORIES ---
@@ -227,7 +227,23 @@ const submitForm = async () => {
   try {
     isLoading.value = true;
 
-    const typeValue = form.value.type === 'income' ? 'revenu' : 'depense';
+    let formattedDate = '';
+    const rawDate = form.value.date;
+
+    if (!rawDate) {
+      formattedDate = new Date().toISOString().split('T')[0];
+    } else if (typeof rawDate === 'string') {
+      formattedDate = rawDate;
+    } else if (rawDate.year && rawDate.month && rawDate.day) {
+      const m = String(rawDate.month).padStart(2, '0');
+      const d = String(rawDate.day).padStart(2, '0');
+      formattedDate = `${rawDate.year}-${m}-${d}`;
+    } else if (rawDate instanceof Date || typeof rawDate.toISOString === 'function') {
+      formattedDate = rawDate.toISOString().split('T')[0];
+    } else {
+      formattedDate = new Date().toISOString().split('T')[0];
+    }
+
     const payload = {
       description: form.value.description,
       amount: Number(form.value.amount),

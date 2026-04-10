@@ -5,7 +5,7 @@
         <h1 class="text-4xl font-black tracking-tighter mb-10">À propos</h1>
       </div>
 
-      <div class="card mb-8">
+      <div class="card mb-8 shadow-xl border border-neutral-750">
         <h2 class="text-2xl font-semibold mb-4 text-neutral-900 dark:text-neutral-50">L'Origine du projet</h2>
         <p class="text-neutral-700 dark:text-neutral-300 mb-4">
           AirGap est né d'une volonté simple : permettre une gestion de l'argent saine et inviolable. Grâce à une
@@ -18,7 +18,7 @@
         </p>
       </div>
 
-      <div class="card mb-8">
+      <div class="card mb-8 shadow-xl border border-neutral-750">
         <h2 class="text-2xl font-semibold mb-4 text-neutral-900 dark:text-neutral-50">La Philosophie</h2>
         <p class="text-neutral-700 dark:text-neutral-300">
           Contrairement aux géants du secteur, AirGap n'a pas été conçu pour générer du profit à tout prix, mais pour
@@ -27,7 +27,7 @@
         </p>
       </div>
 
-      <div class="card">
+      <div class="card shadow-xl border border-neutral-750">
         <h2 class="text-2xl font-semibold mb-4 text-neutral-900 dark:text-neutral-50">Rejoindre la communauté</h2>
         <p class="text-neutral-700 dark:text-neutral-300 mb-6">
           AirGap est un projet vivant. Vous avez repéré un bug ? Vous voulez proposer une amélioration ? Le code est

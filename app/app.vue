@@ -11,9 +11,7 @@
 <script setup>
 import { onMounted } from 'vue'
 
-
 onMounted(async () => {
-
   const savedTheme = localStorage.getItem('theme')
   const html = document.documentElement
   

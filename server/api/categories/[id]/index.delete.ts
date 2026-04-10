@@ -14,14 +14,10 @@ export default defineEventHandler(async (event) => {
     try {
         const deletedCategory = await deleteCategory(params.data.id);
 
-        if (!deletedCategory) {
-            throw createError({statusCode: 404, message: 'Catégorie introuvable'});
-        }
-
         return {
             success: true,
             message: 'Catégorie supprimée avec succès',
-            deletedId: deletedCategory.id
+            deletedId: deletedCategory?.id
         };
 
     } catch (error: any) {

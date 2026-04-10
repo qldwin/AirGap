@@ -13,7 +13,7 @@ export const categories = pgTable('categories', {
     userId: uuid('user_id').references(() => users.id),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
     updatedAt: timestamp('updatedAt').notNull().defaultNow(),
-    isDefault: boolean('isDefault').default(true),
+    isDefault: boolean('isDefault').default(false),
 });
 
 export const categoryRelations = relations(categories, ({many, one}) => ({

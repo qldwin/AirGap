@@ -1,0 +1,1 @@
+ALTER TABLE "categories" ALTER COLUMN "isDefault" SET DEFAULT false;
