@@ -59,7 +59,7 @@
 </template>
 
 <script setup>
-import {computed} from 'vue';
+import {computed, onMounted} from 'vue';
 
 definePageMeta({
   middleware: ['authenticated']
@@ -73,6 +73,10 @@ const { data: apiResult, pending: loading, refresh } = await useAsyncData(
       server: true,
     }
 );
+
+onMounted(() => {
+  refresh();
+});
 
 const transactions = computed(() => {
   const list = apiResult.value?.transactions || [];

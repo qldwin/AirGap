@@ -11,7 +11,7 @@ const createTransactionSchema = z.object({
     typeTransaction: z.enum(["depense", "revenu", "non_categorise"], {
         message: "Le type est requis"
     }),
-    categoryId: z.string().uuid().optional(),
+    categoryId: z.string().uuid(),
 })
 
 export default defineEventHandler(async (event) => {
