@@ -29,26 +29,45 @@
               </FieldLabel>
             </Field>
 
-            <Field>
-              <FieldLabel class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Email
-                <Input
-                    type="email"
-                    readonly
-                    disabled
-                    class="w-full mt-1 px-3 py-2 bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 rounded-lg text-neutral-500"
-                    :placeholder="user?.email"
-                />
-              </FieldLabel>
-              <p class="mt-1 text-xs text-neutral-500">L'email ne peut pas être modifié</p>
-            </Field>
           </CardContent>
           <CardFooter>
-            <Button class="cursor-pointer border hover:text-neutral-600 text-neutral-700 dark:text-neutral-300 mr-2"
+            <Button type="button" class="cursor-pointer border hover:text-neutral-600 text-neutral-700 dark:text-neutral-300 mr-2"
                     @click="resetProfileForm">Annuler
             </Button>
             <Button type="submit" class="cursor-pointer border hover:text-primary-600 text-primary-550"
                     :disabled="!isProfileValid || isLoading">
+              <span v-if="isLoading">Chargement...</span>
+              <span v-else>Enregistrer</span>
+            </Button>
+          </CardFooter>
+        </Card>
+      </Form>
+
+      <Form @submit.prevent="updateEmail">
+        <Card class="mb-3 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
+          <CardHeader>
+            <CardTitle>Email</CardTitle>
+            <CardDescription>Mettez a jour l'adresse email de votre compte.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Field>
+              <FieldLabel class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                Email
+                <Input
+                    v-model="emailForm.email"
+                    type="email"
+                    class="w-full mt-1 px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-600"
+                    placeholder="nom@domaine.com"
+                />
+              </FieldLabel>
+            </Field>
+          </CardContent>
+          <CardFooter>
+            <Button type="button" class="cursor-pointer border hover:text-neutral-600 text-neutral-700 dark:text-neutral-300 mr-2"
+                    @click="resetEmailForm">Annuler
+            </Button>
+            <Button type="submit" class="cursor-pointer border hover:text-primary-600 text-primary-550"
+                    :disabled="!isEmailValid || isLoading">
               <span v-if="isLoading">Chargement...</span>
               <span v-else>Enregistrer</span>
             </Button>
@@ -99,7 +118,7 @@
             </Field>
           </CardContent>
           <CardFooter>
-            <Button class="cursor-pointer border hover:text-neutral-600 text-neutral-700 dark:text-neutral-300 mr-2"
+            <Button type="button" class="cursor-pointer border hover:text-neutral-600 text-neutral-700 dark:text-neutral-300 mr-2"
                     @click="resetPasswordForm">Annuler
             </Button>
             <Button type="submit" class="cursor-pointer border rounded hover:text-primary-600 text-primary-550"
@@ -160,6 +179,7 @@
 </template>
 
 <script setup lang="ts">
+import { z } from 'zod'
 import {Alert} from "~/components/ui/alert";
 import {AlertDialog, AlertDialogFooter, AlertDialogHeader} from "~/components/ui/alert-dialog";
 
@@ -180,6 +200,10 @@ const profileForm = ref({
   name: ''
 })
 
+const emailForm = ref({
+  email: ''
+})
+
 const passwordForm = ref({
   currentPassword: '',
   newPassword: '',
@@ -189,6 +213,7 @@ const passwordForm = ref({
 watchEffect(() => {
   if (user.value) {
     profileForm.value.name = user.value.name || ''
+    emailForm.value.email = user.value.email || ''
   }
 })
 
@@ -211,6 +236,19 @@ const isProfileValid = computed(() => {
   return !!newName && newName !== currentName
 })
 
+const emailClientSchema = z.email()
+
+const isEmailValid = computed(() => {
+  const newEmail = emailForm.value.email?.trim()
+  const currentEmail = user.value?.email || ''
+
+  if (!newEmail || newEmail === currentEmail) {
+    return false
+  }
+
+  return emailClientSchema.safeParse(newEmail).success
+})
+
 const resetProfileForm = () => {
   error.value = ''
   success.value = ''
@@ -224,6 +262,12 @@ const resetPasswordForm = () => {
   passwordForm.value.currentPassword = ''
   passwordForm.value.newPassword = ''
   passwordForm.value.confirmPassword = ''
+}
+
+const resetEmailForm = () => {
+  error.value = ''
+  success.value = ''
+  emailForm.value.email = user.value?.email || ''
 }
 
 async function updateProfile() {
@@ -242,6 +286,27 @@ async function updateProfile() {
     success.value = 'Profil mis à jour avec succès !'
   } catch (err: any) {
     error.value = err.data?.message || 'Erreur lors de la mise à jour.'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function updateEmail() {
+  error.value = ''
+  success.value = ''
+  isLoading.value = true
+
+  try {
+    await $fetch('/api/user/email', {
+      method: 'PATCH',
+      body: { email: emailForm.value.email }
+    })
+
+    await refreshSession()
+
+    success.value = 'Email mis a jour avec succes !'
+  } catch (err: any) {
+    error.value = err.data?.message || "Erreur lors de la mise a jour de l'email."
   } finally {
     isLoading.value = false
   }

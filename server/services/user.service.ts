@@ -53,3 +53,12 @@ export const updateUserProfile = async (userId: string, name: string) => {
         })
         .where(eq(users.id, userId));
 }
+
+export const updateUserEmail = async (userId: string, email: string) => {
+    return db.update(users)
+        .set({
+            email,
+            updatedAt: new Date()
+        })
+        .where(eq(users.id, userId));
+}
