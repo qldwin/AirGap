@@ -173,7 +173,7 @@ const formatEuro = (value) => new Intl.NumberFormat('fr-FR', {
   minimumFractionDigits: 2
 }).format(value);
 
-const THEME = {colors: {balance: '#94a3b8', income: '#7bf1a8', expense: '#00a63e'}};
+const THEME = {colors: {balance: '#94a3b8', income: '#00a63e', expense: '#fb2c36'}};
 
 const chartConfig = {
   balance: {

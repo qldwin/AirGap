@@ -1,8 +1,6 @@
 <template>
-
   <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center">
     <div class="fixed inset-0 dark:bg-neutral-900/60 backdrop-blur-sm" @click="closeModal"/>
-
     <Card
         class="w-full max-w-md mx-auto relative bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-500 dark:border-neutral-700 hover:shadow-md transition-shadow duration-300">
       <CardHeader>
@@ -173,7 +171,6 @@ watch(
     () => props.budget,
     (newBudget) => {
       if (newBudget) {
-        // Détecter si le budget est mensuel ou annuel
         const start = new Date(newBudget.startDate);
         const end = new Date(newBudget.endDate);
         const diffDays = Math.ceil(Math.abs(end - start) / (1000 * 60 * 60 * 24));
@@ -186,7 +183,6 @@ watch(
           periodType: detectedPeriod
         };
       } else {
-        // Reset du formulaire
         form.value = {name: '', amount: '', categoryId: '', periodType: 'monthly'};
       }
     },
@@ -197,8 +193,6 @@ watch(
 const submitForm = async () => {
   try {
     isLoading.value = true;
-
-    // Calcul des dates selon la sélection "Mensuel/Annuel"
     const now = new Date();
     let startDate, endDate;
 
