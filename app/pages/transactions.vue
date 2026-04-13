@@ -145,6 +145,10 @@ import {
 } from 'lucide-vue-next';
 import Papa from 'papaparse';
 
+useHead({
+  title: 'AirGap | Transactions',
+})
+
 const searchQuery = ref('');
 
 const filteredTransactions = computed(() => {

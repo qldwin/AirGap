@@ -30,6 +30,10 @@
 <script setup>
 import {Item} from "~/components/ui/item/index.js";
 
+useHead({
+  title: 'AirGap | Paramètres',
+})
+
 definePageMeta({
   middleware: ['authenticated']
 });

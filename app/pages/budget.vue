@@ -108,6 +108,10 @@
 import {ref, computed, onMounted} from 'vue';
 import {SquarePen, TrashIcon} from "lucide-vue-next";
 
+useHead({
+  title: 'AirGap | Budgets',
+})
+
 definePageMeta({
   middleware: ['authenticated']
 });

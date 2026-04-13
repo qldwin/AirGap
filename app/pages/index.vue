@@ -61,6 +61,11 @@
 <script setup>
 import {computed, onMounted} from 'vue';
 
+useHead({
+  title: 'AirGap | Accueil',
+})
+
+
 definePageMeta({
   middleware: ['authenticated']
 });
