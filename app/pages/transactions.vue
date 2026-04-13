@@ -187,7 +187,13 @@ const isIncome = (t) => t.typeTransaction === 'revenu';
 const getTransactionClass = (t) => isIncome(t) ? 'text-primary-550' : 'text-red-500';
 const getTransactionSign = (t) => isIncome(t) ? '+' : '-';
 
-const formatCurrency = (amount) => new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'EUR'}).format(amount);
+const formatCurrency = (amount) => new Intl.NumberFormat('fr-FR', {
+  style: 'currency',
+  currency: 'EUR',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 18
+}).format(amount);
+
 const formatDate = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
