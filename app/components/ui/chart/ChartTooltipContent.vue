@@ -49,7 +49,7 @@ const tooltipLabel = computed(() => {
   <div
     :class="
       cn(
-        'border-border/50 bg-background grid min-w-[8rem] items-start gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs shadow-xl',
+        'backdrop-blur-md bg-white/40 dark:bg-neutral-900/40 grid min-w-[8rem] items-start gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs shadow-xl',
         props.class,
       )
     "
@@ -94,7 +94,7 @@ const tooltipLabel = computed(() => {
           <div
             :class="
               cn(
-                'flex flex-1 justify-between leading-none',
+                'flex flex-1 justify-between gap-5 leading-none',
                 nestLabel ? 'items-end' : 'items-center',
               )
             "
@@ -111,7 +111,7 @@ const tooltipLabel = computed(() => {
               v-if="value"
               class="text-foreground font-mono font-medium tabular-nums"
             >
-              {{ value.toLocaleString() }}
+              {{ value.toLocaleString() }}€
             </span>
           </div>
         </div>
