@@ -84,6 +84,10 @@
 </template>
 
 <script setup>
+useHead({
+  title: "AirGap | S'enregistrer",
+})
+
 const form = reactive({
   name: '',
   email: '',

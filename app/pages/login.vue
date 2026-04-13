@@ -60,6 +60,10 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+  title: "AirGap | Se connecter",
+})
+
 const {fetch: refreshSession} = useUserSession()
 const credentials = ref({
   email: '',
