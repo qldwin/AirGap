@@ -51,13 +51,13 @@
                     value="income"
                     class="mr-2"
                 />
-                <Label for="income-menu" class="text-primary-600 font-medium">Revenu</Label>
+                <Label for="income-menu" class="text-primary-550 font-medium">Revenu</Label>
                 <RadioGroupItem
                     id="expense-menu"
                     value="expense"
                     class="mr-2"
                 />
-                <Label for="expense-menu" class="text-primary-550 font-medium">Dépense</Label>
+                <Label for="expense-menu" class="text-red-500 font-medium">Dépense</Label>
               </div>
             </RadioGroup>
           </Field>

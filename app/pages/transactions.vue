@@ -105,13 +105,13 @@
                 <TableCell class="py-3 px-4 text-right whitespace-nowrap">
                   <div class="flex justify-end space-x-2">
                     <Button
-                        class="cursor-pointer p-1 text-neutral-500 hover:text-primary-600 transition-colors rounded"
+                        class="cursor-pointer p-1 text-neutral-500 hover:text-primary-550 transition-colors rounded"
                         @click="editTransaction(transaction)">
                       <span class="sr-only">Modifier</span>
                       <SquarePen/>
                     </Button>
                     <Button
-                        class="cursor-pointer p-1 text-neutral-500 hover:text-primary-550 transition-colors rounded"
+                        class="cursor-pointer p-1 text-neutral-500 hover:text-red-500 transition-colors rounded"
                         @click="confirmDeleteTransaction(transaction)">
                       <span class="sr-only">Supprimer</span>
                       <TrashIcon/>
@@ -165,7 +165,6 @@ definePageMeta({
   middleware: ['authenticated']
 });
 
-
 // --- ÉTAT ---
 const isImporting = ref(false);
 const isParsing = ref(false);
@@ -181,7 +180,7 @@ const selectedTransaction = ref(null);
 
 // --- HELPER FUNCTIONS ---
 const isIncome = (t) => t.typeTransaction === 'revenu';
-const getTransactionClass = (t) => isIncome(t) ? 'text-primary-600' : 'text-primary-550';
+const getTransactionClass = (t) => isIncome(t) ? 'text-primary-550' : 'text-red-500';
 const getTransactionSign = (t) => isIncome(t) ? '+' : '-';
 
 const formatCurrency = (amount) => new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'EUR'}).format(amount);

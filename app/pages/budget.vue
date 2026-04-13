@@ -40,15 +40,15 @@
             <div class="flex items-center justify-between mb-2">
               <h3 class="text-lg font-medium text-neutral-800 dark:text-neutral-50">{{ budget.name }}</h3>
 
-              <div class="flex items-center space-x-2">
+               <div class="flex items-center space-x-2">
                 <Button
-                    class="cursor-pointer p-1 text-neutral-500 hover:text-primary-600 transition-colors rounded"
+                    class="cursor-pointer p-1 text-neutral-500 hover:text-primary-550 transition-colors rounded"
                     @click="editBudget(budget)">
                   <span class="sr-only">Modifier</span>
                   <SquarePen/>
                 </Button>
                 <Button
-                    class="cursor-pointer p-1 text-neutral-500 hover:text-primary-550 transition-colors rounded"
+                    class="cursor-pointer p-1 text-neutral-500 hover:text-red-500 transition-colors rounded"
                     @click="confirmDeleteBudget(budget)">
                   <span class="sr-only">Supprimer</span>
                   <TrashIcon/>
