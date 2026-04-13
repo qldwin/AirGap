@@ -104,8 +104,8 @@
                     <VisGroupedBar
                         :key="period"
                         :x="(d, i) => i"
-                        :y="[(d) => d.income >= 0.01 ? d.income : null, (d) => d.expense >= 0.01 ? d.expense : null]"
-                        :color="(d, i) => [THEME.colors.income, THEME.colors.expense][i]"
+                        :y="[(d) => d.income, (d) => d.expense]"
+                        :color="(d, i) => (i === 0 ? d.income : d.expense) > 0 ? [THEME.colors.income, THEME.colors.expense][i] : 'transparent'"
                         :groupPadding="0"
                         :barPadding="0.4"
                         :barMaxWidth="40"
@@ -392,13 +392,13 @@ html.dark .sankeyGraph text {
   fill: #ffffff !important;
 }
 
-.unovis-grouped-bar-container rect[height="0"],
-.unovis-grouped-bar-container rect[height^="0."],
-.unovis-grouped-bar-container rect:not([height]) {
+rect[height="0"],
+rect[height^="0."],
+rect:not([height]) {
   display: none !important;
 }
 
-.unovis-grouped-bar-container rect {
+g[class*="bar"] rect {
   stroke-width: 0 !important;
   rx: 4px;
 }

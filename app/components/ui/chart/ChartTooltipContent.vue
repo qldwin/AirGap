@@ -28,7 +28,7 @@ const payload = computed(() => {
 
       return { key, value, itemConfig, indicatorColor };
     })
-    .filter((i) => i.itemConfig);
+      .filter((i) => i.itemConfig && i.value !== 0);
 });
 
 const nestLabel = computed(
