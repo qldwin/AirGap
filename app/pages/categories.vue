@@ -109,6 +109,10 @@ import {ref, onMounted} from 'vue';
 import {PlusIcon, SquarePen, TrashIcon} from "lucide-vue-next";
 import CategorieModal from '~/components/CategorieModal.vue';
 
+useHead({
+  title: 'AirGap | Catégories',
+})
+
 definePageMeta({
   middleware: ['authenticated']
 });

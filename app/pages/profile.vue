@@ -183,6 +183,10 @@ import { z } from 'zod'
 import {Alert} from "~/components/ui/alert";
 import {AlertDialog, AlertDialogFooter, AlertDialogHeader} from "~/components/ui/alert-dialog";
 
+useHead({
+  title: 'AirGap | Profil',
+})
+
 definePageMeta({
   middleware: ['authenticated'],
 })

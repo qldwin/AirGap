@@ -48,4 +48,7 @@
   </div>
 </template>
 <script setup lang="ts">
+useHead({
+  title: 'AirGap | À propos',
+})
 </script>
