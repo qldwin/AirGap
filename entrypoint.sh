@@ -1,2 +1,2 @@
-npx drizzle-kit migrate
-exec node .output/server/index.mjs
+drizzle-kit migrate
+node server/index.mjs
