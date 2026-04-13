@@ -106,8 +106,8 @@
                         :x="(d, i) => i"
                         :y="[(d) => d.income >= 0.01 ? d.income : null, (d) => d.expense >= 0.01 ? d.expense : null]"
                         :color="(d, i) => [THEME.colors.income, THEME.colors.expense][i]"
-                        :groupPadding="0.2"
-                        :barPadding="0.05"
+                        :groupPadding="0"
+                        :barPadding="0.4"
                         :barMaxWidth="40"
                     />
                     <VisAxis
