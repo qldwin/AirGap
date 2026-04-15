@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:18
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+      PGUSER: ${DB_USER}
+    volumes:
+      - "postgres_data:/var/lib/postgresql"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      start_period: 5s
+      retries: 5
+    networks:
+      - airgap_db_net
+      - adminer_db_net
+
+  adminer:
+    image: adminer:5
+    restart: always
+    profiles: [adminer]
+    ports:
+      - "8080:8080"
+    networks:
+      - adminer_db_net
+
+  airgap:
+    image: ghcr.io/qldwin/airgap:master
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: ".env"
+    cap_drop:
+      - ALL
+    networks:
+      - airgap_db_net
+
+
+volumes:
+  postgres_data:
+
+networks:
+  airgap_db_net:
+  adminer_db_net:
