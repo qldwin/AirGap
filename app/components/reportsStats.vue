@@ -1,6 +1,6 @@
 <template>
-  <div class="pt-4 pb-8 px-4">
-    <div class="max-w-7xl mx-auto">
+  <div class="py-8">
+    <div class="max-w-6xl mx-auto">
 
       <div class="flex justify-center mb-10 w-full">
         <div
