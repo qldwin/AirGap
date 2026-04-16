@@ -161,7 +161,7 @@ const today = new Date().toISOString().split('T')[0];
 const form = ref({
   description: '',
   amount: '',
-  type: 'depense',
+  type: '',
   categoryId: null,
   date: undefined,
 });
@@ -223,6 +223,22 @@ watch(
 
 // --- SUBMIT ---
 const submitForm = async () => {
+
+  if (!form.value.date) {
+    alert("Attention la date n'est pas sélectionnée.");
+    return;
+  }
+
+  if (!form.value.categoryId) {
+    alert("Attention la catégorie n'est pas sélectionnée.");
+    return;
+  }
+
+  if (!form.value.type) {
+    alert("Attention le type n'est pas sélectionné.");
+    return;
+  }
+
   try {
     isLoading.value = true;
 

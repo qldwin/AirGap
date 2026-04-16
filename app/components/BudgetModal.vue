@@ -191,6 +191,12 @@ watch(
 
 // --- SUBMIT ---
 const submitForm = async () => {
+
+  if (!form.value.categoryId) {
+    alert("Attention la catégorie n'est pas sélectionnée.");
+    return;
+  }
+
   try {
     isLoading.value = true;
     const now = new Date();
