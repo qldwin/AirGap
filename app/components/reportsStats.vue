@@ -233,7 +233,7 @@ const activePeriodSelectors = computed(() => {
   if (period.value === 'month') return [{
     key: 'month', label: monthNames[selectedMonth.value - 1], isOpen: isMonthMenuOpen.value,
     toggleMenu: () => isMonthMenuOpen.value = !isMonthMenuOpen.value,
-    options: (moisData.value?.months || []).map(m => ({value: m, label: monthNames[m - 1]})),
+    options: [...(moisData.value?.months || [])].sort((a, b) => a - b).map(m => ({value: m, label: monthNames[m - 1]})),
     isSelected: (v) => selectedMonth.value === v,
     select: (v) => {
       selectedMonth.value = v;
