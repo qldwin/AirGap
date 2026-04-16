@@ -224,7 +224,7 @@ const activePeriodSelectors = computed(() => {
     key: 'year', label: selectedYear.value, isOpen: isYearMenuOpen.value,
     toggleMenu: () => isYearMenuOpen.value = !isYearMenuOpen.value,
     options: (anneesData.value?.years || []).map(y => ({value: y, label: y})),
-    isSelected: (v) => selectedYear.value === v,
+    isSelected: (v) => Number(selectedYear.value) === Number(v),
     select: (v) => {
       selectedYear.value = v;
       isYearMenuOpen.value = false;
@@ -234,7 +234,7 @@ const activePeriodSelectors = computed(() => {
     key: 'month', label: monthNames[selectedMonth.value - 1], isOpen: isMonthMenuOpen.value,
     toggleMenu: () => isMonthMenuOpen.value = !isMonthMenuOpen.value,
     options: [...(moisData.value?.months || [])].sort((a, b) => a - b).map(m => ({value: m, label: monthNames[m - 1]})),
-    isSelected: (v) => selectedMonth.value === v,
+    isSelected: (v) => Number(selectedMonth.value) === Number(v),
     select: (v) => {
       selectedMonth.value = v;
       isMonthMenuOpen.value = false;
@@ -244,7 +244,7 @@ const activePeriodSelectors = computed(() => {
     key: 'quarter', label: quarterLabels[selectedQuarter.value], isOpen: isQuarterMenuOpen.value,
     toggleMenu: () => isQuarterMenuOpen.value = !isQuarterMenuOpen.value,
     options: (trimestresData.value?.quarters || []).map(q => ({value: q, label: quarterLabels[q]})),
-    isSelected: (v) => selectedQuarter.value === v,
+    isSelected: (v) => Number(selectedQuarter.value) === Number(v),
     select: (v) => {
       selectedQuarter.value = v;
       isQuarterMenuOpen.value = false;
