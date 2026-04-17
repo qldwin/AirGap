@@ -31,5 +31,5 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd /app/
-            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml pull -q
             docker compose -f docker-compose.prod.yml up -d
