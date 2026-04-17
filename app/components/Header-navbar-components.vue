@@ -21,7 +21,7 @@
               <NuxtLink to="/budget">Budgets</NuxtLink>
             </Button>
             <Button class="nav-link" active-class="nav-link-active">
-              <NuxtLink to="/about">À propos</NuxtLink>
+              <NuxtLink to="/settings">Paramètres</NuxtLink>
             </Button>
           </nav>
 
@@ -61,8 +61,8 @@
                     </Button>
                     <Button class="w-full px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:text-primary-500 dark:hover:bg-neutral-800 transition-colors">
                     <NuxtLink
-                        to="/settings"
-                        @click="isDropdownOpen = false">Paramètres
+                        to="/about"
+                        @click="isDropdownOpen = false">À propos
                     </NuxtLink>
                     </Button>
                     <Button
