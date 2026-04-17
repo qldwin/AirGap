@@ -1,0 +1,35 @@
+name: Deploy to production
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://airgap.aldwin-weber.fr  # Remplace par ton URL de production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Copy docker-compose.prod.yml via SCP
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "docker-compose.prod.yml"
+          target: "/app/"
+
+      - name: Execute docker compose up via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /app/
+            docker compose -f docker-compose.prod.yml pull -q
+            docker compose -f docker-compose.prod.yml up -d
