@@ -89,7 +89,10 @@
 
                 <TableCell class="py-3 px-4 text-sm text-neutral-800 dark:text-neutral-200">
                   <div class="flex items-center">
-                    <span>{{ transaction.description }}</span>
+                    <span class="truncate max-w-[500px] sm:max-w-[700px]"
+                    >
+                      {{ transaction.description }}
+                    </span>
                     <span v-if="transaction.category"
                           class="ml-2 text-xs px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600">
                       {{ transaction.category }}
