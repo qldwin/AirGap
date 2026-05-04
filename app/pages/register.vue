@@ -1,6 +1,6 @@
 <template>
   <div class="flex justify-center items-center py-12">
-    <Card class="card w-full max-w-md">
+    <Card class="card w-full max-w-md dark:bg-neutral-900 shadow-sm border border-gray-500">
       <CardHeader>
         <div>
           <CardTitle class="text-neutral-900 dark:text-neutral-50">Créer un compte</CardTitle>

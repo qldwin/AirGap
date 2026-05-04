@@ -1,6 +1,6 @@
 <template>
   <div class="flex justify-center py-12">
-    <Card class="card w-full max-w-md">
+    <Card class="card w-full dark:bg-neutral-900 shadow-sm border border-gray-500 max-w-md">
       <CardHeader>
         <div>
           <CardTitle>Se connecter</CardTitle>
