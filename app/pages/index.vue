@@ -70,7 +70,7 @@ definePageMeta({
   middleware: ['authenticated']
 });
 
-const { data: apiResult, pending: loading, refresh } = await useAsyncData(
+const { data: apiResult, pending: loading, refresh } = useAsyncData(
     'dashboard-transactions',
     () => $fetch('/api/transactions'),
     {
@@ -78,10 +78,6 @@ const { data: apiResult, pending: loading, refresh } = await useAsyncData(
       server: true,
     }
 );
-
-onMounted(() => {
-  refresh();
-});
 
 const transactions = computed(() => {
   const list = apiResult.value?.transactions || [];

@@ -63,11 +63,25 @@
           </div>
         </CardContent>
         <CardFooter class="flex flex-col">
+          <Separator class="mt-5 mb-4 dark:bg-primary-50 bg-neutral-900" />
+
           <Button
               type="submit"
               class="w-full btn btn-primary flex justify-center cursor-pointer text-primary-50 bg-primary-500 hover:bg-primary-600 focus:ring-primary-300">
             Créer un compte
           </Button>
+
+          <!-- Bouton Google -->
+          <Button
+              type="button"
+              variant="outline"
+              class="w-full cursor-pointer mt-2"
+              @click="navigateTo('/auth/google', { external: true })"
+          >
+            <img src="https://www.google.com/favicon.ico" class="w-4 h-4 mr-2" alt="Google"/>
+            S'enregistrer avec Google
+          </Button>
+
           <Separator class="mt-5 mb-4 dark:bg-primary-50 bg-neutral-900" />
           <div class="flex items-center">
             <p>Vous avez déjà un compte ?</p>

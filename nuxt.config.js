@@ -11,7 +11,18 @@ export default defineNuxtConfig({
 
     runtimeConfig: {
         databaseUrl: '',
+        session: {
+            password: process.env.NUXT_SESSION_PASSWORD,
+            maxAge: 60 * 60 * 24 * 30,
+        },
+        oauth: {
+            google: {
+                clientId: process.env.GOOGLE_CLIENT_ID,
+                clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            }
+        }
     },
+
     vite: {
         resolve: {
             alias: {
@@ -65,7 +76,7 @@ export default defineNuxtConfig({
             navigateFallback: '/',
          },
          devOptions: {
-            enabled: true,
+            enabled: false,
                 type: 'module',
             }
          },

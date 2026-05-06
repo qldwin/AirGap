@@ -11,6 +11,15 @@
 <script setup>
 import { onMounted } from 'vue'
 
+
+const { fetch: refreshSession } = useUserSession()
+await callOnce(refreshSession)
+
+const router = useRouter()
+router.afterEach(async () => {
+  await refreshSession()
+})
+
 onMounted(async () => {
   const savedTheme = localStorage.getItem('theme')
   const html = document.documentElement
