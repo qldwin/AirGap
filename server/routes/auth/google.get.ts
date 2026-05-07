@@ -1,7 +1,6 @@
 import { db } from "#server/db";
 import { users } from "~~/drizzle/schema";
 import { eq } from "drizzle-orm";
-import { randomUUID } from "node:crypto";
 
 export default defineOAuthGoogleEventHandler({
     async onSuccess(event, { user }) {
@@ -10,11 +9,15 @@ export default defineOAuthGoogleEventHandler({
             where: eq(users.email, user.email)
         });
 
+        if (dbUser && dbUser.authProvider !== 'google') {
+            return sendRedirect(event, `/login?error=wrong_provider&expected=${dbUser.authProvider}`);
+        }
+
         if (!dbUser) {
             const [newUser] = await db.insert(users).values({
                 email: user.email ?? '',
                 name: user.name ?? '',
-                password: `oauth_google_${randomUUID()}`,
+                authProvider: 'google',
             }).returning();
 
             if (!newUser) {

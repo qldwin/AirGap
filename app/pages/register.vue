@@ -10,6 +10,9 @@
         </div>
       </CardHeader>
       <form @submit.prevent="handleRegister">
+        <div v-if="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {{ errorMessage }}
+        </div>
         <CardContent class="space-y-5">
           <div>
             <Label for="name" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Nom</Label>
@@ -82,6 +85,17 @@
             S'enregistrer avec Google
           </Button>
 
+          <!-- Bouton GitHub -->
+          <Button
+              type="button"
+              variant="outline"
+              class="w-full cursor-pointer mt-2"
+              @click="navigateTo('/auth/github', { external: true })"
+          >
+            <img src="https://github.com/favicon.ico" class="w-4 h-4 mr-2" alt="GitHub" />
+            S'enregistrer avec GitHub
+          </Button>
+
           <Separator class="mt-5 mb-4 dark:bg-primary-50 bg-neutral-900" />
           <div class="flex items-center">
             <p>Vous avez déjà un compte ?</p>
@@ -109,8 +123,14 @@ const form = reactive({
   confirmPassword: '',
 });
 
+const errorMessage = ref("");
+const route = useRoute();
+
+if(route.query.error === 'wrong_provider') {
+  errorMessage.value = 'Votre email est déjà utilisé pour un autre compte';
+}
+
 async function handleRegister() {
-  // Petite sécurité avant l'envoi
   if (form.password !== form.confirmPassword) {
     alert("Les mots de passe ne correspondent pas");
     return;
@@ -128,9 +148,8 @@ async function handleRegister() {
         navigateTo('/login');
       })
       .catch((error) => {
-        const errorMessage = error.data?.message || "Une erreur est survenue lors de l'inscription";
+        errorMessage.value = error.data?.message || "Une erreur est survenue lors de l'inscription";
         console.error("Détails de l'erreur:", error.data);
-        alert(errorMessage);
       });
 }
-</script> 
+</script>
