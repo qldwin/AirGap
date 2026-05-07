@@ -15,6 +15,13 @@
       "when": 1775827431174,
       "tag": "0001_early_tyrannus",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778161466893,
+      "tag": "0002_quick_tomas",
+      "breakpoints": true
     }
   ]
 }

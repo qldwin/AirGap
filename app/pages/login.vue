@@ -9,6 +9,9 @@
       </CardHeader>
 
       <form @submit.prevent="handleLogin">
+        <div v-if="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {{ errorMessage }}
+        </div>
         <CardContent class="space-y-6">
           <div>
             <Label for="email" class="block mb-1">Email</Label>
@@ -38,13 +41,40 @@
           </div>
         </CardContent>
         <CardFooter class="flex flex-col">
+          <Separator class="mt-5 mb-4 dark:bg-primary-50 bg-neutral-900"/>
+
           <Button
               type="submit"
               class="w-full cursor-pointer text-primary-50 bg-primary-500 hover:bg-primary-600 focus:ring-primary-300 transition-colors"
           >
             Se connecter
           </Button>
-          <Separator class="mt-5 mb-4 dark:bg-primary-50 bg-neutral-900" />
+
+          <!-- Bouton Google -->
+          <Button
+              type="button"
+              variant="outline"
+              class="w-full cursor-pointer mt-2"
+              @click="navigateTo('/auth/google', { external: true })"
+          >
+            <img src="https://www.google.com/favicon.ico" class="w-4 h-4 mr-2" alt="Google"/>
+            Continuer avec Google
+          </Button>
+
+          <!-- Bouton GitHub -->
+
+          <Button
+              type="button"
+              variant="outline"
+              class="w-full cursor-pointer mt-2"
+              @click="navigateTo('/auth/github', { external: true })"
+          >
+            <img src="https://github.com/favicon.ico" class="w-4 h-4 mr-2" alt="GitHub" />
+            Continuer avec GitHub
+          </Button>
+
+          <Separator class="mt-5 mb-4 dark:bg-primary-50 bg-neutral-900"/>
+
           <div class="flex items-center">
             <p>Pas encore de compte ?</p>
             <Button class="text-primary-500 hover:underline">
@@ -69,6 +99,13 @@ const credentials = ref({
   email: '',
   password: '',
 });
+
+const errorMessage = ref("");
+const route = useRoute();
+
+if(route.query.error === 'wrong_provider') {
+  errorMessage.value = 'Votre email est déjà utilisé pour un autre compte';
+}
 
 async function handleLogin() {
   $fetch('/api/auth/login', {
