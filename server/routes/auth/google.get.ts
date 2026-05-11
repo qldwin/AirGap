@@ -32,6 +32,7 @@ export default defineOAuthGoogleEventHandler({
                 id: dbUser.id,
                 email: dbUser.email,
                 name: dbUser.name,
+                authProvider: dbUser.authProvider || 'google',
             },
             loggedInAt: new Date()
         });

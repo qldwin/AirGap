@@ -44,7 +44,7 @@
         </Card>
       </Form>
 
-      <div v-if="authProvider !== 'local'">
+      <div v-if="authProvider === 'local'">
         <Form @submit.prevent="updateEmail">
           <Card
               class="mb-3 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
@@ -229,6 +229,7 @@ watchEffect(() => {
     profileForm.value.name = user.value.name || ''
     emailForm.value.email = user.value.email || ''
     authProvider.value = user.value.authProvider || 'local'
+    console.log("Voici ce que contient mon utilisateur :", user.value)
   }
 })
 
