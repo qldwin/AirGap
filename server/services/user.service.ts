@@ -15,6 +15,7 @@ export const getUserById = async (userId: string) => {
             id: true,
             email: true,
             name: true,
+            authProvider: true,
             createdAt: true,
             updatedAt: true
         }
@@ -37,12 +38,15 @@ export const softDeleteUser = async (userId: string) => {
 }
 
 export const updateUserPassword = async (userId: string, newHashedPassword: string) => {
-    return db.update(users)
-        .set({
-            password: newHashedPassword,
-            updatedAt: new Date()
-        })
-        .where(eq(users.id, userId));
+    const user = await getUserById(userId);
+    if(user?.authProvider === 'local') {
+        return db.update(users)
+            .set({
+                password: newHashedPassword,
+                updatedAt: new Date()
+            })
+            .where(eq(users.id, userId));
+    }
 }
 
 export const updateUserProfile = async (userId: string, name: string) => {
@@ -55,10 +59,13 @@ export const updateUserProfile = async (userId: string, name: string) => {
 }
 
 export const updateUserEmail = async (userId: string, email: string) => {
-    return db.update(users)
-        .set({
-            email,
-            updatedAt: new Date()
-        })
-        .where(eq(users.id, userId));
+    const user = await getUserById(userId);
+    if(user?.authProvider === 'local') {
+        return db.update(users)
+            .set({
+                email,
+                updatedAt: new Date()
+            })
+            .where(eq(users.id, userId));
+    }
 }
