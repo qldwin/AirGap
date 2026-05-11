@@ -46,6 +46,8 @@ export const updateUserPassword = async (userId: string, newHashedPassword: stri
                 updatedAt: new Date()
             })
             .where(eq(users.id, userId));
+    } else {
+        throw new Error("Impossible de modifier le mot de passe pour un utilisateur avec un fournisseur d'authentification externe");
     }
 }
 
@@ -67,5 +69,7 @@ export const updateUserEmail = async (userId: string, email: string) => {
                 updatedAt: new Date()
             })
             .where(eq(users.id, userId));
+    } else {
+        throw new Error("Impossible de modifier l'email pour un utilisateur avec un fournisseur d'authentification externe");
     }
 }
