@@ -11,7 +11,8 @@
 
 
       <Form @submit.prevent="updateProfile">
-        <Card class="mb-3 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
+        <Card
+            class="mb-3 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
           <CardHeader>
             <CardTitle>Profil</CardTitle>
             <CardDescription>Gérez votre identité sur la plateforme.</CardDescription>
@@ -31,7 +32,8 @@
 
           </CardContent>
           <CardFooter>
-            <Button type="button" class="cursor-pointer border hover:text-neutral-600 text-neutral-700 dark:text-neutral-300 mr-2"
+            <Button type="button"
+                    class="cursor-pointer border hover:text-neutral-600 text-neutral-700 dark:text-neutral-300 mr-2"
                     @click="resetProfileForm">Annuler
             </Button>
             <Button type="submit" class="cursor-pointer border hover:text-primary-600 text-primary-550"
@@ -43,94 +45,101 @@
         </Card>
       </Form>
 
-      <Form @submit.prevent="updateEmail">
-        <Card class="mb-3 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
-          <CardHeader>
-            <CardTitle>Email</CardTitle>
-            <CardDescription>Mettez a jour l'adresse email de votre compte.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Field>
-              <FieldLabel class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Email
-                <Input
-                    v-model="emailForm.email"
-                    type="email"
-                    class="w-full mt-1 px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-600"
-                    placeholder="nom@domaine.com"
-                />
-              </FieldLabel>
-            </Field>
-          </CardContent>
-          <CardFooter>
-            <Button type="button" class="cursor-pointer border hover:text-neutral-600 text-neutral-700 dark:text-neutral-300 mr-2"
-                    @click="resetEmailForm">Annuler
-            </Button>
-            <Button type="submit" class="cursor-pointer border hover:text-primary-600 text-primary-550"
-                    :disabled="!isEmailValid || isLoading">
-              <span v-if="isLoading">Chargement...</span>
-              <span v-else>Enregistrer</span>
-            </Button>
-          </CardFooter>
-        </Card>
-      </Form>
+      <div v-if="authProvider !== 'local'">
+        <Form @submit.prevent="updateEmail">
+          <Card
+              class="mb-3 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
+            <CardHeader>
+              <CardTitle>Email</CardTitle>
+              <CardDescription>Mettez a jour l'adresse email de votre compte.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Field>
+                <FieldLabel class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                  Email
+                  <Input
+                      v-model="emailForm.email"
+                      type="email"
+                      class="w-full mt-1 px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-600"
+                      placeholder="nom@domaine.com"
+                  />
+                </FieldLabel>
+              </Field>
+            </CardContent>
+            <CardFooter>
+              <Button type="button"
+                      class="cursor-pointer border hover:text-neutral-600 text-neutral-700 dark:text-neutral-300 mr-2"
+                      @click="resetEmailForm">Annuler
+              </Button>
+              <Button type="submit" class="cursor-pointer border hover:text-primary-600 text-primary-550"
+                      :disabled="!isEmailValid || isLoading">
+                <span v-if="isLoading">Chargement...</span>
+                <span v-else>Enregistrer</span>
+              </Button>
+            </CardFooter>
+          </Card>
+        </Form>
 
-      <Form @submit.prevent="updatePassword">
-        <Card class="mb-3 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
-          <CardHeader>
-            <CardTitle>Mot de passe</CardTitle>
-            <CardDescription>Mettez à jour votre mot de passe pour sécuriser votre compte.</CardDescription>
-          </CardHeader>
+        <Form @submit.prevent="updatePassword">
+          <Card
+              class="mb-3 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
+            <CardHeader>
+              <CardTitle>Mot de passe</CardTitle>
+              <CardDescription>Mettez à jour votre mot de passe pour sécuriser votre compte.</CardDescription>
+            </CardHeader>
 
-          <CardContent>
-            <Field>
-              <FieldLabel class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Mot de passe actuel
-                <Input
-                    v-model="passwordForm.currentPassword"
-                    type="password"
-                    class="w-full mt-1 px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-600"
-                    placeholder="Requis pour changer le mot de passe"
-                />
-              </FieldLabel>
-            </Field>
-            <Field>
-              <FieldLabel class="block text-sm font-medium  text-neutral-700 dark:text-neutral-300 mb-1">
-                Nouveau mot de passe
-                <Input
-                    v-model="passwordForm.newPassword"
-                    type="password"
-                    class="w-full mt-1 px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-600"
-                    placeholder="Min. 8 caractères"
-                />
-              </FieldLabel>
-            </Field>
-            <Field>
-              <FieldLabel class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Confirmer le mot de passe
-                <Input
-                    v-model="passwordForm.confirmPassword"
-                    type="password"
-                    class="w-full mt-1 px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-600"
-                    :class="{'border-red-500': passwordForm.newPassword !== passwordForm.confirmPassword && passwordForm.confirmPassword}"
-                />
-              </FieldLabel>
-            </Field>
-          </CardContent>
-          <CardFooter>
-            <Button type="button" class="cursor-pointer border hover:text-neutral-600 text-neutral-700 dark:text-neutral-300 mr-2"
-                    @click="resetPasswordForm">Annuler
-            </Button>
-            <Button type="submit" class="cursor-pointer border rounded hover:text-primary-600 text-primary-550"
-                    :disabled="!isPasswordValid || isLoading">
-              <span v-if="isLoading">Chargement...</span>
-              <span v-else>Enregistrer</span>
-            </Button>
-          </CardFooter>
-        </Card>
-      </Form>
+            <CardContent>
+              <Field>
+                <FieldLabel class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                  Mot de passe actuel
+                  <Input
+                      v-model="passwordForm.currentPassword"
+                      type="password"
+                      class="w-full mt-1 px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-600"
+                      placeholder="Requis pour changer le mot de passe"
+                  />
+                </FieldLabel>
+              </Field>
+              <Field>
+                <FieldLabel class="block text-sm font-medium  text-neutral-700 dark:text-neutral-300 mb-1">
+                  Nouveau mot de passe
+                  <Input
+                      v-model="passwordForm.newPassword"
+                      type="password"
+                      class="w-full mt-1 px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-600"
+                      placeholder="Min. 8 caractères"
+                  />
+                </FieldLabel>
+              </Field>
+              <Field>
+                <FieldLabel class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                  Confirmer le mot de passe
+                  <Input
+                      v-model="passwordForm.confirmPassword"
+                      type="password"
+                      class="w-full mt-1 px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-600"
+                      :class="{'border-red-500': passwordForm.newPassword !== passwordForm.confirmPassword && passwordForm.confirmPassword}"
+                  />
+                </FieldLabel>
+              </Field>
+            </CardContent>
+            <CardFooter>
+              <Button type="button"
+                      class="cursor-pointer border hover:text-neutral-600 text-neutral-700 dark:text-neutral-300 mr-2"
+                      @click="resetPasswordForm">Annuler
+              </Button>
+              <Button type="submit" class="cursor-pointer border rounded hover:text-primary-600 text-primary-550"
+                      :disabled="!isPasswordValid || isLoading">
+                <span v-if="isLoading">Chargement...</span>
+                <span v-else>Enregistrer</span>
+              </Button>
+            </CardFooter>
+          </Card>
+        </Form>
+      </div>
 
-      <Card class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
+      <Card
+          class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
         <CardHeader>
           <CardTitle>Supprimez votre compte</CardTitle>
           <CardDescription>Attention, la suppression de votre compte est définitive.</CardDescription>
@@ -138,7 +147,8 @@
         <CardContent>
           <AlertDialog v-model:open="isDeleteDialogOpen">
             <AlertDialogTrigger asChild>
-              <Button class="border cursor-pointer hover:text-primary-550" variant="destructive">Supprimer mon compte</Button>
+              <Button class="border cursor-pointer hover:text-primary-550" variant="destructive">Supprimer mon compte
+              </Button>
             </AlertDialogTrigger>
 
             <AlertDialogContent class="bg-white dark:bg-neutral-900/60 backdrop-blur-sm">
@@ -158,7 +168,9 @@
               </div>
 
               <AlertDialogFooter>
-                <AlertDialogCancel class="border cursor-pointer hover:text-neutral-600 " @click="passwordForDeletion = ''">Annuler</AlertDialogCancel>
+                <AlertDialogCancel class="border cursor-pointer hover:text-neutral-600 "
+                                   @click="passwordForDeletion = ''">Annuler
+                </AlertDialogCancel>
 
                 <Button
                     variant="destructive"
@@ -179,7 +191,7 @@
 </template>
 
 <script setup lang="ts">
-import { z } from 'zod'
+import {z} from 'zod'
 import {Alert} from "~/components/ui/alert";
 import {AlertDialog, AlertDialogFooter, AlertDialogHeader} from "~/components/ui/alert-dialog";
 
@@ -192,16 +204,16 @@ definePageMeta({
 })
 
 const {user, clear, fetch: refreshSession} = useUserSession()
-
 const isLoading = ref(false)
 const error = ref('')
 const success = ref('')
-
 const isDeleteDialogOpen = ref(false)
 const passwordForDeletion = ref('')
+const authProvider = ref("")
+
 
 const profileForm = ref({
-  name: ''
+  name: '',
 })
 
 const emailForm = ref({
@@ -303,7 +315,7 @@ async function updateEmail() {
   try {
     await $fetch('/api/user/email', {
       method: 'PATCH',
-      body: { email: emailForm.value.email }
+      body: {email: emailForm.value.email}
     })
 
     await refreshSession()
