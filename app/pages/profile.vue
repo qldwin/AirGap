@@ -9,7 +9,6 @@
         {{ success }}
       </Alert>
 
-
       <Form @submit.prevent="updateProfile">
         <Card
             class="mb-3 bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
@@ -211,7 +210,6 @@ const isDeleteDialogOpen = ref(false)
 const passwordForDeletion = ref('')
 const authProvider = ref("")
 
-
 const profileForm = ref({
   name: '',
 })
@@ -230,6 +228,7 @@ watchEffect(() => {
   if (user.value) {
     profileForm.value.name = user.value.name || ''
     emailForm.value.email = user.value.email || ''
+    authProvider.value = user.value.authProvider || 'local'
   }
 })
 

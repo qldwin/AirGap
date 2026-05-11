@@ -8,6 +8,7 @@ declare module '#auth-utils' {
         id: string;
         email: string;
         name?: string | null;
+        authProvider: string;
     }
 }
 
