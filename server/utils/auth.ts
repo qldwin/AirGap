@@ -16,6 +16,7 @@ export interface UserSession {
     id: string;
     email: string;
     name?: string | null;
+    authProvider: string;
 }
 
 export const requireAuth = async (event: H3Event): Promise<UserSession> => {

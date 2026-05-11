@@ -41,7 +41,6 @@ export default defineOAuthGitHubEventHandler({
             return sendRedirect(event, `/login?error=wrong_provider&expected=${dbUser.authProvider}`);
         }
 
-
         if (!dbUser) {
             const [newUser] = await db.insert(users).values({
                 email: userEmail,
@@ -61,6 +60,7 @@ export default defineOAuthGitHubEventHandler({
                 id: dbUser.id,
                 email: dbUser.email,
                 name: dbUser.name,
+                authProvider: dbUser.authProvider || 'github',
             },
             loggedInAt: new Date()
         });
