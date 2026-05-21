@@ -12,6 +12,11 @@ const registerSchema = z.object({
 
 export default defineEventHandler(async (event) => {
     const result = await readValidatedBody(event, body => registerSchema.safeParse(body))
+    const user = await registerUser(result.data)
+
+    if (!user) {
+        throw createError({ statusCode: 400, message: 'Cet email est déjà utilisé' })
+    }
 
     if (!result.success) {
         throw createError({statusCode: 400, message: result.error.issues[0]?.message})

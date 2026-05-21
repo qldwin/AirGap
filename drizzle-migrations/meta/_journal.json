@@ -22,6 +22,13 @@
       "when": 1778161466893,
       "tag": "0002_quick_tomas",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1779378940612,
+      "tag": "0003_early_iron_patriot",
+      "breakpoints": true
     }
   ]
 }
