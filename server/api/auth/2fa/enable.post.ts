@@ -1,5 +1,6 @@
 import { z } from 'zod'
-import { authenticator } from 'otplib'
+import { verifyTOTP } from '@oslojs/otp'
+import { decodeBase32 } from '@oslojs/encoding'
 import { getUserTwoFactorSecret, updateUserTwoFactor } from '#server/services/user.service'
 
 const schema = z.object({
@@ -17,13 +18,11 @@ export default defineEventHandler(async (event) => {
     const user = await getUserTwoFactorSecret(session.id)
 
     if (!user?.twoFactorSecret) {
-        throw createError({ statusCode: 400, message: 'Aucun setup 2FA en cours, appelez /api/auth/2fa/setup d\'abord' })
+        throw createError({ statusCode: 400, message: 'Aucun setup 2FA en cours' })
     }
 
-    const isValid = authenticator.verify({
-        token: result.data.code,
-        secret: user.twoFactorSecret
-    })
+    const secretBytes = decodeBase32(user.twoFactorSecret)
+    const isValid = verifyTOTP(secretBytes, 30, 6, result.data.code)
 
     if (!isValid) {
         throw createError({ statusCode: 400, message: 'Code incorrect' })

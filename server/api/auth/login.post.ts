@@ -21,7 +21,13 @@ export default defineEventHandler(async (event) => {
     if (user.twoFactorEnabled) {
         await setUserSession(event, {
             secure: { twoFactorPending: true },
-            user: { id: user.id, email: user.email, name: user.name },
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                authProvider: user.authProvider ?? 'local',
+                twoFactorEnabled: user.twoFactorEnabled
+            },
         })
         return { requiresTwoFactor: true }
     }
@@ -31,7 +37,9 @@ export default defineEventHandler(async (event) => {
         user: {
             id: user.id,
             email: user.email,
-            name: user.name
+            name: user.name,
+            authProvider: user.authProvider ?? 'local',
+            twoFactorEnabled: user.twoFactorEnabled
         },
         loggedInAt: new Date()
     })

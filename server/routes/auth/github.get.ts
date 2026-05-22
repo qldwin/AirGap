@@ -61,9 +61,11 @@ export default defineOAuthGitHubEventHandler({
                 email: dbUser.email,
                 name: dbUser.name,
                 authProvider: dbUser.authProvider || 'github',
+                twoFactorEnabled: dbUser.twoFactorEnabled ?? false
             },
+            secure: { twoFactorPending: false },
             loggedInAt: new Date()
-        });
+        })
 
         return sendRedirect(event, '/');
     },

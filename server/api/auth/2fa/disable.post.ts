@@ -1,5 +1,6 @@
 import { z } from 'zod'
-import * as otplib from 'otplib'
+import { verifyTOTP } from '@oslojs/otp'
+import { decodeBase32 } from '@oslojs/encoding'
 import { getUserTwoFactorSecret, updateUserTwoFactor } from '#server/services/user.service'
 
 const schema = z.object({
@@ -20,10 +21,8 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, message: '2FA non activée' })
     }
 
-    const isValid = otplib.authenticator.verify({
-        token: result.data.code,
-        secret: user.twoFactorSecret
-    })
+    const secretBytes = decodeBase32(user.twoFactorSecret)
+    const isValid = verifyTOTP(secretBytes, 30, 6, result.data.code)
 
     if (!isValid) {
         throw createError({ statusCode: 400, message: 'Code incorrect' })

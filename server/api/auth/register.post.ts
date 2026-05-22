@@ -1,8 +1,7 @@
-import {z} from 'zod'
-import {registerUser} from "#server/services/auth.service";
-import {db} from "#server/db";
-import {accounts} from "~~/drizzle/schema";
-
+import { z } from 'zod'
+import { registerUser } from '#server/services/auth.service'
+import { db } from '#server/db'
+import { accounts } from '~~/drizzle/schema'
 
 const registerSchema = z.object({
     email: z.string().email(),
@@ -12,14 +11,9 @@ const registerSchema = z.object({
 
 export default defineEventHandler(async (event) => {
     const result = await readValidatedBody(event, body => registerSchema.safeParse(body))
-    const user = await registerUser(result.data)
-
-    if (!user) {
-        throw createError({ statusCode: 400, message: 'Cet email est déjà utilisé' })
-    }
 
     if (!result.success) {
-        throw createError({statusCode: 400, message: result.error.issues[0]?.message})
+        throw createError({ statusCode: 400, message: result.error.issues[0]?.message })
     }
 
     const newUser = await registerUser({
@@ -29,29 +23,32 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!newUser) {
-        throw createError({statusCode: 400, message: "Cannot register user"})
+        throw createError({ statusCode: 400, message: 'Cet email est déjà utilisé' })
     }
 
     try {
         await db.insert(accounts).values({
             userId: newUser.id,
-            accountName: "Compte Courant",
-            accountType: "Courant",
-            balance: "0",
-            currency: "EUR"
+            accountName: 'Compte Courant',
+            accountType: 'Courant',
+            balance: '0',
+            currency: 'EUR'
         })
     } catch (e) {
-        console.error("Erreur création compte", e)
+        console.error('Erreur création compte', e)
     }
 
     await setUserSession(event, {
         user: {
             id: newUser.id,
             email: newUser.email,
+            name: newUser.name,
+            authProvider: newUser.authProvider ?? 'local',
+            twoFactorEnabled: newUser.twoFactorEnabled ?? false
         },
-        userName: newUser.name,
+        secure: { twoFactorPending: false },
         loggedInAt: new Date()
     })
 
-    return {success: true, user: newUser}
+    return { success: true, user: newUser }
 })

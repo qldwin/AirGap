@@ -1,4 +1,3 @@
-// server/utils/auth.ts
 import type { H3Event } from 'h3'
 import { eq } from 'drizzle-orm'
 import { db } from '#server/db'
@@ -10,6 +9,7 @@ declare module '#auth-utils' {
         email: string
         name?: string | null
         authProvider: string
+        twoFactorEnabled: boolean
     }
 
     interface SecureSessionData {

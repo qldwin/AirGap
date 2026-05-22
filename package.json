@@ -17,6 +17,8 @@
     "@internationalized/date": "^3.12.0",
     "@libsql/client": "^0.17.2",
     "@nuxt/ui": "^4.6.0",
+    "@oslojs/encoding": "^1.1.0",
+    "@oslojs/otp": "^1.1.0",
     "@types/papaparse": "^5.5.2",
     "@unovis/ts": "^1.6.4",
     "@unovis/vue": "^1.6.4",

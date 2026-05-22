@@ -108,17 +108,23 @@ if(route.query.error === 'wrong_provider') {
 }
 
 async function handleLogin() {
-  $fetch('/api/auth/login', {
+  await $fetch('/api/auth/login', {
     method: 'POST',
     body: {
       email: credentials.value.email,
       password: credentials.value.password,
     }
   })
-      .then(async () => {
+      .then(async (res: any) => {
+        if (res.requiresTwoFactor) {
+          await navigateTo('/auth/2fa')
+          return
+        }
         await refreshSession()
         await navigateTo('/')
       })
-      .catch(() => alert('Bad credentials'))
+      .catch(() => {
+        errorMessage.value = 'Email ou mot de passe incorrect'
+      })
 }
 </script>
