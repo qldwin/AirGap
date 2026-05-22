@@ -18,11 +18,28 @@ export default defineEventHandler(async (event) => {
         throw createError({statusCode: 401, message: 'Email ou mot de passe incorrect'})
     }
 
+    if (user.twoFactorEnabled) {
+        await setUserSession(event, {
+            secure: { twoFactorPending: true },
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                authProvider: user.authProvider ?? 'local',
+                twoFactorEnabled: user.twoFactorEnabled
+            },
+        })
+        return { requiresTwoFactor: true }
+    }
+
     await setUserSession(event, {
+        secure: { twoFactorPending: false },
         user: {
             id: user.id,
             email: user.email,
-            name: user.name
+            name: user.name,
+            authProvider: user.authProvider ?? 'local',
+            twoFactorEnabled: user.twoFactorEnabled
         },
         loggedInAt: new Date()
     })

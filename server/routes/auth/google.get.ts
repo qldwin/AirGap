@@ -33,9 +33,11 @@ export default defineOAuthGoogleEventHandler({
                 email: dbUser.email,
                 name: dbUser.name,
                 authProvider: dbUser.authProvider || 'google',
+                twoFactorEnabled: dbUser.twoFactorEnabled ?? false
             },
+            secure: { twoFactorPending: false },
             loggedInAt: new Date()
-        });
+        })
 
         return sendRedirect(event, '/');
     },

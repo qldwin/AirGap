@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, timestamp, text, boolean } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { accounts } from "./accounts";
 import { budgets } from "./budgets";
@@ -14,6 +14,8 @@ export const users = pgTable('users', {
     updatedAt: timestamp('updatedAt').notNull().defaultNow(),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
     deletedAt: timestamp('deletedAt'),
+    twoFactorEnabled: boolean('two_factor_enabled').default(false).notNull(),
+    twoFactorSecret: text('two_factor_secret'),
 });
 
 export const userRelations = relations(users, ({many}) => ({

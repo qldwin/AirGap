@@ -137,6 +137,8 @@
         </Form>
       </div>
 
+      <TwoFactorSettings v-if="authProvider === 'local'" class="mb-3" />
+
       <Card
           class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-800 hover:shadow-md transition-shadow duration-300">
         <CardHeader>
@@ -193,6 +195,7 @@
 import {z} from 'zod'
 import {Alert} from "~/components/ui/alert";
 import {AlertDialog, AlertDialogFooter, AlertDialogHeader} from "~/components/ui/alert-dialog";
+import TwoFactorSettings from "~/components/TwoFactorSettings.vue";
 
 useHead({
   title: 'AirGap | Profil',
@@ -230,6 +233,7 @@ watchEffect(() => {
     emailForm.value.email = user.value.email || ''
     authProvider.value = user.value.authProvider || 'local'
     console.log("Voici ce que contient mon utilisateur :", user.value)
+    console.log("authProvider:", JSON.stringify(authProvider.value))
   }
 })
 

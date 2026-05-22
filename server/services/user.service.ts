@@ -73,3 +73,28 @@ export const updateUserEmail = async (userId: string, email: string) => {
         throw new Error("Impossible de modifier l'email pour un utilisateur avec un fournisseur d'authentification externe");
     }
 }
+
+export const updateUserTwoFactor = async (
+    userId: string,
+    twoFactorEnabled: boolean,
+    twoFactorSecret: string | null
+) => {
+    return db.update(users)
+        .set({
+            twoFactorEnabled,
+            twoFactorSecret,
+            updatedAt: new Date()
+        })
+        .where(eq(users.id, userId))
+}
+
+export const getUserTwoFactorSecret = async (userId: string) => {
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, userId),
+        columns: {
+            twoFactorSecret: true,
+            twoFactorEnabled: true
+        }
+    })
+    return user
+}
