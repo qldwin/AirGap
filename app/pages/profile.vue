@@ -146,13 +146,16 @@
           <CardDescription>Attention, la suppression de votre compte est définitive.</CardDescription>
         </CardHeader>
         <CardContent>
+
           <AlertDialog v-model:open="isDeleteDialogOpen">
             <AlertDialogTrigger asChild>
-              <Button class="border cursor-pointer hover:text-primary-550" variant="destructive">Supprimer mon compte
+              <Button class="border cursor-pointer hover:text-primary-550" variant="destructive">
+                Supprimer mon compte
               </Button>
             </AlertDialogTrigger>
 
-            <AlertDialogContent class="bg-white dark:bg-neutral-900/60 backdrop-blur-sm">
+            <!-- Compte local : demande le mot de passe -->
+            <AlertDialogContent v-if="authProvider === 'local'" class="bg-white dark:bg-neutral-900/60 backdrop-blur-sm">
               <AlertDialogHeader>
                 <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
                 <AlertDialogDescription>
@@ -169,10 +172,9 @@
               </div>
 
               <AlertDialogFooter>
-                <AlertDialogCancel class="border cursor-pointer hover:text-neutral-600 "
-                                   @click="passwordForDeletion = ''">Annuler
+                <AlertDialogCancel class="border cursor-pointer hover:text-neutral-600" @click="passwordForDeletion = ''">
+                  Annuler
                 </AlertDialogCancel>
-
                 <Button
                     variant="destructive"
                     class="border cursor-pointer hover:text-primary-600 text-primary-550"
@@ -181,6 +183,31 @@
                 >
                   <span v-if="isLoading">Suppression...</span>
                   <span v-else>Confirmer la suppression</span>
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+
+            <!-- Compte OAuth : simple confirmation -->
+            <AlertDialogContent v-else class="bg-white dark:bg-neutral-900/60 backdrop-blur-sm">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Cette action est irréversible. Votre compte sera définitivement supprimé.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <AlertDialogFooter>
+                <AlertDialogCancel class="border cursor-pointer hover:text-neutral-600">
+                  Annuler
+                </AlertDialogCancel>
+                <Button
+                    variant="destructive"
+                    class="border cursor-pointer hover:text-primary-600 text-primary-550"
+                    :disabled="isLoading"
+                    @click="confirmDeleteAccount"
+                >
+                  <span v-if="isLoading">Suppression...</span>
+                  <span v-else>Oui, supprimer mon compte</span>
                 </Button>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -350,26 +377,22 @@ async function updatePassword() {
 }
 
 async function confirmDeleteAccount() {
-  if (!passwordForDeletion.value) return
-
   isLoading.value = true
   error.value = ''
 
   try {
     await $fetch('/api/user/account', {
       method: 'DELETE',
-      body: {
-        password: passwordForDeletion.value
-      }
+      body: authProvider.value === 'local'
+          ? { password: passwordForDeletion.value }
+          : {}
     })
 
     isDeleteDialogOpen.value = false
     await clear()
     await navigateTo('/login')
-
   } catch (err: any) {
-
-    alert(err.data?.message || "Mot de passe incorrect ou erreur serveur")
+    alert(err.data?.message || 'Erreur lors de la suppression')
     passwordForDeletion.value = ''
   } finally {
     isLoading.value = false
