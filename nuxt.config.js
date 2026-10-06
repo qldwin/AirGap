@@ -99,6 +99,12 @@ export default defineNuxtConfig({
     nitro: {
         replace: {
             'typeof window': '`undefined`',
+        },
+        experimental: {
+            target: true,
+        },
+        scheduledTasks: {
+            '0 2 * * *': ['process-recurrences'],
         }
     }
 });

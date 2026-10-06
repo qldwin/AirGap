@@ -18,6 +18,7 @@ export const transactions = pgTable('transactions', {
     recurrence: varchar('recurrence').notNull(),
     startRecurrence: timestamp('startRecurrence').notNull(),
     endRecurrence: timestamp('endRecurrence'),
+    nextOccurrenceDate: timestamp('nextOccurrenceDate'),
     date: timestamp('date').notNull().defaultNow(),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
     updatedAt: timestamp('updatedAt').notNull().defaultNow(),

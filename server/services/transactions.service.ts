@@ -1,6 +1,7 @@
 import {and, desc, eq} from 'drizzle-orm'
 import {assoTransactionsCategories, categories, transactions} from "~~/drizzle/schema";
 import {db} from "#server/db";
+import { computeNextOccurrenceDate, NO_RECURRENCE} from "#server/utils/recurrence.utils.ts";
 
 /**
  * Types et utilitaires
@@ -151,6 +152,14 @@ export const createTransaction = async (data: TransactionInsert, categoryId?: st
         ...data,
         description: data.description ? encryptText(data.description) : ''
     };
+
+    if(data.recurrence && data.recurrence !== NO_RECURRENCE && !data.startRecurrence) {
+        encryptedData.nextOccurrenceDate = computeNextOccurrenceDate(
+            new Date(data.startRecurrence),
+            data.recurrence
+        );
+    }
+
     return await db.transaction(async (tx) => {
         const [newTx] = await tx.insert(transactions).values(encryptedData).returning();
         if (categoryId) {
